@@ -6,7 +6,7 @@ Built using [Streamlit](https://streamlit.io/) and free open LLMs from [OpenRout
 
 ## 🚀 Live Demo
 
-🌐 [Try the App](https://your-deployed-app-url.streamlit.app)
+🌐 [Try the App](https://feedback-rewriter-gpt-caht6hciagxykx52hz6xnh.streamlit.app/)
 
 ## 🧠 Features
 
@@ -29,7 +29,7 @@ Built using [Streamlit](https://streamlit.io/) and free open LLMs from [OpenRout
 ## 🛠️ Installation (Run Locally)
 
 ```bash
-git clone https://github.com/yourusername/feedback-rewriter-gpt.git
+git clone https://github.com/dmmudhan/feedback-rewriter-gpt.git
 cd feedback-rewriter-gpt
 pip install -r requirements.txt
 streamlit run app.py
@@ -59,7 +59,7 @@ Pull requests are welcome. Feel free to open an issue or suggest improvements!
 
 **Devi M**
 Prompt Engineering Enthusiast | AI Builder | Freelancing Learner
-[LinkedIn](https://www.linkedin.com/)
+[LinkedIn](www.linkedin.com/in/devimuthyam)
 
 ---
 
