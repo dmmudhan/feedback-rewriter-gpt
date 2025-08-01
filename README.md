@@ -47,7 +47,7 @@ Get your free key from: [https://openrouter.ai/keys](https://openrouter.ai/keys)
 
 ## 📷 Preview
 
-![App Screenshot](screenshot.png)
+![App Screenshot](Screenshot.png)
 
 
 ## 🤝 Contributing
@@ -59,7 +59,7 @@ Pull requests are welcome. Feel free to open an issue or suggest improvements!
 
 **Devi M**
 Prompt Engineering Enthusiast | AI Builder | Freelancing Learner
-[LinkedIn](www.linkedin.com/in/devimuthyam)
+[LinkedIn](https://www.linkedin.com/in/devimuthyam/)
 
 ---
 
