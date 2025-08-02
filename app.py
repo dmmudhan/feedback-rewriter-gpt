@@ -4,7 +4,7 @@ import requests
 st.set_page_config(page_title="Feedback Rewriter Assistant v1.1")
 
 st.title("📝 Feedback Rewriter Assistant")
-st.markdown("Version **1.1** – Now detects tone and suggests improvements automatically 🎯")
+st.markdown("### 🌟 Smarter. Sharper. More Professional.<br>**Your feedback — rewritten in the tone you choose** 🎯<br><sub>Now supports formal, friendly, assertive styles – Feedback Assistant v1.1</sub>", unsafe_allow_html=True)
 
 OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
