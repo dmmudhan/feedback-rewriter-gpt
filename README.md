@@ -49,6 +49,18 @@ Get your free key from: [https://openrouter.ai/keys](https://openrouter.ai/keys)
 
 ![App Screenshot](Screenshot.png)
 
+## 🧾 Version History
+
+### v1.1 – Tone Detection Update
+- Added tone selection input (e.g., formal, friendly, assertive)
+- Introduced `prompts.py` for modular prompt design
+- Improved user experience with clearer outputs
+- Updated Streamlit deployment
+
+### v1.0 – Initial Version
+- Basic Feedback Rewriting using LLM
+- Accepts raw user feedback and rewrites it professionally
+
 
 ## 🤝 Contributing
 
