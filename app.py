@@ -3,11 +3,11 @@ import requests
 import time
 
 # ---------------------- Auto-reset Logic ----------------------
-query_params = st.experimental_get_query_params()
-if "reset" in query_params or "initialized" not in st.session_state:
-    st.session_state.clear()
-    st.experimental_set_query_params()
-    st.experimental_rerun()
+if "initialized" not in st.session_state:
+    st.session_state["rewritten_text"] = ""
+    st.session_state["feedback"] = ""
+    st.session_state["user_input"] = ""
+    st.session_state["initialized"] = True
 
 # ---------------------- App Config ----------------------
 st.set_page_config(page_title="Feedback Rewriter Assistant", page_icon="✍️", layout="centered")
