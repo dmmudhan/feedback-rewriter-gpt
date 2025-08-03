@@ -1,30 +1,53 @@
 # ✍️ Feedback Rewriter Assistant
 
-An AI-powered tool that rewrites workplace feedback into more professional, clear, and human-friendly tones — choose from **Empathetic**, **Constructive**, or **Managerial** styles.
+An AI-powered tool that rewrites workplace or professional feedback into more **clear, respectful, and human-friendly tones** — choose from styles like **Empathetic**, **Managerial**, **Formal**, **Friendly**, or **Assertive**.  
+Optionally, generate the output in a **polished email format** — great for HRs, team leads, or anyone giving constructive input.
 
-Built using [Streamlit](https://streamlit.io/) and free open LLMs from [OpenRouter](https://openrouter.ai), powered by Mistral 7B.
+Built using [Streamlit](https://streamlit.io/) and free open-source LLMs via [OpenRouter](https://openrouter.ai) — powered by models like **Mistral**, **Mixtral**, and **MythoMax**.
 
-## 🚀 Live Demo
 
-🌐 [Try the App](https://feedback-rewriter-gpt-2epkjjin5zogy4mbdwhded.streamlit.app/)
+## 🧠 What It Does
 
-## 🧠 Features
+Rewrites raw or harsh feedback messages into:
 
-* Rewrites raw or harsh feedback messages into:
+- ✅ Friendly, Empathetic, Managerial, Formal, or Assertive tone
+- ✅ Professional **email format** (optional toggle)
+- ✅ Clear and polished paragraphs (default)
+- ✅ Output in **multiple languages** (coming in v1.4)
 
-  * ✅ Empathetic tone
-  * ✅ Constructive tone
-  * ✅ Managerial tone
-* Built with OpenRouter API (free tier)
-* Powered by Mistral-7B-Instruct (fast and smart)
-* Simple, responsive UI using Streamlit
+Built with:
+- 🧠 OpenRouter API (free-tier friendly)
+- ⚡ Automatic model fallback (no dropdowns)
+- ✨ Responsive UI using Streamlit
+- 🔒 No user data stored — safe to use
+
 
 ## 📆 Tech Stack
 
-* Python
-* Streamlit
-* OpenRouter API
-* Mistral 7B Instruct LLM
+- Python 3
+- Streamlit
+- OpenRouter API
+- Mistral 7B / Mixtral / Capybara / Mythomax fallback stack
+- Markdown-based output display
+
+## 📷 Preview
+
+![Demo of Feedback Rewriter Assistant](Screenshot.png)
+
+### 🎨 Available Tones
+
+- 🧭 Managerial  
+- 💖 Empathetic  
+- 🧾 Formal  
+- 😊 Friendly  
+- 💼 Assertive
+
+### 🛠️ Built With
+
+- [Streamlit](https://streamlit.io/)
+- [OpenRouter (Open Source LLM Gateway)](https://openrouter.ai/)
+- Python + Requests
+
 
 ## 🛠️ Installation (Run Locally)
 
@@ -45,11 +68,19 @@ OPENROUTER_API_KEY = "sk-or-your-api-key-here"
 
 Get your free key from: [https://openrouter.ai/keys](https://openrouter.ai/keys)
 
-## 📷 Preview
-
-![App Screenshot](Screenshot.png)
 
 ## 🧾 Version History
+
+### ✅ v1.3 – Email Format Toggle + UX Enhancements
+
+- 📧 Added "Format as Email" option for professional email output
+- 📋 Copy-friendly rewritten text using markdown display
+- 🦶 Footer added with creator credit and version info
+- ✨ Preserved clean UX and fallback logic from v1.2
+- 🎯 Now feels more polished and ready for client demo or portfolio
+
+[🔗 Live App](https://feedback-rewriter-gpt-ciwy4jjbnswedu3wgppmss.streamlit.app/)
+
 
 ### ✅ v1.2 (Latest)
 - ✨ UI cleaned up with better spacing between sections
