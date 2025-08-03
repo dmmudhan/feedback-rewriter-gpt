@@ -12,6 +12,9 @@ st.markdown("""
 <p style='text-align: center; font-size: 16px;'>🌟 Perfect for anyone looking to refine tone, improve clarity, and ensure constructive communication.</p>
 """, unsafe_allow_html=True)
 
+# Add vertical spacing before input box
+st.markdown("<br>", unsafe_allow_html=True)
+
 # ---------------------- Session State ----------------------
 if "rewritten_text" not in st.session_state:
     st.session_state.rewritten_text = ""
@@ -92,20 +95,18 @@ if user_input and selected_tone:
                             success = True
                             break
                         else:
-                            st.warning(f"🔁 {model} failed: {response.status_code}")
                             time.sleep(1)
 
-                    except Exception as e:
-                        st.warning(f"❗ Error with model {model}: {e}")
+                    except Exception:
                         time.sleep(1)
 
                 if not success:
-                    st.error("⚠️ All models failed after retries. Please try again later.")
+                    st.error("⚠️ Could not rewrite the feedback at this time. Please try again shortly.")
 
-            except Exception as e:
-                st.error(f"⚠️ Unexpected error: {e}")
+            except Exception:
+                st.error("⚠️ Unexpected error. Please refresh and try again.")
 
 # ---------------------- Display Output ----------------------
 if st.session_state.rewritten_text:
-    st.markdown("### ✅ Rewritten Feedback:")
+    st.markdown("### ✅ Here's Your Refined Feedback:")
     st.success(st.session_state.rewritten_text)
