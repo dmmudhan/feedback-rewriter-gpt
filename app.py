@@ -1,10 +1,7 @@
 import streamlit as st
 import requests
 import json
-from dotenv import load_dotenv
 import os
-
-load_dotenv()
 
 st.set_page_config(page_title="Feedback Rewriter Assistant", page_icon="✍️")
 
