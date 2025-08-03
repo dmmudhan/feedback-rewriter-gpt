@@ -1,69 +1,71 @@
 import streamlit as st
-import requests
+import openai
+from dotenv import load\_dotenv
+import os
 
-# --- Page Config ---
-st.set_page_config(
-    page_title="Feedback Rewriter Assistant",
-    page_icon="✍️",
-    layout="centered"
-)
+# Load environment variables
 
-# --- Header ---
-st.markdown("<h1 style='text-align: center;'>✍️ Feedback Rewriter Assistant</h1>", unsafe_allow_html=True)
+load\_dotenv()
 
-# --- Tagline with Better Icons ---
-st.markdown("""
-<div style='text-align: center; font-size: 17px; line-height: 1.6; padding-top: 5px;'>
-💬 Got rough feedback?<br>
-🎯 Let AI help you rewrite it to be:<br>
-✅ <strong>Professional</strong> &nbsp; 🤝 <strong>Friendly</strong> &nbsp; 💼 <strong>Assertive</strong>
-</div>
-""", unsafe_allow_html=True)
+st.set\_page\_config(page\_title="Feedback Rewriter Assistant", page\_icon="✍️")
+st.markdown(""" <h3 style='text-align: center;'>Got rough feedback?</h3> <h5 style='text-align: center;'>🎯 Reframe it for a more professional impact:</h5> <div style='text-align: center; font-size: 18px;'>
+✅ <b>Managerial</b>  🤝 <b>Friendly</b>  🧠 <b>Constructive</b> </div> <hr style='margin-top: 20px;'>
+""", unsafe\_allow\_html=True)
 
-st.markdown("---")
+# Input text
 
-# --- Prompt Template ---
-def generate_prompt(text, tone):
-    return f"""Rewrite the following workplace feedback in a {tone.lower()} tone, keeping the core message intact:
+user\_input = st.text\_area("📥 Paste your raw feedback here 👇", height=150)
 
-### Feedback:
-{text}
+# Show tone dropdown only if there's input
 
-### {tone} Rewrite:"""
+if user\_input.strip():
+tone = st.selectbox("🎯 Choose your desired tone:", \["Managerial", "Friendly", "Constructive"])
+else:
+tone = None
 
-# --- API Call Function ---
-def rewrite_feedback(user_input, tone):
-    try:
-        headers = {
-            "Authorization": f"Bearer {st.secrets['OPENROUTER_API_KEY']}",
-            "Content-Type": "application/json"
-        }
+# Submit button
 
-        data = {
-            "model": "openchat/openchat-7b:free",
-            "messages": [
-                {"role": "user", "content": generate_prompt(user_input, tone)}
-            ]
-        }
+submit = st.button("🔁 Rewrite Feedback")
 
-        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
+# Secrets
 
-        if response.status_code == 200:
-            return response.json()['choices'][0]['message']['content'].strip()
-        else:
-            return f"⚠️ API Error {response.status_code}: {response.text}"
+api\_key = st.secrets.get("OPENROUTER\_API\_KEY", os.getenv("OPENROUTER\_API\_KEY"))
 
-    except Exception as e:
-        return f"⚠️ An error occurred: {str(e)}"
+if submit and user\_input and tone:
+try:
+openai.api\_key = api\_key
+openai.api\_base = "[https://openrouter.ai/api/v1](https://openrouter.ai/api/v1)"
 
-# --- UI Components ---
-feedback_text = st.text_area("📥 Paste your raw feedback here 👇", height=150)
+```
+    prompt = (
+        f"You are a feedback rewriting assistant. Your job is to convert the user's raw workplace feedback "
+        f"into a more {tone.lower()} and professional tone, while keeping the core message intact.\n\n"
+        f"Raw feedback: {user_input}\n\n"
+        f"Rewritten Feedback:"
+    )
 
-if feedback_text:
-    selected_tone = st.selectbox("🎯 Choose your desired tone:", ["Formal", "Friendly", "Assertive"])
+    response = openai.ChatCompletion.create(
+        model="mistralai/mistral-7b-instruct",
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.7,
+        timeout=10  # Timeout added
+    )
 
-    if st.button("🔁 Rewrite Feedback"):
-        with st.spinner("🤖 Rewriting your message..."):
-            rewritten = rewrite_feedback(feedback_text, selected_tone)
-            st.markdown("#### ✍️ Rewritten Feedback:")
-            st.success(rewritten)
+    rewritten = response.choices[0].message.content
+
+    st.markdown("""
+        <h4>📝 Rewritten Feedback:</h4>
+    """, unsafe_allow_html=True)
+    st.success(rewritten)
+
+except openai.error.Timeout:
+    st.error("⚠️ The request timed out. Please try again after a few seconds.")
+
+except Exception as e:
+    st.error(f"⚠️ An unexpected error occurred: {e}")
+```
+
+elif submit and not user\_input:
+st.warning("Please enter feedback to rewrite.")
