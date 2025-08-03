@@ -2,11 +2,10 @@ import streamlit as st
 import requests
 import time
 
-# ---------------------- Auto-Reset on First Load ----------------------
-if "do_reset" not in st.session_state:
-    st.session_state.clear()
-    st.session_state["do_reset"] = True
-    st.stop()  # Stop this run safely — reset will apply on next rerun
+# ---------------------- Soft Reset on First Load ----------------------
+if "initialized" not in st.session_state:
+    st.session_state["rewritten_text"] = ""
+    st.session_state["initialized"] = True
 
 # ---------------------- Streamlit UI Config ----------------------
 st.set_page_config(page_title="Feedback Rewriter Assistant", page_icon="✍️", layout="centered")
