@@ -60,10 +60,9 @@ if user_input and selected_tone:
 
                 # Tone passed into system prompt
                 system_prompt = (
-                    f"You are an expert communication coach. "
-                    f"Your job is to rewrite raw workplace feedback in a more {selected_tone.lower()} tone. "
-                    f"Keep the message professional, clear, and concise. Remove any harsh or offensive wording. "
-                    f"Preserve the original intent while improving tone and delivery."
+                    f"You are an expert in rewriting workplace feedback. "
+                    f"Rephrase the given message to sound more {selected_tone.lower()} while keeping the original meaning. "
+                    f"Do not format the response as an email. Just return the improved version in a clear, professional paragraph."
                 )
 
                 data = {
