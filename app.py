@@ -1,68 +1,116 @@
 import streamlit as st
 import requests
+import time
 
-st.set_page_config(page_title="Feedback Rewriter Assistant v1.1")
+# ---------------------- Soft Reset on First Load ----------------------
+if "initialized" not in st.session_state:
+    st.session_state["rewritten_text"] = ""
+    st.session_state["initialized"] = True
 
-st.title("📝 Feedback Rewriter Assistant")
-st.markdown("### 🌟 Smarter. Sharper. More Professional.<br>**Your feedback — rewritten in the tone you choose** 🎯<br><sub>Now supports formal, friendly, assertive styles – Feedback Assistant v1.1</sub>", unsafe_allow_html=True)
+# ---------------------- Streamlit UI Config ----------------------
+st.set_page_config(page_title="Feedback Rewriter Assistant", page_icon="✍️", layout="centered")
 
-OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
-API_URL = "https://openrouter.ai/api/v1/chat/completions"
-HEADERS = {
-    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    "HTTP-Referer": "https://your-project.streamlit.app",  # Replace if deployed
-    "X-Title": "FeedbackRewriterAssistant"
+# ---------------------- Main Header ----------------------
+st.markdown("""
+<h1 style='text-align: center;'>✍️ Feedback Rewriter Assistant</h1>
+<p style='text-align: center; font-size: 18px;'>🔄 Rewrite your workplace or professional feedback into <b>polished, clear, and impactful</b> messages.</p>
+<p style='text-align: center; font-size: 16px;'>🌟 Perfect for anyone looking to refine tone, improve clarity, and ensure constructive communication.</p>
+""", unsafe_allow_html=True)
+
+# Add vertical spacing before input box
+st.markdown("<br>", unsafe_allow_html=True)
+
+# ---------------------- Session State Init ----------------------
+if "rewritten_text" not in st.session_state:
+    st.session_state.rewritten_text = ""
+
+# ---------------------- Tone Options ----------------------
+tone_labels = {
+    "managerial": "🧭 Managerial",
+    "empathetic": "💖 Empathetic",
+    "formal": "🧾 Formal",
+    "friendly": "😊 Friendly",
+    "assertive": "💼 Assertive"
 }
 
-# Function to detect tone
-def detect_tone(user_input):
-    system_prompt = {
-        "role": "system",
-        "content": "Classify the tone of the following feedback as one of the following: Harsh, Polite, Empathetic, Casual, Passive-Aggressive. Only return the tone label."
-    }
-    user_prompt = {
-        "role": "user",
-        "content": user_input
-    }
-    payload = {
-        "model": "mistralai/mixtral-8x7b-instruct",
-        "messages": [system_prompt, user_prompt]
-    }
-    response = requests.post(API_URL, headers=HEADERS, json=payload)
-    tone = response.json()['choices'][0]['message']['content'].strip()
-    return tone
+# ---------------------- Input Text ----------------------
+user_input = st.text_area("✏️ Enter your raw feedback text here:", height=200)
 
-# Function to rewrite feedback
-def rewrite_feedback(user_input, desired_tone):
-    system_prompt = {
-        "role": "system",
-        "content": f"Rewrite the following feedback in a {desired_tone} tone. Keep it professional and meaningful."
-    }
-    user_prompt = {
-        "role": "user",
-        "content": user_input
-    }
-    payload = {
-        "model": "mistralai/mixtral-8x7b-instruct",
-        "messages": [system_prompt, user_prompt]
-    }
-    response = requests.post(API_URL, headers=HEADERS, json=payload)
-    return response.json()['choices'][0]['message']['content'].strip()
+# Show tone dropdown only after input
+selected_tone = None
+if user_input.strip():
+    selected_tone = st.selectbox("🎨 Select Desired Tone", list(tone_labels.values()), index=0)
 
-# Main UI
-user_input = st.text_area("Paste your raw feedback here 👇")
+# ---------------------- Rewrite Button ----------------------
+if user_input and selected_tone:
+    if st.button("🚀 Rewrite Feedback"):
+        st.session_state.rewritten_text = ""
+        with st.spinner("Rewriting in progress..."):
+            try:
+                # Check API key
+                if "OPENROUTER_API_KEY" not in st.secrets:
+                    st.error("⚠️ OPENROUTER_API_KEY is missing. Please set it in Streamlit secrets.")
+                    st.stop()
 
-if user_input:
-    with st.spinner("Detecting tone..."):
-        detected_tone = detect_tone(user_input)
-        st.success(f"Detected tone: **{detected_tone}**")
+                api_key = st.secrets["OPENROUTER_API_KEY"]
+                headers = {
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                }
 
-        st.markdown("### ✨ Choose a tone to rewrite the feedback:")
-        tone_options = ["Empathetic", "Constructive", "Polite", "Managerial"]
-        selected_tone = st.radio("Select a tone:", tone_options, horizontal=True)
+                # Tone passed into system prompt
+                system_prompt = (
+                    f"You are an expert in rewriting workplace feedback. "
+                    f"Rephrase the given message to sound more {selected_tone.lower()} while keeping the original meaning. "
+                    f"Do not format the response as an email. Just return the improved version in a clear, professional paragraph."
+                )
 
-        if st.button("🔁 Rewrite Feedback"):
-            with st.spinner("Rewriting..."):
-                rewritten = rewrite_feedback(user_input, selected_tone)
-                st.markdown("### ✅ Rewritten Feedback")
-                st.success(rewritten)
+                data = {
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_input}
+                    ]
+                }
+
+                # Hidden fallback model list
+                model_fallbacks = [
+                    "mistral/mistral-7b-instruct",
+                    "mistralai/mixtral-8x7b-instruct",
+                    "nousresearch/nous-capybara-7b",
+                    "gryphe/mythomax-l2-13b",
+                    "nousresearch/nous-hermes-2-mixtral"
+                ]
+
+                success = False
+                for model in model_fallbacks:
+                    try:
+                        data["model"] = model
+                        response = requests.post(
+                            "https://openrouter.ai/api/v1/chat/completions",
+                            headers=headers,
+                            json=data,
+                            timeout=30
+                        )
+
+                        if response.status_code == 200:
+                            result = response.json()
+                            rewritten = result["choices"][0]["message"]["content"]
+                            st.session_state.rewritten_text = rewritten.strip()
+                            success = True
+                            break
+                        else:
+                            time.sleep(1)
+
+                    except Exception:
+                        time.sleep(1)
+
+                if not success:
+                    st.error("⚠️ Could not rewrite the feedback at this time. Please try again shortly.")
+
+            except Exception:
+                st.error("⚠️ Unexpected error. Please refresh and try again.")
+
+# ---------------------- Display Output ----------------------
+if st.session_state.rewritten_text:
+    st.markdown("### ✅ Here's Your Refined Feedback:")
+    st.success(st.session_state.rewritten_text)

@@ -6,7 +6,7 @@ Built using [Streamlit](https://streamlit.io/) and free open LLMs from [OpenRout
 
 ## 🚀 Live Demo
 
-🌐 [Try the App](https://feedback-rewriter-gpt-caht6hciagxykx52hz6xnh.streamlit.app/)
+🌐 [Try the App](https://feedback-rewriter-gpt-2epkjjin5zogy4mbdwhded.streamlit.app/)
 
 ## 🧠 Features
 
@@ -51,11 +51,24 @@ Get your free key from: [https://openrouter.ai/keys](https://openrouter.ai/keys)
 
 ## 🧾 Version History
 
+### ✅ v1.2 (Latest)
+- ✨ UI cleaned up with better spacing between sections
+- 🧠 Improved system prompt to avoid unwanted email formatting
+- 🔄 Built-in fallback logic for models — no user dropdown required
+- 🎯 Auto-reset session on first app load after deploy (Streamlit Cloud safe)
+- 🚫 Hides technical model failure messages from users
+- 💬 Renamed output section: “Here's Your Refined Feedback”
+- ✅ Clean, production-ready UX — no manual refresh needed by users
+
+[🔗 Live App](https://feedback-rewriter-gpt-2epkjjin5zogy4mbdwhded.streamlit.app/) · [📂 Source Code](https://github.com/dmmudhan/feedback-rewriter-gpt)
+
 ### v1.1 – Tone Detection Update
 - Added tone selection input (e.g., formal, friendly, assertive)
 - Introduced `prompts.py` for modular prompt design
 - Improved user experience with clearer outputs
 - Updated Streamlit deployment
+
+[🔗 Live App](https://feedback-rewriter-gpt-caht6hciagxykx52hz6xnh.streamlit.app/)
 
 ### v1.0 – Initial Version
 - Basic Feedback Rewriting using LLM
