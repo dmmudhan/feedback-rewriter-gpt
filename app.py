@@ -17,7 +17,7 @@ st.markdown("""
 <p style='text-align: center; font-size: 16px;'>🌟 Perfect for anyone looking to refine tone, improve clarity, and ensure constructive communication.</p>
 """, unsafe_allow_html=True)
 
-# Add vertical spacing before input box
+# Add spacing before input
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ---------------------- Session State Init ----------------------
@@ -36,18 +36,20 @@ tone_labels = {
 # ---------------------- Input Text ----------------------
 user_input = st.text_area("✏️ Enter your raw feedback text here:", height=200)
 
-# Show tone dropdown only after input
+# Show tone + email toggle only after input
 selected_tone = None
+format_as_email = False
+
 if user_input.strip():
     selected_tone = st.selectbox("🎨 Select Desired Tone", list(tone_labels.values()), index=0)
+    format_as_email = st.checkbox("📧 Format output as email", value=False)
 
 # ---------------------- Rewrite Button ----------------------
-if user_input and selected_tone:
+if user_input and selected_tone is not None:
     if st.button("🚀 Rewrite Feedback"):
         st.session_state.rewritten_text = ""
         with st.spinner("Rewriting in progress..."):
             try:
-                # Check API key
                 if "OPENROUTER_API_KEY" not in st.secrets:
                     st.error("⚠️ OPENROUTER_API_KEY is missing. Please set it in Streamlit secrets.")
                     st.stop()
@@ -58,12 +60,19 @@ if user_input and selected_tone:
                     "Content-Type": "application/json"
                 }
 
-                # Tone passed into system prompt
-                system_prompt = (
-                    f"You are an expert in rewriting workplace feedback. "
-                    f"Rephrase the given message to sound more {selected_tone.lower()} while keeping the original meaning. "
-                    f"Do not format the response as an email. Just return the improved version in a clear, professional paragraph."
-                )
+                # Adjust prompt based on checkbox
+                if format_as_email:
+                    system_prompt = (
+                        f"You are an expert in writing professional emails. "
+                        f"Convert the given workplace feedback into a polite, well-structured email using a {selected_tone.lower()} tone. "
+                        f"Preserve the original intent. Include a suitable greeting and closing."
+                    )
+                else:
+                    system_prompt = (
+                        f"You are an expert in rewriting workplace feedback. "
+                        f"Rephrase the given message to sound more {selected_tone.lower()} while keeping the original meaning. "
+                        f"Do not format the response as an email. Just return the improved version in a clear, professional paragraph."
+                    )
 
                 data = {
                     "messages": [
@@ -72,7 +81,6 @@ if user_input and selected_tone:
                     ]
                 }
 
-                # Hidden fallback model list
                 model_fallbacks = [
                     "mistral/mistral-7b-instruct",
                     "mistralai/mixtral-8x7b-instruct",
@@ -114,3 +122,15 @@ if user_input and selected_tone:
 if st.session_state.rewritten_text:
     st.markdown("### ✅ Here's Your Refined Feedback:")
     st.success(st.session_state.rewritten_text)
+
+    # Copy to clipboard using st.code component (streamlit-safe)
+    st.code(st.session_state.rewritten_text, language="markdown")
+
+# ---------------------- Footer ----------------------
+st.markdown("<hr>", unsafe_allow_html=True)
+st.markdown(
+    "<div style='text-align: center; font-size: 14px;'>"
+    "🛠️ Created by <b>Devi M</b> · v1.3 · Powered by <a href='https://openrouter.ai' target='_blank'>OpenRouter</a>"
+    "</div>",
+    unsafe_allow_html=True
+)
