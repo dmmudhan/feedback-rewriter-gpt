@@ -2,6 +2,11 @@ import streamlit as st
 import requests
 import time
 
+# ---------------------- Auto-Reset on First Load ----------------------
+if "initialized" not in st.session_state:
+    st.session_state.clear()
+    st.session_state["initialized"] = True
+
 # ---------------------- Streamlit UI Config ----------------------
 st.set_page_config(page_title="Feedback Rewriter Assistant", page_icon="✍️", layout="centered")
 
@@ -15,7 +20,7 @@ st.markdown("""
 # Add vertical spacing before input box
 st.markdown("<br>", unsafe_allow_html=True)
 
-# ---------------------- Session State ----------------------
+# ---------------------- Session State Init ----------------------
 if "rewritten_text" not in st.session_state:
     st.session_state.rewritten_text = ""
 
