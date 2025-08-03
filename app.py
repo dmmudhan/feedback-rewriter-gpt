@@ -6,6 +6,7 @@ import time
 if "initialized" not in st.session_state:
     st.session_state.clear()
     st.session_state["initialized"] = True
+    st.experimental_rerun()  # Force clean rerun after clearing
 
 # ---------------------- Streamlit UI Config ----------------------
 st.set_page_config(page_title="Feedback Rewriter Assistant", page_icon="✍️", layout="centered")
