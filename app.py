@@ -1,68 +1,52 @@
 import streamlit as st
 import requests
 
-st.set_page_config(page_title="Feedback Rewriter Assistant v1.1")
+st.set_page_config(page_title="Feedback Rewriter Assistant", page_icon="📝")
 
-st.title("📝 Feedback Rewriter Assistant")
-st.markdown("### 🌟 Smarter. Sharper. More Professional.<br>**Your feedback — rewritten in the tone you choose** 🎯<br><sub>Now supports formal, friendly, assertive styles – Feedback Assistant v1.1</sub>", unsafe_allow_html=True)
+# 🚀 Smart Header
+st.markdown("""
+# ✨ Feedback Rewriter Assistant  
+**Transform raw feedback into professional tone – in seconds.**  
+Your go-to rewriting assistant for polished workplace communication.
+""")
 
-OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
-API_URL = "https://openrouter.ai/api/v1/chat/completions"
-HEADERS = {
-    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-    "HTTP-Referer": "https://your-project.streamlit.app",  # Replace if deployed
-    "X-Title": "FeedbackRewriterAssistant"
-}
+# 🎯 Prompt tone options
+tone_options = ["Formal", "Friendly", "Assertive"]
 
-# Function to detect tone
-def detect_tone(user_input):
-    system_prompt = {
-        "role": "system",
-        "content": "Classify the tone of the following feedback as one of the following: Harsh, Polite, Empathetic, Casual, Passive-Aggressive. Only return the tone label."
-    }
-    user_prompt = {
-        "role": "user",
-        "content": user_input
-    }
-    payload = {
-        "model": "mistralai/mixtral-8x7b-instruct",
-        "messages": [system_prompt, user_prompt]
-    }
-    response = requests.post(API_URL, headers=HEADERS, json=payload)
-    tone = response.json()['choices'][0]['message']['content'].strip()
-    return tone
+# 🎛️ Sidebar tone selection
+selected_tone = st.selectbox("Select Desired Tone", tone_options, index=0)
 
-# Function to rewrite feedback
-def rewrite_feedback(user_input, desired_tone):
-    system_prompt = {
-        "role": "system",
-        "content": f"Rewrite the following feedback in a {desired_tone} tone. Keep it professional and meaningful."
-    }
-    user_prompt = {
-        "role": "user",
-        "content": user_input
-    }
-    payload = {
-        "model": "mistralai/mixtral-8x7b-instruct",
-        "messages": [system_prompt, user_prompt]
-    }
-    response = requests.post(API_URL, headers=HEADERS, json=payload)
-    return response.json()['choices'][0]['message']['content'].strip()
+# 📝 Raw feedback input
+raw_feedback = st.text_area("Paste your raw feedback here:", height=200)
 
-# Main UI
-user_input = st.text_area("Paste your raw feedback here 👇")
+# 🔁 Rewrite button
+if st.button("Rewrite Feedback"):
+    if not raw_feedback.strip():
+        st.warning("Please enter some feedback to rewrite.")
+    else:
+        # 🌀 Show spinner while processing
+        with st.spinner("Rewriting your feedback..."):
+            prompt = f"""Rewrite the following feedback in a {selected_tone.lower()} tone:\n\n"{raw_feedback}"\n\nMake sure it sounds natural and professional."""
+            try:
+                response = requests.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {st.secrets['OPENROUTER_API_KEY']}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": "openchat/openchat-3.5-1210",
+                        "messages": [
+                            {"role": "user", "content": prompt}
+                        ]
+                    }
+                )
+                result = response.json()
+                rewritten_text = result["choices"][0]["message"]["content"].strip()
 
-if user_input:
-    with st.spinner("Detecting tone..."):
-        detected_tone = detect_tone(user_input)
-        st.success(f"Detected tone: **{detected_tone}**")
+                # 💬 Display rewritten feedback
+                st.markdown("### ✍️ Rewritten Feedback")
+                st.success(rewritten_text)
 
-        st.markdown("### ✨ Choose a tone to rewrite the feedback:")
-        tone_options = ["Empathetic", "Constructive", "Polite", "Managerial"]
-        selected_tone = st.radio("Select a tone:", tone_options, horizontal=True)
-
-        if st.button("🔁 Rewrite Feedback"):
-            with st.spinner("Rewriting..."):
-                rewritten = rewrite_feedback(user_input, selected_tone)
-                st.markdown("### ✅ Rewritten Feedback")
-                st.success(rewritten)
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
