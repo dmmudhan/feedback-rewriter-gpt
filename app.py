@@ -73,14 +73,14 @@ if user_input.strip():
 
                 if format_as_email:
                     system_prompt = (
-                        f"You are an expert in writing professional emails. Convert the given workplace feedback into a polite, well-structured email using a {tone} tone. "
-                        f"Translate or write the result in {lang}. Include a suitable greeting and closing."
-                    )
+    f"You are an expert in writing professional emails. Convert the given workplace feedback into a polite, well-structured email using a {tone} tone. "
+    f"Write the final email entirely in {lang} language. Do not include any English explanation or translation. Include a suitable greeting and closing."
+)
                 else:
                     system_prompt = (
-                        f"You are an expert in rewriting workplace feedback. Rephrase the given message to sound more {tone} while keeping the original meaning. "
-                        f"Do not format as an email. Just return the improved version in a clear, professional paragraph in {lang}."
-                    )
+    f"You are an expert in rewriting workplace feedback. Rephrase the given message to sound more {tone} while keeping the original meaning. "
+    f"Do not format as an email. Return ONLY the rewritten feedback in {lang} language. Do not include any English explanation or translation."
+)
 
                 data = {
                     "messages": [
@@ -121,8 +121,7 @@ if user_input.strip():
 if st.session_state.rewritten_text:
     st.markdown("### ✅ Here's Your Refined Feedback:")
     st.success(st.session_state.rewritten_text)
-    with st.columns([10, 1])[1]:
-        st.download_button("📋", st.session_state.rewritten_text, file_name="rewritten_feedback.txt", help="Download text")
+    st.download_button("📋 Download Rewritten Feedback", st.session_state.rewritten_text, file_name="rewritten_feedback.txt", use_container_width=True)
 
 # ---------------------- Optional User Feedback ----------------------
 st.markdown("---")
