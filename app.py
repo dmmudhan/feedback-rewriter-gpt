@@ -30,17 +30,11 @@ user_input = st.text_area("✏️ Enter your raw feedback text here:", height=20
 
 # Show tone dropdown only after input
 selected_tone = None
-selected_model = None
 if user_input.strip():
     selected_tone = st.selectbox("🎨 Select Desired Tone", list(tone_labels.values()), index=0)
-    selected_model = st.selectbox("🧠 Choose Model", [
-        "mistral/mistral-7b-instruct",
-        "openchat/openchat-3.5-0106",
-        "nous-hermes/nous-hermes-2-mistral"
-    ])
 
 # ---------------------- Rewrite Button ----------------------
-if user_input and selected_tone and selected_model:
+if user_input and selected_tone:
     if st.button("🚀 Rewrite Feedback"):
         st.session_state.rewritten_text = ""
         with st.spinner("Rewriting in progress..."):
@@ -56,6 +50,7 @@ if user_input and selected_tone and selected_model:
                     "Content-Type": "application/json"
                 }
 
+                # Tone passed into system prompt
                 system_prompt = (
                     f"You are an expert communication coach. "
                     f"Your job is to rewrite raw workplace feedback in a more {selected_tone.lower()} tone. "
@@ -64,40 +59,51 @@ if user_input and selected_tone and selected_model:
                 )
 
                 data = {
-                    "model": selected_model,
                     "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_input}
                     ]
                 }
 
-                retries = 3
+                # Hidden fallback model list
+                model_fallbacks = [
+                    "mistral/mistral-7b-instruct",
+                    "mistralai/mixtral-8x7b-instruct",
+                    "nousresearch/nous-capybara-7b",
+                    "gryphe/mythomax-l2-13b",
+                    "nousresearch/nous-hermes-2-mixtral"
+                ]
+
                 success = False
-                for attempt in range(retries):
+                for model in model_fallbacks:
                     try:
-                        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
+                        data["model"] = model
+                        response = requests.post(
+                            "https://openrouter.ai/api/v1/chat/completions",
+                            headers=headers,
+                            json=data,
+                            timeout=30
+                        )
+
                         if response.status_code == 200:
+                            result = response.json()
+                            rewritten = result["choices"][0]["message"]["content"]
+                            st.session_state.rewritten_text = rewritten.strip()
                             success = True
                             break
                         else:
-                            st.warning(f"Attempt {attempt+1} failed: {response.status_code} - {response.text}")
-                            time.sleep(2)
-                    except requests.exceptions.RequestException as e:
-                        st.warning(f"Attempt {attempt+1} failed: {e}")
-                        time.sleep(2)
+                            st.warning(f"🔁 {model} failed: {response.status_code}")
+                            time.sleep(1)
+
+                    except Exception as e:
+                        st.warning(f"❗ Error with model {model}: {e}")
+                        time.sleep(1)
 
                 if not success:
-                    st.error("⚠️ Failed after retries. Please try again later.")
-                    st.stop()
+                    st.error("⚠️ All models failed after retries. Please try again later.")
 
-                result = response.json()
-                rewritten = result["choices"][0]["message"]["content"]
-                st.session_state.rewritten_text = rewritten.strip()
-
-            except requests.exceptions.Timeout:
-                st.error("⏳ Request timed out. Please try again.")
             except Exception as e:
-                st.error(f"⚠️ An error occurred: {e}")
+                st.error(f"⚠️ Unexpected error: {e}")
 
 # ---------------------- Display Output ----------------------
 if st.session_state.rewritten_text:
