@@ -55,23 +55,25 @@ def deterministic_rewrite(text: str, tone: str, language: str) -> str:
         out = out.replace(k, v)
     return f"(Tone: {tone}) {out}"
 
-# ---------------------- Session-state init (safe) ----------------------
-if "initialized" not in st.session_state:
-    st.session_state.setdefault("rewritten_text", "")
-    st.session_state.setdefault("feedback", "")
-    st.session_state.setdefault("user_input", "")
-    st.session_state.setdefault("rewrites", [])
-    st.session_state.setdefault("show_feedback_form", False)
-    st.session_state.setdefault("show_history", False)
-    st.session_state.setdefault("initialized", True)
+# ---------------------- Session-state init (safe, reset on rerun) ----------------------
+if st.session_state.get("initialized", False) is False:
+    st.session_state.clear()
+    st.session_state["rewritten_text"] = ""
+    st.session_state["feedback"] = ""
+    st.session_state["user_input"] = ""
+    st.session_state["rewrites"] = []
+    st.session_state["show_feedback_form"] = False
+    st.session_state["show_history"] = False
+    st.session_state["initialized"] = True
 
 # ---------------------- App Config ----------------------
 st.set_page_config(page_title="Feedback Rewriter Assistant", page_icon="✍️", layout="centered")
 
-# ---------------------- Header & Tagline (tight spacing) ----------------------
+# ---------------------- Header, Tagline & Catchy Intro ----------------------
 st.markdown("""
 <h1 style='text-align: center; margin-bottom:6px;'>✍️ Feedback Rewriter Assistant</h1>
 <p style='text-align: center; font-size: 16px; margin-top:2px; margin-bottom:8px;'>🌟 Turn raw feedback into clear, confident, and impactful communication — customize the tone, format, and language to fit any situation.</p>
+<h3 style='text-align:center; color:#4CAF50; margin-top:0px;'>Your words, perfectly refined in seconds 🚀</h3>
 """, unsafe_allow_html=True)
 
 # ---------------------- Tone Options ----------------------
@@ -83,14 +85,22 @@ tone_labels = {
     "assertive": "💼 Assertive - Clear and direct"
 }
 
-# ---------------------- Input Section (no extra gap) ----------------------
+# ---------------------- Input Section ----------------------
 st.markdown("<div style='margin-top:4px;'></div>", unsafe_allow_html=True)
+col1, col2 = st.columns([1, 1])
+with col1:
+    if st.button("🎯 Add Sample Text"):
+        st.session_state.user_input = "You’re always missing deadlines. I can’t keep covering for your delays. It’s affecting the whole project."
+with col2:
+    if st.button("🔁 Clear Text"):
+        st.session_state.user_input = ""
+        st.session_state.rewritten_text = ""
+
 user_input = st.text_area("", key="user_input", height=180,
                           placeholder="e.g. You're always late submitting your work. This is unacceptable.")
 
-# ---------------------- Controls (visible immediately under the box) ----------------------
+# ---------------------- Controls ----------------------
 if user_input and user_input.strip():
-    # compact controls row
     c1, c2, c3 = st.columns([2, 1, 1])
     with c1:
         selected_tone = st.selectbox("Tone", list(tone_labels.values()), index=0, key="tone_select")
@@ -104,71 +114,61 @@ if user_input and user_input.strip():
     else:
         lang = "English"
 
-    # small helper row for actions
-    a1, a2, a3 = st.columns([1, 1, 1])
-    with a1:
-        if st.button("🚀 Rewrite", key="rewrite_btn"):
-            st.session_state.rewritten_text = ""
-            with st.spinner("Rewriting..."):
-                try:
-                    api_key = st.secrets.get("OPENROUTER_API_KEY", None)
-                    tone_short = selected_tone.split("-")[0].strip().lower()
-                    if format_as_email:
-                        system_prompt = (
-                            f"You are an expert in writing professional emails. Convert the given workplace feedback into a polite, well-structured email using a {tone_short} tone. "
-                            f"Write the final email entirely in {lang} language. Do not include any English explanation or translation. Include a suitable greeting and closing."
-                        )
-                    else:
-                        system_prompt = (
-                            f"You are an expert in rewriting workplace feedback. Rephrase the given message to sound more {tone_short} while keeping the original meaning. "
-                            f"Do not format as an email. Return ONLY the rewritten feedback in {lang} language. Do not include any English explanation or translation."
-                        )
+    if st.button("🚀 Rewrite", key="rewrite_btn"):
+        st.session_state.rewritten_text = ""
+        with st.spinner("Rewriting..."):
+            try:
+                api_key = st.secrets.get("OPENROUTER_API_KEY", None)
+                tone_short = selected_tone.split("-")[0].strip().lower()
+                if format_as_email:
+                    system_prompt = (
+                        f"You are an expert in writing professional emails. Convert the given workplace feedback into a polite, well-structured email using a {tone_short} tone. "
+                        f"Write the final email entirely in {lang} language. Do not include any English explanation or translation. Include a suitable greeting and closing."
+                    )
+                else:
+                    system_prompt = (
+                        f"You are an expert in rewriting workplace feedback. Rephrase the given message to sound more {tone_short} while keeping the original meaning. "
+                        f"Do not format as an email. Return ONLY the rewritten feedback in {lang} language. Do not include any English explanation or translation."
+                    )
 
-                    if api_key:
-                        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-                        data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
-                        model_fallbacks = [
-                            "mistral/mistral-7b-instruct",
-                            "mistralai/mixtral-8x7b-instruct",
-                            "nousresearch/nous-capybara-7b",
-                            "gryphe/mythomax-l2-13b",
-                            "nousresearch/nous-hermes-2-mixtral"
-                        ]
-                        rewritten = None
-                        for model in model_fallbacks:
-                            try:
-                                data["model"] = model
-                                resp = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
-                                if resp.status_code == 200:
-                                    j = resp.json()
-                                    rewritten = j.get("choices", [])[0].get("message", {}).get("content", "").strip()
-                                    break
-                                else:
-                                    time.sleep(0.5)
-                            except Exception:
+                if api_key:
+                    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+                    data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
+                    model_fallbacks = [
+                        "mistral/mistral-7b-instruct",
+                        "mistralai/mixtral-8x7b-instruct",
+                        "nousresearch/nous-capybara-7b",
+                        "gryphe/mythomax-l2-13b",
+                        "nousresearch/nous-hermes-2-mixtral"
+                    ]
+                    rewritten = None
+                    for model in model_fallbacks:
+                        try:
+                            data["model"] = model
+                            resp = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
+                            if resp.status_code == 200:
+                                j = resp.json()
+                                rewritten = j.get("choices", [])[0].get("message", {}).get("content", "").strip()
+                                break
+                            else:
                                 time.sleep(0.5)
-                        if rewritten:
-                            st.session_state.rewritten_text = rewritten
-                            st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": rewritten})
-                        else:
-                            st.warning("Could not get AI rewrite — using deterministic fallback.")
-                            fallback = deterministic_rewrite(user_input, tone_short, lang)
-                            st.session_state.rewritten_text = fallback
-                            st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": fallback})
+                        except Exception:
+                            time.sleep(0.5)
+                    if rewritten:
+                        st.session_state.rewritten_text = rewritten
+                        st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": rewritten})
                     else:
-                        # graceful fallback when API key not set
-                        fallback = deterministic_rewrite(user_input, selected_tone, lang)
+                        st.warning("Could not get AI rewrite — using deterministic fallback.")
+                        fallback = deterministic_rewrite(user_input, tone_short, lang)
                         st.session_state.rewritten_text = fallback
                         st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": fallback})
+                else:
+                    fallback = deterministic_rewrite(user_input, selected_tone, lang)
+                    st.session_state.rewritten_text = fallback
+                    st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": fallback})
 
-                except Exception:
-                    st.error("Unexpected error while rewriting. Please try again.")
-    with a2:
-        if st.button("🔁 Clear", key="clear_btn"):
-            st.session_state.user_input = ""
-            st.session_state.rewritten_text = ""
-    with a3:
-        st.caption("Tip: Tap Rewrite when you're ready (mobile-friendly)")
+            except Exception:
+                st.error("Unexpected error while rewriting. Please try again.")
 
 # ---------------------- Output ----------------------
 if st.session_state.rewritten_text:
@@ -176,7 +176,7 @@ if st.session_state.rewritten_text:
     st.success(st.session_state.rewritten_text)
     st.download_button("📋 Download", st.session_state.rewritten_text, file_name="rewritten_feedback.txt", use_container_width=True)
 
-# ---------------------- Hidden Feedback Form & History Buttons ----------------------
+# ---------------------- Feedback & History Controls ----------------------
 st.markdown("---")
 col1, col2 = st.columns([1, 1])
 with col1:
@@ -186,7 +186,7 @@ with col2:
     if st.button("📜 View My Past Rewrites"):
         st.session_state.show_history = not st.session_state.get("show_history", False)
 
-# Feedback form (only when requested)
+# Feedback Form
 if st.session_state.get("show_feedback_form", False):
     st.subheader("📬 Share Your Feedback")
     with st.form("feedback_form"):
@@ -210,7 +210,7 @@ if st.session_state.get("show_feedback_form", False):
             st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "rating": ff_rating, "like": ff_like, "improvements": "; ".join(ff_improve), "suggestions": ff_suggestions, "original": ff_text, "rewritten": "", "public_link": public_link})
             st.balloons()
 
-# History (collapsible)
+# History
 if st.session_state.get("show_history", False):
     st.subheader("📜 Rewrite History")
     if st.session_state.rewrites:
