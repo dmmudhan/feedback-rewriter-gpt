@@ -45,22 +45,33 @@ def append_row_to_sheet(row, sheet_name="feedback_rewriter_history"):
     except Exception as e:
         return False, str(e)
 
-# ---------------------- Auto-reset Logic ----------------------
+# ---------------------- Deterministic fallback ----------------------
+def deterministic_rewrite(text: str, tone: str, language: str) -> str:
+    out = text.strip()
+    if len(out) > 0:
+        out = out[0].upper() + out[1:]
+    replacements = {"cant": "can't", "dont": "don't", "wont": "won't"}
+    for k, v in replacements.items():
+        out = out.replace(k, v)
+    return f"(Tone: {tone}) {out}"
+
+# ---------------------- Session-state init (safe) ----------------------
 if "initialized" not in st.session_state:
-    st.session_state.clear()
-    st.session_state["rewritten_text"] = ""
-    st.session_state["feedback"] = ""
-    st.session_state["user_input"] = ""
-    st.session_state["rewrites"] = []
-    st.session_state["initialized"] = True
+    st.session_state.setdefault("rewritten_text", "")
+    st.session_state.setdefault("feedback", "")
+    st.session_state.setdefault("user_input", "")
+    st.session_state.setdefault("rewrites", [])
+    st.session_state.setdefault("show_feedback_form", False)
+    st.session_state.setdefault("show_history", False)
+    st.session_state.setdefault("initialized", True)
 
 # ---------------------- App Config ----------------------
 st.set_page_config(page_title="Feedback Rewriter Assistant", page_icon="✍️", layout="centered")
 
-# ---------------------- Header ----------------------
+# ---------------------- Header & Tagline (tight spacing) ----------------------
 st.markdown("""
-<h1 style='text-align: center;'>✍️ Feedback Rewriter Assistant</h1>
-<p style='text-align: center; font-size: 18px;'>🌟 Turn raw feedback into clear, confident, and impactful communication — customize the tone, format, and language to fit any situation.</p>
+<h1 style='text-align: center; margin-bottom:6px;'>✍️ Feedback Rewriter Assistant</h1>
+<p style='text-align: center; font-size: 16px; margin-top:2px; margin-bottom:8px;'>🌟 Turn raw feedback into clear, confident, and impactful communication — customize the tone, format, and language to fit any situation.</p>
 """, unsafe_allow_html=True)
 
 # ---------------------- Tone Options ----------------------
@@ -72,82 +83,102 @@ tone_labels = {
     "assertive": "💼 Assertive - Clear and direct"
 }
 
-# ---------------------- Input Section ----------------------
-st.markdown("### ✏️ Enter Feedback Below")
-user_input = st.text_area("", key="user_input", height=200,
+# ---------------------- Input Section (no extra gap) ----------------------
+st.markdown("<div style='margin-top:4px;'></div>", unsafe_allow_html=True)
+user_input = st.text_area("", key="user_input", height=180,
                           placeholder="e.g. You're always late submitting your work. This is unacceptable.")
 
-# Floating rewrite button for mobile
-if st.button("🚀 Rewrite Feedback") and user_input.strip():
-    st.session_state.rewritten_text = ""
-    with st.spinner("Rewriting in progress..."):
-        try:
-            if "OPENROUTER_API_KEY" not in st.secrets:
-                st.error("⚠️ OPENROUTER_API_KEY is missing in Streamlit secrets.")
-                st.stop()
+# ---------------------- Controls (visible immediately under the box) ----------------------
+if user_input and user_input.strip():
+    # compact controls row
+    c1, c2, c3 = st.columns([2, 1, 1])
+    with c1:
+        selected_tone = st.selectbox("Tone", list(tone_labels.values()), index=0, key="tone_select")
+    with c2:
+        format_as_email = st.checkbox("📧 Email", key="format_email")
+    with c3:
+        translate_enable = st.checkbox("🌍 Translate", key="translate_enable")
 
-            selected_tone = st.selectbox("Select Desired Tone:", list(tone_labels.values()), key="tone_select")
-            format_as_email = st.checkbox("📧 Format as Email", key="email_format")
-            enable_translation = st.checkbox("🌍 Translate output into another language", key="translate_enable")
-            selected_language = st.text_input("Language (e.g. Spanish, Hindi)", value="English") if enable_translation else "English"
+    if translate_enable:
+        lang = st.text_input("Language", value="English", key="lang_input")
+    else:
+        lang = "English"
 
-            api_key = st.secrets["OPENROUTER_API_KEY"]
-            headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-
-            tone = selected_tone.split("-")[0].strip().lower()
-            lang = selected_language
-
-            if format_as_email:
-                system_prompt = (
-                    f"You are an expert in writing professional emails. Convert the given workplace feedback into a polite, well-structured email using a {tone} tone. "
-                    f"Write the final email entirely in {lang} language. Do not include any English explanation or translation. Include a suitable greeting and closing."
-                )
-            else:
-                system_prompt = (
-                    f"You are an expert in rewriting workplace feedback. Rephrase the given message to sound more {tone} while keeping the original meaning. "
-                    f"Do not format as an email. Return ONLY the rewritten feedback in {lang} language. Do not include any English explanation or translation."
-                )
-
-            data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
-
-            model_fallbacks = [
-                "mistral/mistral-7b-instruct",
-                "mistralai/mixtral-8x7b-instruct",
-                "nousresearch/nous-capybara-7b",
-                "gryphe/mythomax-l2-13b",
-                "nousresearch/nous-hermes-2-mixtral"
-            ]
-
-            for model in model_fallbacks:
+    # small helper row for actions
+    a1, a2, a3 = st.columns([1, 1, 1])
+    with a1:
+        if st.button("🚀 Rewrite", key="rewrite_btn"):
+            st.session_state.rewritten_text = ""
+            with st.spinner("Rewriting..."):
                 try:
-                    data["model"] = model
-                    response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
-                    if response.status_code == 200:
-                        result = response.json()
-                        rewritten = result["choices"][0]["message"]["content"].strip()
-                        st.session_state.rewritten_text = rewritten
-                        st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": rewritten})
-                        break
+                    api_key = st.secrets.get("OPENROUTER_API_KEY", None)
+                    tone_short = selected_tone.split("-")[0].strip().lower()
+                    if format_as_email:
+                        system_prompt = (
+                            f"You are an expert in writing professional emails. Convert the given workplace feedback into a polite, well-structured email using a {tone_short} tone. "
+                            f"Write the final email entirely in {lang} language. Do not include any English explanation or translation. Include a suitable greeting and closing."
+                        )
                     else:
-                        time.sleep(1)
+                        system_prompt = (
+                            f"You are an expert in rewriting workplace feedback. Rephrase the given message to sound more {tone_short} while keeping the original meaning. "
+                            f"Do not format as an email. Return ONLY the rewritten feedback in {lang} language. Do not include any English explanation or translation."
+                        )
+
+                    if api_key:
+                        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+                        data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
+                        model_fallbacks = [
+                            "mistral/mistral-7b-instruct",
+                            "mistralai/mixtral-8x7b-instruct",
+                            "nousresearch/nous-capybara-7b",
+                            "gryphe/mythomax-l2-13b",
+                            "nousresearch/nous-hermes-2-mixtral"
+                        ]
+                        rewritten = None
+                        for model in model_fallbacks:
+                            try:
+                                data["model"] = model
+                                resp = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
+                                if resp.status_code == 200:
+                                    j = resp.json()
+                                    rewritten = j.get("choices", [])[0].get("message", {}).get("content", "").strip()
+                                    break
+                                else:
+                                    time.sleep(0.5)
+                            except Exception:
+                                time.sleep(0.5)
+                        if rewritten:
+                            st.session_state.rewritten_text = rewritten
+                            st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": rewritten})
+                        else:
+                            st.warning("Could not get AI rewrite — using deterministic fallback.")
+                            fallback = deterministic_rewrite(user_input, tone_short, lang)
+                            st.session_state.rewritten_text = fallback
+                            st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": fallback})
+                    else:
+                        # graceful fallback when API key not set
+                        fallback = deterministic_rewrite(user_input, selected_tone, lang)
+                        st.session_state.rewritten_text = fallback
+                        st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": fallback})
+
                 except Exception:
-                    time.sleep(1)
+                    st.error("Unexpected error while rewriting. Please try again.")
+    with a2:
+        if st.button("🔁 Clear", key="clear_btn"):
+            st.session_state.user_input = ""
+            st.session_state.rewritten_text = ""
+    with a3:
+        st.caption("Tip: Tap Rewrite when you're ready (mobile-friendly)")
 
-            if not st.session_state.rewritten_text:
-                st.error("⚠️ Could not rewrite the feedback at this time. Please try again.")
-
-        except Exception:
-            st.error("⚠️ Unexpected error. Please try again.")
-
-# ---------------------- Display Output ----------------------
+# ---------------------- Output ----------------------
 if st.session_state.rewritten_text:
     st.markdown("### ✅ Here's Your Refined Feedback:")
     st.success(st.session_state.rewritten_text)
-    st.download_button("📋 Download Rewritten Feedback", st.session_state.rewritten_text, file_name="rewritten_feedback.txt", use_container_width=True)
+    st.download_button("📋 Download", st.session_state.rewritten_text, file_name="rewritten_feedback.txt", use_container_width=True)
 
-# ---------------------- Buttons for Feedback Form & History ----------------------
+# ---------------------- Hidden Feedback Form & History Buttons ----------------------
 st.markdown("---")
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([1, 1])
 with col1:
     if st.button("💬 Leave Feedback"):
         st.session_state.show_feedback_form = True
@@ -155,7 +186,7 @@ with col2:
     if st.button("📜 View My Past Rewrites"):
         st.session_state.show_history = not st.session_state.get("show_history", False)
 
-# ---------------------- Feedback Form (Hidden by default) ----------------------
+# Feedback form (only when requested)
 if st.session_state.get("show_feedback_form", False):
     st.subheader("📬 Share Your Feedback")
     with st.form("feedback_form"):
@@ -179,7 +210,7 @@ if st.session_state.get("show_feedback_form", False):
             st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "rating": ff_rating, "like": ff_like, "improvements": "; ".join(ff_improve), "suggestions": ff_suggestions, "original": ff_text, "rewritten": "", "public_link": public_link})
             st.balloons()
 
-# ---------------------- Rewrite History (Collapsible) ----------------------
+# History (collapsible)
 if st.session_state.get("show_history", False):
     st.subheader("📜 Rewrite History")
     if st.session_state.rewrites:
@@ -190,6 +221,6 @@ if st.session_state.get("show_history", False):
     else:
         st.info("No rewrites yet.")
 
-# ---------------------- Footer ----------------------
+# Footer
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("<div style='text-align: center; font-size: 14px;'>🛠️ Created by <b>Devi Mudhanagiri</b> · v1.5 · Powered by <a href='https://openrouter.ai' target='_blank'>OpenRouter</a></div>", unsafe_allow_html=True)
