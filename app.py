@@ -55,8 +55,9 @@ def deterministic_rewrite(text: str, tone: str, language: str) -> str:
         out = out.replace(k, v)
     return f"(Tone: {tone}) {out}"
 
-# ---------------------- Session-state init (safe, reset on rerun) ----------------------
-if st.session_state.get("initialized", False) is False:
+# ---------------------- Session-state init with proper reset ----------------------
+# Always start with a clean slate on page load
+if "app_loaded" not in st.session_state:
     st.session_state.clear()
     st.session_state["rewritten_text"] = ""
     st.session_state["feedback"] = ""
@@ -64,16 +65,17 @@ if st.session_state.get("initialized", False) is False:
     st.session_state["rewrites"] = []
     st.session_state["show_feedback_form"] = False
     st.session_state["show_history"] = False
-    st.session_state["initialized"] = True
+    st.session_state["app_loaded"] = True
 
 # ---------------------- App Config ----------------------
 st.set_page_config(page_title="Feedback Rewriter Assistant", page_icon="✍️", layout="centered")
 
 # ---------------------- Header, Tagline & Catchy Intro ----------------------
 st.markdown("""
-<h1 style='text-align: center; margin-bottom:6px;'>✍️ Feedback Rewriter Assistant</h1>
-<p style='text-align: center; font-size: 16px; margin-top:2px; margin-bottom:8px;'>🌟 Turn raw feedback into clear, confident, and impactful communication — customize the tone, format, and language to fit any situation.</p>
-<h3 style='text-align:center; color:#4CAF50; margin-top:0px;'>Your words, perfectly refined in seconds 🚀</h3>
+<h1 style='text-align: center; margin-bottom:8px;'>✍️ Feedback Rewriter Assistant</h1>
+<p style='text-align: center; font-size: 16px; margin-top:4px; margin-bottom:12px; color:#666;'>🌟 Turn raw feedback into clear, confident, and impactful communication — customize the tone, format, and language to fit any situation.</p>
+<h3 style='text-align:center; color:#4CAF50; margin-top:0px; margin-bottom:20px;'>Your words, perfectly refined in seconds 🚀</h3>
+<h4 style='text-align:center; color:#333; margin-bottom:16px;'>✨ Get Started: Enter your feedback below</h4>
 """, unsafe_allow_html=True)
 
 # ---------------------- Tone Options ----------------------
@@ -86,21 +88,25 @@ tone_labels = {
 }
 
 # ---------------------- Input Section ----------------------
-st.markdown("<div style='margin-top:4px;'></div>", unsafe_allow_html=True)
-col1, col2 = st.columns([1, 1])
-with col1:
-    if st.button("🎯 Add Sample Text"):
-        st.session_state.user_input = "You’re always missing deadlines. I can’t keep covering for your delays. It’s affecting the whole project."
-with col2:
-    if st.button("🔁 Clear Text"):
-        st.session_state.user_input = ""
-        st.session_state.rewritten_text = ""
-
 user_input = st.text_area("", key="user_input", height=180,
                           placeholder="e.g. You're always late submitting your work. This is unacceptable.")
 
-# ---------------------- Controls ----------------------
+# ---------------------- Action Buttons (Moved below input) ----------------------
+col1, col2 = st.columns([1, 1])
+with col1:
+    if st.button("🎯 Add Sample Text", use_container_width=True):
+        st.session_state.user_input = "You're always missing deadlines. I can't keep covering for your delays. It's affecting the whole project."
+        st.session_state.rewritten_text = ""  # Clear any old results
+        st.rerun()
+with col2:
+    if st.button("🔁 Clear All", use_container_width=True):
+        st.session_state.user_input = ""
+        st.session_state.rewritten_text = ""  # Explicitly clear results
+        st.rerun()
+
+# ---------------------- Controls (Only show if there's input) ----------------------
 if user_input and user_input.strip():
+    st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns([2, 1, 1])
     with c1:
         selected_tone = st.selectbox("Tone", list(tone_labels.values()), index=0, key="tone_select")
@@ -114,9 +120,12 @@ if user_input and user_input.strip():
     else:
         lang = "English"
 
-    if st.button("🚀 Rewrite", key="rewrite_btn"):
+    st.markdown("<div style='margin-top:12px;'></div>", unsafe_allow_html=True)
+    if st.button("🚀 Rewrite", key="rewrite_btn", use_container_width=True):
+        # Clear previous results immediately
         st.session_state.rewritten_text = ""
-        with st.spinner("Rewriting..."):
+        
+        with st.spinner("Rewriting your feedback..."):
             try:
                 api_key = st.secrets.get("OPENROUTER_API_KEY", None)
                 tone_short = selected_tone.split("-")[0].strip().lower()
@@ -167,27 +176,39 @@ if user_input and user_input.strip():
                     st.session_state.rewritten_text = fallback
                     st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": fallback})
 
-            except Exception:
-                st.error("Unexpected error while rewriting. Please try again.")
+            except Exception as e:
+                st.error(f"Unexpected error while rewriting: {str(e)}. Please try again.")
+                st.session_state.rewritten_text = ""
 
-# ---------------------- Output ----------------------
-if st.session_state.rewritten_text:
+# ---------------------- Output (Only show if we have results) ----------------------
+if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
+    st.markdown("<div style='margin-top:24px;'></div>", unsafe_allow_html=True)
     st.markdown("### ✅ Here's Your Refined Feedback:")
     st.success(st.session_state.rewritten_text)
-    st.download_button("📋 Download", st.session_state.rewritten_text, file_name="rewritten_feedback.txt", use_container_width=True)
+    
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        st.download_button("📋 Download", st.session_state.rewritten_text, 
+                          file_name="rewritten_feedback.txt", use_container_width=True)
+    with col2:
+        if st.button("🔄 Try Another Tone", use_container_width=True):
+            st.session_state.rewritten_text = ""
+            st.rerun()
 
 # ---------------------- Feedback & History Controls ----------------------
+st.markdown("<div style='margin-top:32px;'></div>", unsafe_allow_html=True)
 st.markdown("---")
 col1, col2 = st.columns([1, 1])
 with col1:
-    if st.button("💬 Leave Feedback"):
-        st.session_state.show_feedback_form = True
+    if st.button("💬 Leave Feedback", use_container_width=True):
+        st.session_state.show_feedback_form = not st.session_state.get("show_feedback_form", False)
 with col2:
-    if st.button("📜 View My Past Rewrites"):
+    if st.button("📜 View My Past Rewrites", use_container_width=True):
         st.session_state.show_history = not st.session_state.get("show_history", False)
 
 # Feedback Form
 if st.session_state.get("show_feedback_form", False):
+    st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
     st.subheader("📬 Share Your Feedback")
     with st.form("feedback_form"):
         ff_text = st.text_area("Your feedback", height=100)
@@ -204,23 +225,26 @@ if st.session_state.get("show_feedback_form", False):
         ok, msg = append_row_to_sheet(row)
         if ok:
             st.balloons()
-            st.success(f"Thanks — your feedback is recorded. {public_link}")
+            st.success(f"Thanks — your feedback is recorded! {public_link}")
         else:
             st.warning(f"Saved locally (Sheets not configured). Message: {msg}")
             st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "rating": ff_rating, "like": ff_like, "improvements": "; ".join(ff_improve), "suggestions": ff_suggestions, "original": ff_text, "rewritten": "", "public_link": public_link})
             st.balloons()
+        st.session_state.show_feedback_form = False
 
 # History
 if st.session_state.get("show_history", False):
+    st.markdown("<div style='margin-top:16px;'></div>", unsafe_allow_html=True)
     st.subheader("📜 Rewrite History")
     if st.session_state.rewrites:
         df = pd.DataFrame(st.session_state.rewrites)
-        st.dataframe(df)
+        st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("💾 Export History CSV", data=csv, file_name="rewrite_history.csv")
+        st.download_button("💾 Export History CSV", data=csv, file_name="rewrite_history.csv", use_container_width=True)
     else:
-        st.info("No rewrites yet.")
+        st.info("No rewrites yet. Start by entering some feedback above!")
 
 # Footer
+st.markdown("<div style='margin-top:40px;'></div>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<div style='text-align: center; font-size: 14px;'>🛠️ Created by <b>Devi Mudhanagiri</b> · v1.5 · Powered by <a href='https://openrouter.ai' target='_blank'>OpenRouter</a></div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; font-size: 14px; margin-top:16px;'>🛠️ Created by <b>Devi Mudhanagiri</b> · v1.6 · Powered by <a href='https://openrouter.ai' target='_blank'>OpenRouter</a></div>", unsafe_allow_html=True)
