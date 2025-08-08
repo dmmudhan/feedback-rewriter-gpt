@@ -55,19 +55,32 @@ def deterministic_rewrite(text: str, tone: str, language: str) -> str:
         out = out.replace(k, v)
     return f"[{tone.title()} Tone] {out}"
 
-# ---------------------- Session-state init with proper reset ----------------------
-if "app_loaded" not in st.session_state:
+# ---------------------- PROPER Session State Reset ----------------------
+def reset_app_state():
+    """Completely reset the app to initial state"""
+    keys_to_preserve = ["user_input"]  # Only preserve the current input
+    current_input = st.session_state.get("user_input", "")
+    
+    # Clear everything
     st.session_state.clear()
+    
+    # Reset to defaults
     st.session_state["rewritten_text"] = ""
     st.session_state["feedback"] = ""
-    st.session_state["user_input"] = ""
+    st.session_state["user_input"] = current_input
     st.session_state["rewrites"] = []
     st.session_state["show_feedback_form"] = False
     st.session_state["show_history"] = False
+    st.session_state["show_tip"] = False
+    st.session_state["current_tip"] = ""
     st.session_state["selected_tone"] = "managerial"
     st.session_state["selected_language"] = "English"
     st.session_state["format_as_email"] = False
-    st.session_state["app_loaded"] = True
+    st.session_state["app_session_id"] = str(int(time.time() * 1000))
+
+# Initialize session state properly
+if "app_session_id" not in st.session_state:
+    reset_app_state()
 
 # ---------------------- App Config ----------------------
 st.set_page_config(
@@ -137,11 +150,18 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
     }
     
-    .mobile-friendly {
-        font-size: 1.1rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: 25px;
-        font-weight: 600;
+    .tip-container {
+        background: linear-gradient(135deg, #fff3cd 0%, #fef7e0 100%);
+        border: 2px solid #ffc107;
+        border-radius: 15px;
+        padding: 1rem;
+        margin: 1rem 0;
+        animation: slideIn 0.3s ease-in-out;
+    }
+    
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -182,27 +202,54 @@ st.markdown('<div class="step-indicator">📝 Step 1: Enter Your Raw Feedback</d
 # Quick action buttons
 col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
-    if st.button("🎯 Try Sample Text", use_container_width=True, help="Load example feedback"):
+    if st.button("🎯 Try Sample Text", use_container_width=True, help="Load example feedback", key="sample_btn"):
+        # Clear everything except set the sample text
+        reset_app_state()
         st.session_state.user_input = "You're always missing deadlines. I can't keep covering for your delays. It's affecting the whole project."
-        st.session_state.rewritten_text = ""
         st.rerun()
         
 with col2:
-    if st.button("🔄 Clear All", use_container_width=True, help="Start fresh"):
-        st.session_state.user_input = ""
-        st.session_state.rewritten_text = ""
+    if st.button("🔄 Clear All", use_container_width=True, help="Start fresh", key="clear_btn"):
+        # Complete reset
+        reset_app_state()
         st.rerun()
         
 with col3:
-    if st.button("🎲 Random Tip", use_container_width=True, help="Get writing tips"):
-        tips = [
-            "💡 Be specific about behaviors, not personality",
-            "🎯 Focus on impact and solutions", 
-            "🤝 Use 'we' instead of 'you' when possible",
-            "⏰ Give feedback soon after the event",
-            "🌟 Balance criticism with recognition"
-        ]
-        st.info(f"**Pro Tip:** {tips[int(time.time()) % len(tips)]}")
+    if st.button("🎲 Random Tip", use_container_width=True, help="Get writing tips", key="tip_btn"):
+        if st.session_state.get("show_tip", False):
+            # Hide tip if already showing
+            st.session_state.show_tip = False
+            st.session_state.current_tip = ""
+        else:
+            # Show new tip
+            tips = [
+                "💡 Be specific about behaviors, not personality",
+                "🎯 Focus on impact and solutions", 
+                "🤝 Use 'we' instead of 'you' when possible",
+                "⏰ Give feedback soon after the event",
+                "🌟 Balance criticism with recognition",
+                "📝 Use concrete examples instead of generalizations",
+                "🤔 Ask questions to encourage dialogue",
+                "✨ End with positive expectations"
+            ]
+            st.session_state.current_tip = tips[int(time.time()) % len(tips)]
+            st.session_state.show_tip = True
+
+# Display tip if active
+if st.session_state.get("show_tip", False) and st.session_state.get("current_tip", ""):
+    st.markdown(f"""
+    <div class="tip-container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div><strong>💡 Pro Tip:</strong> {st.session_state.current_tip}</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Add a small dismiss button
+    if st.button("✕ Dismiss", key="dismiss_tip", help="Hide this tip"):
+        st.session_state.show_tip = False
+        st.session_state.current_tip = ""
+        st.rerun()
 
 # Main input area
 user_input = st.text_area(
@@ -228,7 +275,8 @@ if user_input and user_input.strip():
                 options=list(tone_options.keys()),
                 format_func=lambda x: tone_options[x],
                 index=list(tone_options.keys()).index(st.session_state.get("selected_tone", "managerial")),
-                help="Select the professional tone that best fits your situation"
+                help="Select the professional tone that best fits your situation",
+                key="tone_selector"
             )
             st.session_state.selected_tone = selected_tone_key
             
@@ -236,7 +284,8 @@ if user_input and user_input.strip():
             format_as_email = st.checkbox(
                 "📧 Format as Email", 
                 value=st.session_state.get("format_as_email", False),
-                help="Add greeting, structure, and professional closing"
+                help="Add greeting, structure, and professional closing",
+                key="email_checkbox"
             )
             st.session_state.format_as_email = format_as_email
         
@@ -248,7 +297,8 @@ if user_input and user_input.strip():
                 options=list(language_options.keys()),
                 format_func=lambda x: language_options[x],
                 index=list(language_options.keys()).index(st.session_state.get("selected_language", "English")),
-                help="Choose your preferred language for the output"
+                help="Choose your preferred language for the output",
+                key="language_selector"
             )
             st.session_state.selected_language = selected_language_key
             
@@ -276,8 +326,11 @@ if user_input and user_input.strip():
             help="Click to generate your refined, professional feedback",
             key="transform_btn"
         ):
-            # Clear previous results
+            # Clear previous results and hide other sections
             st.session_state.rewritten_text = ""
+            st.session_state.show_feedback_form = False
+            st.session_state.show_history = False
+            st.session_state.show_tip = False
             
             with st.spinner("🎭 Applying the perfect tone... 🌟 Crafting professional language... ⚡ Almost ready!"):
                 try:
@@ -355,16 +408,18 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
             st.session_state.rewritten_text, 
             file_name=f"refined_feedback_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
             use_container_width=True,
-            help="Save your refined feedback as a text file"
+            help="Save your refined feedback as a text file",
+            key="download_btn"
         )
     with col2:
-        if st.button("🔄 Try Different Tone", use_container_width=True, help="Keep the same text, try another tone"):
+        if st.button("🔄 Try Different Tone", use_container_width=True, help="Keep the same text, try another tone", key="retry_btn"):
             st.session_state.rewritten_text = ""
+            st.session_state.show_feedback_form = False
+            st.session_state.show_history = False
             st.rerun()
     with col3:
-        if st.button("✨ New Feedback", use_container_width=True, help="Start over with new feedback"):
-            st.session_state.user_input = ""
-            st.session_state.rewritten_text = ""
+        if st.button("✨ New Feedback", use_container_width=True, help="Start over with new feedback", key="new_btn"):
+            reset_app_state()
             st.rerun()
 
 # ---------------------- Bottom Actions ----------------------
@@ -373,22 +428,32 @@ st.markdown('<h3 style="text-align: center; color: #666;">🛠️ More Options</
 
 col1, col2 = st.columns([1, 1])
 with col1:
-    if st.button("💬 Share Feedback", use_container_width=True, help="Help us improve this tool"):
+    if st.button("💬 Share Feedback", use_container_width=True, help="Help us improve this tool", key="feedback_toggle_btn"):
         st.session_state.show_feedback_form = not st.session_state.get("show_feedback_form", False)
+        st.session_state.show_history = False  # Hide history when showing feedback
+        if not st.session_state.show_feedback_form:
+            # If hiding feedback form, make sure it's properly reset
+            st.rerun()
+            
 with col2:
-    if st.button("📜 My History", use_container_width=True, help="View your previous transformations"):
+    if st.button("📜 My History", use_container_width=True, help="View your previous transformations", key="history_toggle_btn"):
         st.session_state.show_history = not st.session_state.get("show_history", False)
+        st.session_state.show_feedback_form = False  # Hide feedback when showing history
+        if not st.session_state.show_history:
+            # If hiding history, make sure it's properly reset
+            st.rerun()
 
 # Feedback Form
 if st.session_state.get("show_feedback_form", False):
     st.markdown("### 📬 Help Us Make This Better!")
-    with st.form("feedback_form"):
+    with st.form("feedback_form", clear_on_submit=True):
         ff_text = st.text_area("What do you think about this tool?", height=100)
         ff_rating = st.slider("Rate your experience (1=poor, 5=amazing)", 1, 5, 4)
         ff_like = st.radio("Would you recommend this to colleagues?", ["👍 Absolutely","👎 Not really"], index=0)
         ff_improve = st.multiselect("What should we improve?", ["Speed","Accuracy","Languages","Tones","Interface","Mobile Experience"])
         ff_suggestions = st.text_area("Any specific suggestions?")
         submit_feedback = st.form_submit_button("🚀 Submit Feedback")
+        
     if submit_feedback:
         fb_id = str(int(time.time()*1000))
         public_base = st.secrets.get("PUBLIC_BASE_URL", "")
@@ -402,7 +467,11 @@ if st.session_state.get("show_feedback_form", False):
             st.warning(f"Feedback saved locally. {msg}")
             st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "rating": ff_rating, "like": ff_like, "improvements": "; ".join(ff_improve), "suggestions": ff_suggestions, "original": ff_text, "rewritten": "", "public_link": public_link})
             st.balloons()
+        
+        # Hide feedback form after successful submission
         st.session_state.show_feedback_form = False
+        time.sleep(2)  # Brief pause before rerun
+        st.rerun()
 
 # History
 if st.session_state.get("show_history", False):
@@ -411,7 +480,7 @@ if st.session_state.get("show_history", False):
         df = pd.DataFrame(st.session_state.rewrites)
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("💾 Export History", data=csv, file_name="feedback_history.csv", use_container_width=True)
+        st.download_button("💾 Export History", data=csv, file_name="feedback_history.csv", use_container_width=True, key="export_history_btn")
     else:
         st.info("🌟 No transformations yet. Start by entering some feedback above!")
 
@@ -420,7 +489,7 @@ st.markdown("---")
 st.markdown("""
 <div style='text-align: center; padding: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; margin: 2rem 0;'>
     <h3 style='color: white; margin: 0;'>🚀 Built by Devi Mudhanagiri</h3>
-    <p style='color: #f0f0f0; margin: 0.5rem 0;'>v2.0 | Powered by OpenRouter AI | Made with ❤️ for better communication</p>
+    <p style='color: #f0f0f0; margin: 0.5rem 0;'>v2.1 | Powered by OpenRouter AI | Made with ❤️ for better communication</p>
     <p style='color: #e0e0e0; margin: 0; font-size: 0.9rem;'>Transform every conversation into an opportunity 💫</p>
 </div>
 """, unsafe_allow_html=True)
