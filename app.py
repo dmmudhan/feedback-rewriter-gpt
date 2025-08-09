@@ -5,6 +5,7 @@ import pandas as pd
 import json
 from datetime import datetime
 import random
+import os
 
 # ---------------------- Google Sheets Integration ----------------------
 try:
@@ -79,7 +80,7 @@ if "app_session_id" not in st.session_state:
 
 # ---------------------- App Config ----------------------
 st.set_page_config(
-    page_title="🎯 FeedbackGPT - AI Communication Coach", 
+    page_title="🎯 FeedbackGPT - A Communication Coach", 
     page_icon="🚀", 
     layout="centered",
     initial_sidebar_state="collapsed"
@@ -508,7 +509,7 @@ if user_input and user_input.strip():
             # Exciting loading messages
             loading_messages = [
                 "🎭 Analyzing your communication style...",
-                "🧠 AI brain processing your feedback...", 
+                "🧠 Processing your feedback...", 
                 "✨ Sprinkling professional magic...",
                 "🎯 Crafting the perfect tone...",
                 "🌟 Adding emotional intelligence...",
@@ -521,17 +522,24 @@ if user_input and user_input.strip():
                     
                     if format_as_email:
                         system_prompt = (
-                            f"You are an expert email communication coach. Transform this workplace feedback into a professional, well-structured email with a {selected_tone_key} tone. "
+                            f"You are an expert workplace communication coach. "
+                            f"Transform the following feedback into a professional, well-structured email written **by the user to a colleague, peer, or team member** — not as a self-reflection or response to feedback they received. "
+                            f"Use a {selected_tone_key} tone: warm, constructive, and appropriate for workplace dynamics. "
                             f"Write everything in perfect {selected_language_key}. "
                             f"For non-English: Use native greetings, expressions, and cultural norms. No English words at all. "
-                            f"Include appropriate greeting, structured body, and professional closing for {selected_language_key} business culture."
+                            f"Structure the email with a clear greeting, body (with context and suggestion), and professional closing that fits {selected_language_key} business culture. "
+                            f"Never write from the perspective of someone apologizing for their own mistake unless explicitly stated. "
+                            f"The goal is to help the recipient grow — kindly, clearly, and respectfully."
                         )
                     else:
                         system_prompt = (
-                            f"You are a communication expert. Transform this raw feedback into professional, {selected_tone_key} language while preserving the core message. "
-                            f"Write entirely in {selected_language_key}. "
-                            f"For non-English: Use natural, native expressions. No English words. "
-                            f"Make it constructive, specific, and actionable. Keep it concise but impactful."
+                            f"You are a communication expert helping professionals deliver better feedback. "
+                            f"Rewrite the following raw message into clear, professional language with a {selected_tone_key} tone. "
+                            f"This feedback is **from the user to someone else** (e.g., a teammate or report), not about themselves. "
+                            f"Do NOT turn it into a self-critique or apology. Do NOT use first-person if the original isn't about the user. "
+                            f"Write entirely in {selected_language_key}, using natural, native expressions. No English words. "
+                            f"Make the feedback constructive, specific, and actionable — kind but clear. Keep it concise and impactful. "
+                            f"Preserve the core message, but elevate tone and clarity for healthy workplace communication."
                         )
 
                     if api_key:
