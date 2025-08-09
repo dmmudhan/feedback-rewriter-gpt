@@ -646,8 +646,8 @@ if st.session_state.get("show_feedback_form", False):
     with st.form("feedback_form", clear_on_submit=True):
         ff_text = st.text_area("💭 What's your experience with FeedbackGPT?", height=100, placeholder="This tool saved me from so many awkward conversations...")
         ff_rating = st.slider("⭐ Rate your experience", 1, 5, 4, help="1 = Needs work, 5 = Mind-blowing!")
-        ff_like = st.radio("🚀 Would you recommend FeedbackGPT?", ["👍 Absolutely - it's amazing!","👎 Not quite there yet"], index=0)
-        ff_improve = st.multiselect("🎯 What should we enhance?", ["⚡ Speed","🎯 Accuracy","🌍 More Languages","🎭 More Tones","📱 Mobile Experience","🎨 Interface Design"])
+        ff_like = st.radio("🚀 Would you recommend FeedbackGPT?", ["👍 Absolutely! I'd recommend it","🙂 Yes, with a few suggestions","😐 Neutral – it's okay","👎 Not right now"], index=0)
+        ff_improve = st.multiselect("🎯 What should we enhance?", ["⚡ Speed","🎯 Accuracy","🌍 More Languages","🎭 More Tones","📱 Mobile Experience","🎨 Interface Design","📦 More Templates","🔍 Context Awareness","💡Smarter Suggestions"])
         ff_suggestions = st.text_area("💡 Any brilliant suggestions?", placeholder="What would make this tool irresistible?")
         
         submit_col1, submit_col2, submit_col3 = st.columns([1, 2, 1])
@@ -711,54 +711,93 @@ if st.session_state.get("show_history", False):
         """, unsafe_allow_html=True)
 
 # ---------------------- Public Feedback Viewer ----------------------
-def show_public_feedback():
-    import csv, os
-
-    rows = []
     # Try Google Sheets first
-    client = gs_client_from_secrets()
-    if client:
-        try:
+    rows = []
+    try:
+        client = gs_client_from_secrets()  # Assume this is defined in your app
+        if client:
             sh = client.open("feedback_rewriter_history")
             worksheet = sh.sheet1
-            rows = worksheet.get_all_values()[1:]  # skip header
-        except Exception:
-            rows = []
+            sheet_data = worksheet.get_all_values()
+            if len(sheet_data) > 1:
+                rows = sheet_data[1:]  # skip header
+    except Exception as e:
+        rows = []  # Fallback quietly on any error
 
     # Fallback to local CSV
     if not rows and os.path.isfile("feedback_local.csv"):
-        with open("feedback_local.csv", newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            next(reader, None)  # skip header
-            rows = list(reader)
+        try:
+            with open("feedback_local.csv", newline='', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                header = next(reader, None)  # skip header
+                rows = list(reader)
+        except Exception:
+            rows = []
 
+    # Process rows if available
     if rows:
         df = pd.DataFrame(rows, columns=[
-            "timestamp","rating","like","improvements","suggestions",
-            "original","rewritten","user_email","public_link"
+            "timestamp", "rating", "like", "improvements", "suggestions",
+            "original", "rewritten", "user_email", "public_link"
         ])
-        if not df.empty:
-            df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
-            df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
-            df = df.sort_values(by=['rating','timestamp'], ascending=[False, False])
 
-            st.markdown("### 🌟 Feedback from our community")
+        # Clean and convert
+        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+        df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
 
-            def highlight_row(row):
-                if row['rating'] >= 4:
-                    return ['background-color: #e6ffe6'] * len(row)
-                return [''] * len(row)
+        # Drop invalid rows
+        df = df.dropna(subset=['rating', 'timestamp'])
 
-            st.dataframe(
-                df[["timestamp","rating","like","suggestions"]].style.apply(highlight_row, axis=1),
-                use_container_width=True,
-                hide_index=True
-            )
+        # Sort: highest rating first, then newest first within same rating
+        df = df.sort_values(by=['rating', 'timestamp'], ascending=[False, False]).reset_index(drop=True)
+
+        # Only show public/shared feedback? (Uncomment if you use public_link as boolean flag)
+        # df = df[df['public_link'].astype(str).str.lower() == 'true']
+
+        st.markdown("### 🌟 What Others Are Saying")
+
+        # Highlight rows with 4 or 5 stars
+        def highlight_row(row):
+            if row['rating'] >= 4:
+                return ['background-color: #f0fff0; color: #0a310a'] * len(row)
+            return [''] * len(row)
+
+        # Prepare display DataFrame
+        display_df = df[["timestamp", "rating", "suggestions"]].copy()
+        display_df['timestamp'] = display_df['timestamp'].dt.strftime('%b %d, %Y')  # Clean date
+        display_df.rename(columns={
+            "timestamp": "📅 Date",
+            "rating": "⭐",
+            "suggestions": "💬 Feedback"
+        }, inplace=True)
+
+        # Display with styling
+        st.dataframe(
+            display_df.style.apply(highlight_row, axis=1),
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "⭐": st.column_config.NumberColumn(format="%.1f ⭐"),
+                "💬 Feedback": "Feedback",
+                "📅 Date": "Date"
+            }
+        )
+
+        # Optional: Spotlight the top review
+        top_review = df.iloc[0]
+        if top_review['rating'] >= 4:
+            with st.expander("✨ Featured Community Review", expanded=False):
+                st.markdown(f"""
+                > "{top_review['suggestions']}"
+                > 
+                > — Rated {top_review['rating']}⭐ on {top_review['timestamp'].strftime('%B %d')}
+                """)
     else:
-        st.info("No feedback available yet. Be the first to share your thoughts!")
+        st.info("No feedback yet — be the first to share how FeedbackGPT helped you craft better messages! 💌")
         
+
 # Trigger Public Feedback Viewer
-if st.button("💬 What Others Say", use_container_width=True, help="See feedback from other users"):
+if st.button("💬 What Others Say", use_container_width=True, help="See real feedback from users like you"):
     show_public_feedback()
 
 
