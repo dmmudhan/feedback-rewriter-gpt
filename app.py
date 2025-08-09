@@ -372,7 +372,7 @@ if st.session_state.get("show_tip", False) and st.session_state.get("current_tip
 
 # Main input with viral examples
 user_input = st.text_area(
-    label="Your feedback to transform:",
+    label="",
     key="user_input", 
     height=140,
     placeholder="🔥 Paste your brutally honest feedback here...\n\nExamples:\n• 'You never respond to emails. It's unprofessional.'\n• 'Your presentation was confusing and boring.'\n• 'You always interrupt people in meetings.'\n\n💪 Be real - we'll make it professional!",
@@ -541,11 +541,11 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
         st.download_button(
-            "📱 Save to Phone", 
+            "💾 Download", 
             st.session_state.rewritten_text, 
             file_name=f"FeedbackGPT_Transform_{datetime.now().strftime('%m%d_%H%M')}.txt",
             use_container_width=True,
-            help="Download your professional message",
+            help="Save your professional message",
             key="download_btn"
         )
     with col2:
@@ -667,19 +667,10 @@ st.markdown("""
         <h2 style='color: white; margin: 0; font-weight: 800;'>🚀 Created by Devi Mudhanagiri</h2>
         <p style='color: #f0f0f0; margin: 1rem 0; font-size: 1.1rem; font-weight: 500;'>FeedbackGPT v2.1 | Powered by OpenRouter AI</p>
         <p style='color: #e0e0e0; margin: 0; font-size: 1rem;'>💫 "Making every conversation a catalyst for growth"</p>
-        <div style='margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.2); border-radius: 15px;'>
+        <div style='background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 15px; margin-top: 1rem;'>
             <p style='color: white; margin: 0; font-weight: 600;'>🎯 Built for leaders who care about communication</p>
             <p style='color: #f0f0f0; margin: 0.5rem 0 0 0; font-size: 0.9rem;'>Transform. Connect. Succeed.</p>
         </div>
     </div>
 </div>
-""", unsafe_allow_html=True)
-
-# ---------------------- VIRAL CALL TO ACTION ----------------------
-if not (st.session_state.get("show_feedback_form", False) or st.session_state.get("show_history", False)):
-    st.markdown("""
-    <div style='background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%); color: white; padding: 1.5rem; border-radius: 20px; text-align: center; margin: 1rem 0; box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);'>
-        <h3 style='margin: 0; font-weight: 700;'>🔥 Ready to become a communication pro?</h3>
-        <p style='margin: 0.5rem 0 0 0; font-size: 1.1rem;'>Start transforming your feedback above and join the communication revolution!</p>
-    </div>
-    """, unsafe_allow_html=True)
+""")
