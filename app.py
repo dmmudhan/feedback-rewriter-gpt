@@ -859,7 +859,7 @@ def show_public_feedback():
                 file_rows = list(reader)
                 if file_rows:  # Only use if not empty
                     rows = file_rows
-        except Exception
+        except Exception:
             #st.write(f"🔍 Debug: CSV read failed: {e}")
             rows = []
 
