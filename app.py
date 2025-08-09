@@ -72,6 +72,7 @@ def reset_app_state():
     st.session_state["selected_language"] = "English"
     st.session_state["format_as_email"] = False
     st.session_state["app_session_id"] = str(int(time.time() * 1000))
+    st.session_state["widget_keys"] = {}
 
 # Initialize session state properly
 if "app_session_id" not in st.session_state:
@@ -384,18 +385,18 @@ st.markdown('<div class="step-pill">🎯 STEP 1: Drop Your Raw, Honest Feedback 
 # Viral action buttons
 col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
-    if st.button("🎲 Surprise Me!", use_container_width=True, help="Get a random challenging example", key="sample_btn"):
+    if st.button("🎲 Surprise Me!", use_container_width=True, help="Get a random challenging example", key=f"sample_btn_{st.session_state['app_session_id']}"):
         reset_app_state()
         st.session_state.user_input = random.choice(viral_samples)
         st.rerun()
         
 with col2:
-    if st.button("🚀 Fresh Start", use_container_width=True, help="Clear everything and start over", key="clear_btn"):
+    if st.button("🚀 Fresh Start", use_container_width=True, help="Clear everything and start over", key=f"clear_btn_{st.session_state['app_session_id']}"):
         reset_app_state()
         st.rerun()
         
 with col3:
-    if st.button("💡 Pro Tips", use_container_width=True, help="Get expert communication advice", key="tip_btn"):
+    if st.button("💡 Pro Tips", use_container_width=True, help="Get expert communication advice", key=f"tip_btn_{st.session_state['app_session_id']}"):
         if st.session_state.get("show_tip", False):
             st.session_state.show_tip = False
             st.session_state.current_tip = ""
@@ -423,7 +424,7 @@ if st.session_state.get("show_tip", False) and st.session_state.get("current_tip
         </div>
         """, unsafe_allow_html=True)
     with tip_col2:
-        if st.button("✕", key="dismiss_tip", help="Hide tip"):
+        if st.button("✕", key=f"dismiss_tip_{st.session_state['app_session_id']}", help="Hide tip"):
             st.session_state.show_tip = False
             st.session_state.current_tip = ""
             st.rerun()
@@ -431,7 +432,7 @@ if st.session_state.get("show_tip", False) and st.session_state.get("current_tip
 # Main input with viral examples
 user_input = st.text_area(
     label="",
-    key="user_input", 
+    key=f"user_input_{st.session_state['app_session_id']}", 
     height=140,
     placeholder="🔥 Paste your brutally honest feedback here...\n\nExamples:\n• 'You never respond to emails. It's unprofessional.'\n• 'Your presentation was confusing and boring.'\n• 'You always interrupt people in meetings.'\n\n💪 Be real - we'll make it professional!",
     help="Don't hold back - the rawer, the better the transformation!"
@@ -450,7 +451,7 @@ if user_input and user_input.strip():
             format_func=lambda x: tone_options[x],
             index=list(tone_options.keys()).index(st.session_state.get("selected_tone", "managerial")),
             help="Choose the vibe that matches your situation",
-            key="tone_selector"
+            key=f"tone_selector_{st.session_state['app_session_id']}"
         )
         st.session_state.selected_tone = selected_tone_key
         
@@ -460,7 +461,7 @@ if user_input and user_input.strip():
             format_func=lambda x: language_options[x],
             index=list(language_options.keys()).index(st.session_state.get("selected_language", "English")),
             help="Pick your preferred language",
-            key="language_selector"
+            key=f"language_selector_{st.session_state['app_session_id']}"
         )
         st.session_state.selected_language = selected_language_key
         
@@ -469,7 +470,7 @@ if user_input and user_input.strip():
             "📧 Email Mode", 
             value=st.session_state.get("format_as_email", False),
             help="Complete email with greeting & closing",
-            key="email_checkbox"
+            key=f"email_checkbox_{st.session_state['app_session_id']}"
         )
         st.session_state.format_as_email = format_as_email
         
@@ -497,7 +498,7 @@ if user_input and user_input.strip():
             "✨ TRANSFORM WITH AI MAGIC ✨", 
             use_container_width=True,
             help="🎭 Click for instant professional transformation!",
-            key="transform_btn"
+            key=f"transform_btn_{st.session_state['app_session_id']}"
         ):
             # Reset other panels
             st.session_state.rewritten_text = ""
@@ -575,7 +576,7 @@ if user_input and user_input.strip():
                     st.session_state.rewritten_text = ""
 
 # ---------------------- CLEAN Results Section (NO ANIMATIONS) ----------------------
-if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
+if st.session_state.get("rewritten_text", "").strip():
     st.markdown('<div class="step-pill">🎉 BOOM! Your Professional Message is Ready!</div>', unsafe_allow_html=True)
     
     # Simple, clean result display without animations
@@ -601,14 +602,14 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
             file_name=f"FeedbackGPT_Transform_{datetime.now().strftime('%m%d_%H%M')}.txt",
             use_container_width=True,
             help="Save your professional message",
-            key="download_btn"
+            key=f"download_btn_{st.session_state['app_session_id']}"
         )
     with col2:
-        if st.button("🎭 Try New Tone", use_container_width=True, help="Same message, different vibe", key="retry_btn"):
+        if st.button("🎭 Try New Tone", use_container_width=True, help="Same message, different vibe", key=f"retry_btn_{st.session_state['app_session_id']}"):
             st.session_state.rewritten_text = ""
             st.rerun()
     with col3:
-        if st.button("🔥 Transform More", use_container_width=True, help="Start fresh with new feedback", key="new_btn"):
+        if st.button("🔥 Transform More", use_container_width=True, help="Start fresh with new feedback", key=f"new_btn_{st.session_state['app_session_id']}"):
             reset_app_state()
             st.rerun()
 
@@ -628,14 +629,14 @@ st.markdown('<h3 style="text-align: center; color: #666; margin: 2rem 0;">🛠�
 
 col1, col2 = st.columns([1, 1])
 with col1:
-    if st.button("⭐ Rate This Tool", use_container_width=True, help="Share your experience with FeedbackGPT", key="feedback_toggle_btn"):
+    if st.button("⭐ Rate This Tool", use_container_width=True, help="Share your experience with FeedbackGPT", key=f"feedback_toggle_btn_{st.session_state['app_session_id']}"):
         st.session_state.show_feedback_form = not st.session_state.get("show_feedback_form", False)
         st.session_state.show_history = False
         if not st.session_state.show_feedback_form:
             st.rerun()
             
 with col2:
-    if st.button("📊 My Transformations", use_container_width=True, help="View your communication evolution", key="history_toggle_btn"):
+    if st.button("📊 My Transformations", use_container_width=True, help="View your communication evolution", key=f"history_toggle_btn_{st.session_state['app_session_id']}"):
         st.session_state.show_history = not st.session_state.get("show_history", False)
         st.session_state.show_feedback_form = False
         if not st.session_state.show_history:
@@ -698,9 +699,9 @@ if st.session_state.get("show_history", False):
         col1, col2 = st.columns([1, 1])
         with col1:
             csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button("📊 Export My Data", data=csv, file_name=f"FeedbackGPT_History_{datetime.now().strftime('%Y%m%d')}.csv", use_container_width=True, key="export_history_btn")
+            st.download_button("📊 Export My Data", data=csv, file_name=f"FeedbackGPT_History_{datetime.now().strftime('%Y%m%d')}.csv", use_container_width=True, key=f"export_history_btn_{st.session_state['app_session_id']}")
         with col2:
-            if st.button("🗑️ Clear History", use_container_width=True, help="Start fresh", key="clear_history_btn"):
+            if st.button("🗑️ Clear History", use_container_width=True, help="Start fresh", key=f"clear_history_btn_{st.session_state['app_session_id']}"):
                 st.session_state.rewrites = []
                 st.success("History cleared!")
                 time.sleep(1)
