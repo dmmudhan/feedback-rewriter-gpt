@@ -227,24 +227,109 @@ st.markdown("""
     
     .feature-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
         margin: 1.5rem 0;
+        max-width: 100%;
     }
     
     .feature-card {
         background: white;
-        padding: 1.5rem;
+        padding: 1.8rem 1.5rem;
         border-radius: 15px;
         text-align: center;
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         transition: transform 0.3s ease;
         border: 2px solid #f0f0f0;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
     
     .feature-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+    
+    .feature-card h4 {
+        margin: 0 0 0.8rem 0;
+        font-size: 1.2rem;
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .feature-card p {
+        margin: 0;
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+    
+    .creator-footer {
+        text-align: center; 
+        padding: 2.5rem; 
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); 
+        border-radius: 20px; 
+        margin: 2rem 0; 
+        position: relative; 
+        overflow: hidden;
+        color: white;
+    }
+    
+    .creator-footer::before {
+        content: '';
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+        right: 0; 
+        bottom: 0; 
+        background: rgba(255,255,255,0.1); 
+        backdrop-filter: blur(10px);
+    }
+    
+    .creator-content {
+        position: relative; 
+        z-index: 1;
+    }
+    
+    .creator-title {
+        color: white; 
+        margin: 0; 
+        font-weight: 800;
+        font-size: 2rem;
+    }
+    
+    .creator-subtitle {
+        color: #f0f0f0; 
+        margin: 1rem 0; 
+        font-size: 1.1rem; 
+        font-weight: 500;
+    }
+    
+    .creator-tagline {
+        color: #e0e0e0; 
+        margin: 0; 
+        font-size: 1rem;
+    }
+    
+    .creator-box {
+        background: rgba(255,255,255,0.2); 
+        padding: 1rem; 
+        border-radius: 15px; 
+        margin-top: 1rem;
+    }
+    
+    .creator-mission {
+        color: white; 
+        margin: 0; 
+        font-weight: 600;
+    }
+    
+    .creator-vision {
+        color: #f0f0f0; 
+        margin: 0.5rem 0 0 0; 
+        font-size: 0.9rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -262,24 +347,32 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------- Feature Showcase ----------------------
+# ---------------------- IMPROVED Feature Showcase (6 cards for better layout) ----------------------
 st.markdown("""
 <div class="feature-grid">
     <div class="feature-card">
         <h4>🎭 5 Pro Tones</h4>
-        <p>From empathetic to assertive</p>
+        <p>From empathetic to assertive - match any situation</p>
     </div>
     <div class="feature-card">
         <h4>🌍 12 Languages</h4>
-        <p>Global communication ready</p>
+        <p>Global communication ready with native expressions</p>
     </div>
     <div class="feature-card">
         <h4>📧 Email Format</h4>
-        <p>Complete with greetings</p>
+        <p>Complete professional emails with proper greetings</p>
     </div>
     <div class="feature-card">
         <h4>⚡ 3-Second Results</h4>
-        <p>Faster than typing yourself</p>
+        <p>Faster than typing yourself - instant transformation</p>
+    </div>
+    <div class="feature-card">
+        <h4>🧠 Smart AI</h4>
+        <p>Powered by advanced language models for nuanced communication</p>
+    </div>
+    <div class="feature-card">
+        <h4>📊 Track Progress</h4>
+        <p>Monitor your communication evolution and export history</p>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -658,19 +751,18 @@ if st.session_state.get("show_history", False):
         </div>
         """, unsafe_allow_html=True)
 
-# ---------------------- VIRAL FOOTER WITH SOCIAL PROOF ----------------------
+# ---------------------- FIXED FOOTER WITH PROPER HTML RENDERING ----------------------
 st.markdown("---")
 st.markdown("""
-<div style='text-align: center; padding: 2.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); border-radius: 20px; margin: 2rem 0; position: relative; overflow: hidden;'>
-    <div style='position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);'></div>
-    <div style='position: relative; z-index: 1;'>
-        <h2 style='color: white; margin: 0; font-weight: 800;'>🚀 Created by Devi Mudhanagiri</h2>
-        <p style='color: #f0f0f0; margin: 1rem 0; font-size: 1.1rem; font-weight: 500;'>FeedbackGPT v2.1 | Powered by OpenRouter AI</p>
-        <p style='color: #e0e0e0; margin: 0; font-size: 1rem;'>💫 "Making every conversation a catalyst for growth"</p>
-        <div style='background: rgba(255,255,255,0.2); padding: 1rem; border-radius: 15px; margin-top: 1rem;'>
-            <p style='color: white; margin: 0; font-weight: 600;'>🎯 Built for leaders who care about communication</p>
-            <p style='color: #f0f0f0; margin: 0.5rem 0 0 0; font-size: 0.9rem;'>Transform. Connect. Succeed.</p>
+<div class="creator-footer">
+    <div class="creator-content">
+        <h2 class="creator-title">🚀 Created by Devi Mudhanagiri</h2>
+        <p class="creator-subtitle">FeedbackGPT v2.1 | Powered by OpenRouter AI</p>
+        <p class="creator-tagline">💫 "Making every conversation a catalyst for growth"</p>
+        <div class="creator-box">
+            <p class="creator-mission">🎯 Built for leaders who care about communication</p>
+            <p class="creator-vision">Transform. Connect. Succeed.</p>
         </div>
     </div>
 </div>
-""")
+""", unsafe_allow_html=True)
