@@ -200,7 +200,6 @@ st.markdown("""
         max-width: 100%;
     }
     
-    /* ==================== ENHANCED FEATURE CARD WITH SMOOTH HOVER ==================== */
     .feature-card {
         background: white;
         padding: 1.8rem 1.5rem;
@@ -242,7 +241,6 @@ st.markdown("""
         transition: color 0.3s ease;
     }
 
-    /* Subtle glow background on hover */
     .feature-card::before {
         content: '';
         position: absolute;
@@ -257,7 +255,6 @@ st.markdown("""
     .feature-card:hover::before {
         opacity: 1;
     }
-    /* ================================================================================= */
 
     .creator-footer {
         text-align: center; 
@@ -373,7 +370,7 @@ st.markdown(
         font-weight: 800;
         margin: 0;
         font-family: 'Poppins', sans-serif;
-        background: linear-gradient(90deg, #4A90E2, #50C878);
+        background: linear-gradient(90deg, #6B7280, #374151); /* Softer, elegant gradient */
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         letter-spacing: -1px;
@@ -381,6 +378,7 @@ st.markdown(
         display: inline-block;
         transform: skew(-3deg); /* Subtle italic-like tilt */
         animation: pulseGlow 3s ease-in-out infinite alternate;
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2)); /* Softer shadow */
     }
 
     .hero-tagline {
@@ -388,11 +386,11 @@ st.markdown(
         font-size: 2rem;
         font-family: 'Poppins', sans-serif;
         font-weight: 700;
-        margin-bottom: 0.8rem;
+        margin: 0.8rem auto;
+        max-width: 700px;
+        padding: 0 1rem;
         background: none;
         color: #222;
-        max-width: 700px;
-        margin: 0.8rem auto;
     }
 
     .tagline-focus {
@@ -404,6 +402,8 @@ st.markdown(
         letter-spacing: -.5px;
         animation: pulseGlow 2.5s ease-in-out infinite alternate;
         filter: drop-shadow(0 2px 8px rgba(76,175,80,0.05));
+        display: block;
+        margin: 0 auto;
     }
 
     .tagline-sub {
@@ -411,8 +411,9 @@ st.markdown(
         font-size: 1.25rem;
         color: #555;
         font-weight: 500;
-        margin-top: .4rem;
+        margin: 0.4rem auto 0;
         opacity: 0.92;
+        max-width: 600px;
     }
 
     .viral-cta {
@@ -437,6 +438,10 @@ st.markdown(
         .tagline-focus {
             font-size: 1.5rem;
         }
+        .tagline-sub {
+            font-size: 1rem;
+            max-width: 90%;
+        }
     }
     </style>
 
@@ -444,7 +449,7 @@ st.markdown(
         <h1>Reframe</h1>
     </div>
     <p class="hero-tagline">
-        <span class="tagline-focus">Turn Critique Into Connection.</span><br>
+        <span class="tagline-focus">Turn Critique Into Connection</span>
         <span class="tagline-sub">Help your message land with empathy, clarity, and purpose.</span>
     </p>
     """,
