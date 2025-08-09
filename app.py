@@ -6,6 +6,7 @@ import json
 from datetime import datetime
 import random
 import os
+import csv
 
 # ---------------------- Google Sheets Integration ----------------------
 try:
@@ -363,7 +364,7 @@ st.markdown(
         Reframe tough messages with clarity and care.
     </p>
     <h2 class="viral-cta">
-        🔄 Turn tension into trust — one message at a time.
+        🔄 Transform tough feedback into constructive conversations.
     </h2>
     """,
     unsafe_allow_html=True
@@ -858,8 +859,8 @@ def show_public_feedback():
                 file_rows = list(reader)
                 if file_rows:  # Only use if not empty
                     rows = file_rows
-        except Exception as e:
-            st.write(f"🔍 Debug: CSV read failed: {e}")
+        except Exception
+            #st.write(f"🔍 Debug: CSV read failed: {e}")
             rows = []
 
     # ✅ Check if we have any rows
