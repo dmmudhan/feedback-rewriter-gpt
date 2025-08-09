@@ -342,20 +342,15 @@ st.markdown(
     @keyframes pulseGlow {
         0% {
             text-shadow: 
-                0 0 10px rgba(74, 144, 226, 0.4),
-                0 0 20px rgba(74, 144, 226, 0.3),
-                0 0 30px rgba(80, 200, 120, 0.2);
+                0 0 5px rgba(74, 144, 226, 0.2);
         }
         50% {
             text-shadow: 
-                0 0 18px rgba(74, 144, 226, 0.7),
-                0 0 28px rgba(80, 200, 120, 0.5);
+                0 0 10px rgba(80, 200, 120, 0.3);
         }
         100% {
             text-shadow: 
-                0 0 10px rgba(74, 144, 226, 0.4),
-                0 0 20px rgba(74, 144, 226, 0.3),
-                0 0 30px rgba(80, 200, 120, 0.2);
+                0 0 5px rgba(74, 144, 226, 0.2);
         }
     }
 
@@ -370,15 +365,15 @@ st.markdown(
         font-weight: 800;
         margin: 0;
         font-family: 'Poppins', sans-serif;
-        background: linear-gradient(90deg, #6B7280, #374151); /* Softer, elegant gradient */
+        background: linear-gradient(90deg, #1E40AF, #3B82F6); /* Vibrant yet clear blue gradient */
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         letter-spacing: -1px;
         position: relative;
         display: inline-block;
-        transform: skew(-3deg); /* Subtle italic-like tilt */
+        transform: skew(-3deg);
         animation: pulseGlow 3s ease-in-out infinite alternate;
-        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.2)); /* Softer shadow */
+        filter: none; /* Removed shadow for clarity */
     }
 
     .hero-tagline {
@@ -394,14 +389,14 @@ st.markdown(
     }
 
     .tagline-focus {
-        background: linear-gradient(90deg, #FF6B6B 40%, #4ECDC4 120%);
+        background: linear-gradient(90deg, #DC2626, #16A34A); /* Red to green gradient for contrast */
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800;
         font-size: 2.3rem;
         letter-spacing: -.5px;
         animation: pulseGlow 2.5s ease-in-out infinite alternate;
-        filter: drop-shadow(0 2px 8px rgba(76,175,80,0.05));
+        filter: none; /* Removed shadow for clarity */
         display: block;
         margin: 0 auto;
     }
@@ -455,7 +450,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 # ---------------------- Social Proof Banner ----------------------
 st.markdown("""
 <div class="stats-banner">
