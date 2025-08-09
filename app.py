@@ -710,13 +710,10 @@ if st.session_state.get("show_history", False):
         </div>
         """, unsafe_allow_html=True)
 
-# ---------------------- FIXED FOOTER WITH PROPER HTML RENDERING ----------------------
-st.markdown("---")
-st.markdown("""
-
 # ---------------------- Public Feedback Viewer ----------------------
-if st.button("💬 What Others Say", use_container_width=True, help="See feedback from other users"):
+def show_public_feedback():
     import csv, os
+
     rows = []
     # Try Google Sheets first
     client = gs_client_from_secrets()
@@ -727,32 +724,47 @@ if st.button("💬 What Others Say", use_container_width=True, help="See feedbac
             rows = worksheet.get_all_values()[1:]  # skip header
         except Exception:
             rows = []
+
     # Fallback to local CSV
     if not rows and os.path.isfile("feedback_local.csv"):
         with open("feedback_local.csv", newline='', encoding='utf-8') as f:
             reader = csv.reader(f)
             next(reader, None)  # skip header
             rows = list(reader)
+
     if rows:
-        # Show as table (rating, like, suggestions, timestamp)
-        import pandas as pd
-        df = pd.DataFrame(rows, columns=["timestamp","rating","like","improvements","suggestions","original","rewritten","user_email","public_link"])
+        df = pd.DataFrame(rows, columns=[
+            "timestamp","rating","like","improvements","suggestions",
+            "original","rewritten","user_email","public_link"
+        ])
         if not df.empty:
-            # Convert types for proper sorting
             df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
             df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
-            # Sort by rating (desc) then timestamp (desc)
             df = df.sort_values(by=['rating','timestamp'], ascending=[False, False])
+
             st.markdown("### 🌟 Feedback from our community")
-            # Highlight top-rated feedback
+
             def highlight_row(row):
                 if row['rating'] >= 4:
-                    return ['background-color: #e6ffe6']*len(row)  # light green for high ratings
-                return ['']*len(row)
-            st.dataframe(df[["timestamp","rating","like","suggestions"]].style.apply(highlight_row, axis=1), use_container_width=True, hide_index=True)
+                    return ['background-color: #e6ffe6'] * len(row)
+                return [''] * len(row)
+
+            st.dataframe(
+                df[["timestamp","rating","like","suggestions"]].style.apply(highlight_row, axis=1),
+                use_container_width=True,
+                hide_index=True
+            )
     else:
         st.info("No feedback available yet. Be the first to share your thoughts!")
+        
+# Trigger Public Feedback Viewer
+if st.button("💬 What Others Say", use_container_width=True, help="See feedback from other users"):
+    show_public_feedback()
 
+
+# ---------------------- FIXED FOOTER WITH PROPER HTML RENDERING ----------------------
+st.markdown("---")
+st.markdown("""
 <div class="creator-footer">
     <div class="creator-content">
         <h2 class="creator-title">🚀 Created by Devi Mudhanagiri</h2>
