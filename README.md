@@ -78,7 +78,6 @@ Get your free key from: [https://openrouter.ai/keys](https://openrouter.ai/keys)
 - 🎯 Tone Precision – 5 adaptive tones (Friendly, Firm, Empathetic, Professional, Enthusiastic) to match any workplace context
 - 🌍 Multilingual Support – Write and reframe in 12+ languages with native expressions and cultural nuance
 - 📧 Email Format Mode – Generate ready-to-send emails with proper greeting, body, and closing
-- 🧠 No AI Hype – Focused on human impact, not tech buzzwords; positioned as a communication coach, not a bot
 - 📊 User History & Export – Track your communication evolution and export your rewrites
 - 🌟 Social Proof Engine – “What Others Say” displays top-rated community feedback with sorting, styling, and fallbacks
 - 🔁 Feedback Loop Built-In – Users can submit feedback that instantly appears in the public feed (CSV + Google Sheets sync)
@@ -86,7 +85,6 @@ Get your free key from: [https://openrouter.ai/keys](https://openrouter.ai/keys)
 - 🎨 Premium UI Experience – Animated hero header, glowing "Reframe" logo, smooth hover effects, and modern layout
 - ✨ Micro-Interactions – Subtle animations, fade-ins, and card lifts for a polished, high-end feel
 - 🧩 Emotionally Intelligent Prompts – Ensures feedback is always directed to others, not self-apologies
-- 🚫 No More “Be the First” Bug – Submitted feedback appears immediately after refresh via st.rerun()
 - 🧑‍💼 User-Centric UX – Added neutral rating option, “Other” in enhancements, and close button in feedback form
 - 📱 Mobile-Friendly Design – Responsive layout works seamlessly on all devices
 
