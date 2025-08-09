@@ -80,7 +80,7 @@ if "app_session_id" not in st.session_state:
 
 # ---------------------- App Config ----------------------
 st.set_page_config(
-    page_title="🎯 FeedbackGPT - A Communication Coach", 
+    page_title="🎯 REFRAME - A Communication Coach", 
     page_icon="🚀", 
     layout="centered",
     initial_sidebar_state="collapsed"
@@ -301,9 +301,73 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------- VIRAL HERO SECTION ----------------------
-st.markdown('<h1 class="hero-header">🚀 FeedbackGPT</h1>', unsafe_allow_html=True)
-st.markdown('<p class="hero-tagline">Say It Right, Every Time</p>', unsafe_allow_html=True)
-st.markdown('<h2 class="viral-cta">🎯 Say goodbye to awkward conversations forever!</h2>', unsafe_allow_html=True)
+st.markdown(
+    """
+    <style>
+    .hero-header {
+        text-align: center;
+        font-size: 2.8em;
+        margin: 0.5em 0;
+        line-height: 1.2;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .hero-logo {
+        background: linear-gradient(90deg, #4A90E2, #50C878);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: bold;
+        font-style: italic;
+    }
+    .tagline {
+        text-align: center;
+        font-size: 18px;
+        color: #444;
+        max-width: 600px;
+        margin: 0 auto 1em;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    </style>
+
+    <h1 class="hero-header">
+        <span class="hero-logo">Reframe</span>
+    </h1>
+    """,
+    unsafe_allow_html=True
+)
+st.markdown(
+    """
+    <style>
+    .hero-tagline, .viral-cta {
+        opacity: 0;
+        animation: fadeIn 1.2s ease-in forwards;
+        text-align: center;
+        font-family: 'Segoe UI', sans-serif;
+    }
+    .hero-tagline {
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 0.5em;
+    }
+    .viral-cta {
+        font-size: 20px;
+        color: #1a1a1a;
+        font-weight: 500;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    </style>
+
+    <p class="hero-tagline">
+        Reframe tough messages with clarity and care.
+    </p>
+    <h2 class="viral-cta">
+        🔄 Turn tension into trust — one message at a time.
+    </h2>
+    """,
+    unsafe_allow_html=True
+)
 
 # ---------------------- Social Proof Banner ----------------------
 st.markdown("""
@@ -495,7 +559,7 @@ if user_input and user_input.strip():
     col1, col2, col3 = st.columns([0.5, 3, 0.5])
     with col2:
         if st.button(
-            "✨ TRANSFORM WITH AI MAGIC ✨", 
+            "✨ Craft Feedback That Lands — Kindly, Clearly, Confidently ✨", 
             use_container_width=True,
             help="🎭 Click for instant professional transformation!",
             key="transform_btn"
@@ -592,7 +656,7 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     # Viral sharing section
     st.markdown("""
     <div class="social-proof">
-        <h4>🔥 That’s the magic of FeedbackGPT—your personal communication coach, helping you craft impactful messages effortlessly!</h4>
+        <h4>🔥 That’s the magic of REFRAME—your personal communication coach, helping you craft impactful messages effortlessly!</h4>
         <p>Share this transformation with your team and watch communication improve across your organization</p>
     </div>
     """, unsafe_allow_html=True)
@@ -603,7 +667,7 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
         st.download_button(
             "💾 Download", 
             st.session_state.rewritten_text, 
-            file_name=f"FeedbackGPT_Transform_{datetime.now().strftime('%m%d_%H%M')}.txt",
+            file_name=f"REFRAME_Transform_{datetime.now().strftime('%m%d_%H%M')}.txt",
             use_container_width=True,
             help="Save your professional message",
             key="download_btn"
@@ -633,7 +697,7 @@ st.markdown('<h3 style="text-align: center; color: #666; margin: 2rem 0;">🛠�
 
 col1, col2 = st.columns([1, 1])
 with col1:
-    if st.button("⭐ Rate This Tool", use_container_width=True, help="Share your experience with FeedbackGPT", key="feedback_toggle_btn"):
+    if st.button("⭐ Rate This Tool", use_container_width=True, help="Share your experience with REFRAME", key="feedback_toggle_btn"):
         st.session_state.show_feedback_form = not st.session_state.get("show_feedback_form", False)
         st.session_state.show_history = False
         if not st.session_state.show_feedback_form:
@@ -648,37 +712,85 @@ with col2:
 
 # Enhanced Feedback Form
 if st.session_state.get("show_feedback_form", False):
-    st.markdown("### 🌟 Help Make FeedbackGPT Even Better!")
+    st.markdown("### 🌟 Help Make REFRAME Even Better!")
     st.markdown("*Your feedback helps thousands of professionals communicate better*")
-    
+
     with st.form("feedback_form", clear_on_submit=True):
-        ff_text = st.text_area("💭 What's your experience with FeedbackGPT?", height=100, placeholder="This tool saved me from so many awkward conversations...")
+        ff_text = st.text_area("💭 What's your experience with REFRAME?", height=100, placeholder="This tool saved me from so many awkward conversations...")
         ff_rating = st.slider("⭐ Rate your experience", 1, 5, 4, help="1 = Needs work, 5 = Mind-blowing!")
-        ff_like = st.radio("🚀 Would you recommend FeedbackGPT?", ["👍 Absolutely! I'd recommend it","🙂 Yes, with a few suggestions","😐 Neutral – it's okay","👎 Not right now"], index=0)
-        ff_improve = st.multiselect("🎯 What should we enhance?", ["⚡ Speed","🎯 Accuracy","🌍 More Languages","🎭 More Tones","📱 Mobile Experience","🎨 Interface Design","📦 More Templates","🔍 Context Awareness","💡Smarter Suggestions"])
+        ff_like = st.radio("🚀 Would you recommend REFRAME?", 
+                          ["👍 Absolutely! I'd recommend it", "🙂 Yes, with a few suggestions", 
+                           "😐 Neutral – it's okay", "👎 Not right now"], index=0)
+        ff_improve = st.multiselect("🎯 What should we enhance?", 
+                                   ["⚡ Speed", "🎯 Accuracy", "🌍 More Languages", 
+                                    "🎭 More Tones", "📱 Mobile Experience", "🎨 Interface Design", 
+                                    "📦 More Templates", "🔍 Context Awareness", "💡 Smarter Suggestions"])
         ff_suggestions = st.text_area("💡 Any brilliant suggestions?", placeholder="What would make this tool irresistible?")
         
-        submit_col1, submit_col2, submit_col3 = st.columns([1, 2, 1])
-        with submit_col2:
-            submit_feedback = st.form_submit_button("🚀 Submit My Feedback", use_container_width=True)
+        submit_col1, submit_col2, submit_col3 = st.columns([1, 0.2, 1])
+        with submit_col1:
+            if st.form_submit_button("❌ Close", use_container_width=True):
+                st.session_state.show_feedback_form = False
+                st.rerun()
+
+        with submit_col3:
+            submit_feedback = st.form_submit_button("🚀 Submit", use_container_width=True)
         
     if submit_feedback:
-        fb_id = str(int(time.time()*1000))
+        # Generate ID and public link
+        fb_id = str(int(time.time() * 1000))
         public_base = st.secrets.get("PUBLIC_BASE_URL", "")
         public_link = f"{public_base}?fb={fb_id}" if public_base else ""
-        row = [datetime.utcnow().isoformat(), ff_rating, ff_like, "; ".join(ff_improve), ff_suggestions, ff_text, "", "", public_link]
+
+        # Prepare row for Google Sheets and CSV
+        timestamp = datetime.utcnow().isoformat()
+        improvements_str = "; ".join(ff_improve) if ff_improve else ""
+        row = [
+            timestamp,
+            ff_rating,
+            ff_like,
+            improvements_str,
+            ff_suggestions,
+            ff_text,          # original input
+            "",               # rewritten (not used in feedback)
+            "",               # user_email
+            public_link
+        ]
+
+        # ✅ 1. Save to Google Sheets (primary)
         ok, msg = append_row_to_sheet(row)
-        
+
+        # ✅ 2. Always save to local CSV as fallback
+        import os
+        import csv
+
+        csv_file = "feedback_local.csv"
+        file_exists = os.path.isfile(csv_file)
+
+        try:
+            with open(csv_file, "a", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                # Write header if file is new
+                if not file_exists:
+                    writer.writerow([
+                        "timestamp", "rating", "like", "improvements", "suggestions",
+                        "original", "rewritten", "user_email", "public_link"
+                    ])
+                # Write the feedback row
+                writer.writerow(row)
+        except Exception as e:
+            # Log if needed, but don't break the flow
+            pass  # Silent fallback — CSV is best-effort
+
+        # ✅ 3. Success & Rerun
+        st.balloons()
         if ok:
-            st.balloons()
-            st.success("🎉 Thank you! Your feedback makes FeedbackGPT better for everyone!")
+            st.success("🎉 Thank you! Your feedback makes REFRAME better for everyone!")
         else:
-            st.balloons()
             st.success("🎉 Feedback recorded! Thanks for helping us improve!")
-        
+
         st.session_state.show_feedback_form = False
-        time.sleep(1.5)
-        st.rerun()
+        st.rerun()  # ← Right after state update
 
 # Enhanced History
 if st.session_state.get("show_history", False):
@@ -695,7 +807,9 @@ if st.session_state.get("show_history", False):
         """, unsafe_allow_html=True)
         
         # Display history
-        df = pd.DataFrame(st.session_state.rewrites)
+        # Get last 10 rewrites (most recent first)
+        rewrites = st.session_state.rewrites[-10:]  # Last 10
+        df = pd.DataFrame(rewrites)
         if 'timestamp' in df.columns:
             df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%m/%d %H:%M')
         st.dataframe(df, use_container_width=True, hide_index=True)
@@ -703,7 +817,7 @@ if st.session_state.get("show_history", False):
         col1, col2 = st.columns([1, 1])
         with col1:
             csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button("📊 Export My Data", data=csv, file_name=f"FeedbackGPT_History_{datetime.now().strftime('%Y%m%d')}.csv", use_container_width=True, key="export_history_btn")
+            st.download_button("📊 Export My Data", data=csv, file_name=f"REFRAME_History_{datetime.now().strftime('%Y%m%d')}.csv", use_container_width=True, key="export_history_btn")
         with col2:
             if st.button("🗑️ Clear History", use_container_width=True, help="Start fresh", key="clear_history_btn"):
                 st.session_state.rewrites = []
@@ -719,9 +833,9 @@ if st.session_state.get("show_history", False):
         """, unsafe_allow_html=True)
 
 # ---------------------- Public Feedback Viewer ----------------------
-   
 def show_public_feedback():
     rows = []
+
     # Try Google Sheets first
     try:
         client = gs_client_from_secrets()
@@ -732,35 +846,44 @@ def show_public_feedback():
             if len(sheet_data) > 1:
                 rows = sheet_data[1:]  # skip header
     except Exception as e:
+        st.write("🔍 Debug: Google Sheets failed — falling back to CSV.")  # Optional debug
         rows = []
 
-    # Fallback to local CSV
+    # Fallback to local CSV — only if Google Sheets failed OR no rows
     if not rows and os.path.isfile("feedback_local.csv"):
         try:
             with open("feedback_local.csv", newline='', encoding='utf-8') as f:
                 reader = csv.reader(f)
                 header = next(reader, None)
-                rows = list(reader)
-        except Exception:
+                file_rows = list(reader)
+                if file_rows:  # Only use if not empty
+                    rows = file_rows
+        except Exception as e:
+            st.write(f"🔍 Debug: CSV read failed: {e}")
             rows = []
 
+    # ✅ Check if we have any rows
     if rows:
         df = pd.DataFrame(rows, columns=[
             "timestamp", "rating", "like", "improvements", "suggestions",
             "original", "rewritten", "user_email", "public_link"
         ])
 
-        # Clean data
+        # Clean and convert
         df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
         df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
-        df = df.dropna(subset=['rating', 'timestamp'])
+        df = df.dropna(subset=['rating', 'timestamp'])  # Drop invalid
+
+        if df.empty:
+            st.info("No valid feedback found. Please share yours! 💌")
+            return
 
         # Sort: highest rating first, then newest
         df = df.sort_values(by=['rating', 'timestamp'], ascending=[False, False]).reset_index(drop=True)
 
         st.markdown("### 🌟 What Others Are Saying")
 
-        # Prepare display DataFrame with friendly names
+        # Prepare display
         display_df = df[["timestamp", "rating", "suggestions"]].copy()
         display_df['timestamp'] = display_df['timestamp'].dt.strftime('%b %d, %Y')
         display_df.rename(columns={
@@ -769,15 +892,14 @@ def show_public_feedback():
             "suggestions": "💬 Feedback"
         }, inplace=True)
 
-        # ✅ Highlight function must use NEW column names!
+        # Highlight 4–5 star feedback
         def highlight_row(row):
             try:
-                # Use the renamed column: "⭐"
                 if row["⭐"] >= 4:
                     return ['background-color: #f0fff0; color: #0a310a'] * len(row)
                 return [''] * len(row)
-            except Exception:
-                return [''] * len(row)  # safe fallback
+            except:
+                return [''] * len(row)
 
         st.dataframe(
             display_df.style.apply(highlight_row, axis=1),
@@ -790,18 +912,17 @@ def show_public_feedback():
             }
         )
 
-        # Optional: Spotlight top review
+        # Spotlight top review
         top = df.iloc[0]
         if top['rating'] >= 4:
             with st.expander("✨ Featured Community Review", expanded=False):
                 st.markdown(f"""
                 > "{top['suggestions']}"
                 > 
-                > — Rated {top['rating']:.1f}⭐ on {top['timestamp'].strftime('%B %d')}
+                > — Rated {top['rating']:.1f}⭐ on {top['timestamp'].strftime('%B %d')}"
                 """)
-
     else:
-        st.info("No feedback yet — be the first to share how FeedbackGPT helped you craft better messages! 💌")
+        st.info("No feedback yet — be the first to share how REFRAME helped you craft better messages! 💌")
         
 
 # Trigger Public Feedback Viewer
@@ -815,7 +936,7 @@ st.markdown("""
 <div class="creator-footer">
     <div class="creator-content">
         <h2 class="creator-title">🚀 Created by Devi Mudhanagiri</h2>
-        <p class="creator-subtitle">FeedbackGPT v2.0 | Powered by OpenRouter AI</p>
+        <p class="creator-subtitle">REFRAME v2.0 | Powered by OpenRouter AI</p>
         <p class="creator-tagline">💫 "Making every conversation a catalyst for growth"</p>
         <div class="creator-box">
             <p class="creator-mission">🎯 Built for leaders who care about communication</p>
