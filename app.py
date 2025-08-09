@@ -42,7 +42,6 @@ def append_row_to_sheet(row, sheet_name="feedback_rewriter_history"):
         try:
             sh = client.open(sheet_name)
             worksheet = sh.sheet1
-        # auto-create if not found
         except gspread.SpreadsheetNotFound:
             sh = client.create(sheet_name)
             worksheet = sh.sheet1
@@ -449,10 +448,7 @@ if st.session_state.get("show_tip", False) and st.session_state.get("current_tip
             st.rerun()
 
 # Main input with viral examples
-user_input = st.text_area(
-    value=st.session_state.get('user_input', ''),
-    label="",
-    key=wkey("user_input"), 
+user_input = st.text_area(label="", key=wkey("user_input"), height=140, placeholder="🔥 Paste your brutally honest feedback here...", help="Don't hold back - the rawer, the better the transformation!"), 
     height=140,
     placeholder="🔥 Paste your brutally honest feedback here...\n\nExamples:\n• 'You never respond to emails. It's unprofessional.'\n• 'Your presentation was confusing and boring.'\n• 'You always interrupt people in meetings.'\n\n💪 Be real - we'll make it professional!",
     help="Don't hold back - the rawer, the better the transformation!"
@@ -596,7 +592,7 @@ if user_input and user_input.strip():
                     st.session_state.rewritten_text = ""
 
 # ---------------------- CLEAN Results Section (NO ANIMATIONS) ----------------------
-if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
+if st.session_state.get('rewritten_text', '').strip():
     st.markdown('<div class="step-pill">🎉 BOOM! Your Professional Message is Ready!</div>', unsafe_allow_html=True)
     
     # Simple, clean result display without animations
@@ -656,7 +652,7 @@ with col1:
             st.rerun()
             
 with col2:
-    if st.button("📊 My Transformations", use_container_width=True, help="View your communication evolution", key=wkey("history_toggle_btn")):
+    if st.button("🏆 My Communication Wins", use_container_width=True, help="View your communication evolution", key=wkey("history_toggle_btn")):
         st.session_state.show_history = not st.session_state.get("show_history", False)
         st.session_state.show_feedback_form = False
         if not st.session_state.show_history:
@@ -685,13 +681,22 @@ if st.session_state.get("show_feedback_form", False):
         row = [datetime.utcnow().isoformat(), ff_rating, ff_like, "; ".join(ff_improve), ff_suggestions, ff_text, "", "", public_link]
         ok, msg = append_row_to_sheet(row)
         
+        
         if ok:
             st.balloons()
             st.success("🎉 Thank you! Your feedback makes FeedbackGPT better for everyone!")
         else:
+            import csv, os
+            local_file = 'feedback_local.csv'
+            file_exists = os.path.isfile(local_file)
+            with open(local_file, 'a', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f)
+                if not file_exists:
+                    writer.writerow(["timestamp","rating","like","improvements","suggestions","original","rewritten","user_email","public_link"])
+                writer.writerow(row)
             st.balloons()
-            st.success("🎉 Feedback recorded! Thanks for helping us improve!")
-        
+            st.info("💾 Feedback saved locally. Configure Google Sheets to sync online!")
+
         st.session_state.show_feedback_form = False
         time.sleep(1.5)
         st.rerun()
