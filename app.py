@@ -58,11 +58,13 @@ def deterministic_rewrite(text: str, tone: str, language: str) -> str:
 
 # ---------------------- PROPER Session State Reset ----------------------
 def reset_app_state():
-    keys_to_preserve = ["user_input"]
-    current_input = st.session_state.get("user_input", "")
-    st.session_state.clear()
+    """Complete app state reset - ensures clean slate"""
+    for key in list(st.session_state.keys()):
+        if key not in ['user_input']:  # Preserve only user input
+            del st.session_state[key]
+    
+    # Set fresh defaults
     st.session_state["rewritten_text"] = ""
-    st.session_state["user_input"] = current_input
     st.session_state["rewrites"] = []
     st.session_state["show_feedback_form"] = False
     st.session_state["show_history"] = False
@@ -172,8 +174,6 @@ st.markdown("""
         border: 3px solid #4CAF50;
         margin: 2rem 0;
         box-shadow: 0 15px 35px rgba(76, 175, 80, 0.3);
-        position: relative;
-        overflow: hidden;
     }
     
 
@@ -491,8 +491,8 @@ if user_input and user_input.strip():
         )
         st.session_state.format_as_email = format_as_email
     
-    # Row 2: Language and Magic Recipe
-    col1, col2 = st.columns([3, 1])
+    # Row 2: Language and Magic Recipe  
+    col1, col2 = st.columns([2, 1])
     with col1:
         selected_language_key = st.selectbox(
             "🌍 Choose Your Language", 
@@ -505,15 +505,21 @@ if user_input and user_input.strip():
         st.session_state.selected_language = selected_language_key
         
     with col2:
-        # Better aligned live preview in a compact box
-        with st.container():
-            st.markdown("**🔮 Magic Recipe:**")
-            preview_parts = [tone_options[selected_tone_key].split(" - ")[0]]
-            if format_as_email:
-                preview_parts.append("Email")
-            if selected_language_key != "English":
-                preview_parts.append(language_options[selected_language_key].split(" ")[1])
-            st.info(" + ".join(preview_parts))
+        # Properly aligned Magic Recipe
+        st.markdown("**🔮 Magic Recipe:**")
+        preview_parts = [tone_options[selected_tone_key].split(" - ")[0]]
+        if format_as_email:
+            preview_parts.append("Email")
+        if selected_language_key != "English":
+            preview_parts.append(language_options[selected_language_key].split(" ")[1])
+        
+        # Use a styled container instead of st.info for better alignment
+        recipe_text = " + ".join(preview_parts)
+        st.markdown(f"""
+        <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem; text-align: center; font-weight: 600;">
+            {recipe_text}
+        </div>
+        """, unsafe_allow_html=True)
     
     # ---------------------- VIRAL TRANSFORM BUTTON ----------------------
     st.markdown('<div class="step-pill">🚀 STEP 3: Watch The Magic Happen</div>', unsafe_allow_html=True)
