@@ -448,9 +448,15 @@ if st.session_state.get("show_tip", False) and st.session_state.get("current_tip
             st.rerun()
 
 # Main input with viral examples
-user_input = st.text_area(label="", key=wkey("user_input"), height=140, placeholder="🔥 Paste your brutally honest feedback here...", help="Don't hold back - the rawer, the better the transformation!"), 
+user_input = st.text_area(
+    label="",
+    key=wkey("user_input"),
     height=140,
-    placeholder="🔥 Paste your brutally honest feedback here...\n\nExamples:\n• 'You never respond to emails. It's unprofessional.'\n• 'Your presentation was confusing and boring.'\n• 'You always interrupt people in meetings.'\n\n💪 Be real - we'll make it professional!",
+    placeholder=("🔥 Paste your brutally honest feedback here...\n\n"
+                 "Examples:\n• 'You never respond to emails. It's unprofessional.'\n"
+                 "• 'Your presentation was confusing and boring.'\n"
+                 "• 'You always interrupt people in meetings.'\n\n"
+                 "💪 Be real - we'll make it professional!"),
     help="Don't hold back - the rawer, the better the transformation!"
 )
 
