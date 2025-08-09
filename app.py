@@ -713,11 +713,10 @@ if st.session_state.get("show_history", False):
 # ---------------------- Public Feedback Viewer ----------------------
    
 def show_public_feedback():
-    import csv, os   
-   # Try Google Sheets first
     rows = []
+    # Try Google Sheets first
     try:
-        client = gs_client_from_secrets()  # Assume this is defined in your app
+        client = gs_client_from_secrets()
         if client:
             sh = client.open("feedback_rewriter_history")
             worksheet = sh.sheet1
@@ -725,56 +724,53 @@ def show_public_feedback():
             if len(sheet_data) > 1:
                 rows = sheet_data[1:]  # skip header
     except Exception as e:
-        rows = []  # Fallback quietly on any error
+        rows = []
 
     # Fallback to local CSV
     if not rows and os.path.isfile("feedback_local.csv"):
         try:
             with open("feedback_local.csv", newline='', encoding='utf-8') as f:
                 reader = csv.reader(f)
-                header = next(reader, None)  # skip header
+                header = next(reader, None)
                 rows = list(reader)
         except Exception:
             rows = []
 
-    # Process rows if available
     if rows:
         df = pd.DataFrame(rows, columns=[
             "timestamp", "rating", "like", "improvements", "suggestions",
             "original", "rewritten", "user_email", "public_link"
         ])
 
-        # Clean and convert
+        # Clean data
         df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
         df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
-
-        # Drop invalid rows
         df = df.dropna(subset=['rating', 'timestamp'])
 
-        # Sort: highest rating first, then newest first within same rating
+        # Sort: highest rating first, then newest
         df = df.sort_values(by=['rating', 'timestamp'], ascending=[False, False]).reset_index(drop=True)
-
-        # Only show public/shared feedback? (Uncomment if you use public_link as boolean flag)
-        # df = df[df['public_link'].astype(str).str.lower() == 'true']
 
         st.markdown("### 🌟 What Others Are Saying")
 
-        # Highlight rows with 4 or 5 stars
-        def highlight_row(row):
-            if row['rating'] >= 4:
-                return ['background-color: #f0fff0; color: #0a310a'] * len(row)
-            return [''] * len(row)
-
-        # Prepare display DataFrame
+        # Prepare display DataFrame with friendly names
         display_df = df[["timestamp", "rating", "suggestions"]].copy()
-        display_df['timestamp'] = display_df['timestamp'].dt.strftime('%b %d, %Y')  # Clean date
+        display_df['timestamp'] = display_df['timestamp'].dt.strftime('%b %d, %Y')
         display_df.rename(columns={
             "timestamp": "📅 Date",
             "rating": "⭐",
             "suggestions": "💬 Feedback"
         }, inplace=True)
 
-        # Display with styling
+        # ✅ Highlight function must use NEW column names!
+        def highlight_row(row):
+            try:
+                # Use the renamed column: "⭐"
+                if row["⭐"] >= 4:
+                    return ['background-color: #f0fff0; color: #0a310a'] * len(row)
+                return [''] * len(row)
+            except Exception:
+                return [''] * len(row)  # safe fallback
+
         st.dataframe(
             display_df.style.apply(highlight_row, axis=1),
             use_container_width=True,
@@ -786,15 +782,16 @@ def show_public_feedback():
             }
         )
 
-        # Optional: Spotlight the top review
-        top_review = df.iloc[0]
-        if top_review['rating'] >= 4:
+        # Optional: Spotlight top review
+        top = df.iloc[0]
+        if top['rating'] >= 4:
             with st.expander("✨ Featured Community Review", expanded=False):
                 st.markdown(f"""
-                > "{top_review['suggestions']}"
+                > "{top['suggestions']}"
                 > 
-                > — Rated {top_review['rating']}⭐ on {top_review['timestamp'].strftime('%B %d')}
+                > — Rated {top['rating']:.1f}⭐ on {top['timestamp'].strftime('%B %d')}
                 """)
+
     else:
         st.info("No feedback yet — be the first to share how FeedbackGPT helped you craft better messages! 💌")
         
