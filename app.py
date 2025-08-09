@@ -6,11 +6,6 @@ import json
 from datetime import datetime
 import random
 
-
-# ---------------------- Dynamic widget key helper ----------------------
-def wkey(name):
-    return f"{name}_{st.session_state['app_session_id']}"
-
 # ---------------------- Google Sheets Integration ----------------------
 try:
     import gspread
@@ -63,19 +58,7 @@ def deterministic_rewrite(text: str, tone: str, language: str) -> str:
 
 # ---------------------- PROPER Session State Reset ----------------------
 def reset_app_state():
-    """Complete reset to initial state with new widget keys"""
-    st.session_state.clear()
-    st.session_state['app_session_id'] = str(int(time.time() * 1000))
-    st.session_state['user_input'] = ''
-    st.session_state['rewritten_text'] = ''
-    st.session_state['rewrites'] = []
-    st.session_state['show_feedback_form'] = False
-    st.session_state['show_history'] = False
-    st.session_state['show_tip'] = False
-    st.session_state['current_tip'] = ''
-    st.session_state['selected_tone'] = 'managerial'
-    st.session_state['selected_language'] = 'English'
-    st.session_state['format_as_email'] = False
+    """Complete reset to initial state"""
     # Clear everything except initialize fresh state
     st.session_state.clear()
     st.session_state["rewritten_text"] = ""
@@ -318,7 +301,7 @@ st.markdown("""
 
 # ---------------------- VIRAL HERO SECTION ----------------------
 st.markdown('<h1 class="hero-header">🚀 FeedbackGPT</h1>', unsafe_allow_html=True)
-st.markdown('<p class="hero-tagline">The AI that turns your brutal honesty into brilliant communication</p>', unsafe_allow_html=True)
+st.markdown('<p class="hero-tagline">Helping you turn tough feedback into constructive conversations</p>', unsafe_allow_html=True)
 st.markdown('<h2 class="viral-cta">🎯 Say goodbye to awkward conversations forever!</h2>', unsafe_allow_html=True)
 
 # ---------------------- Social Proof Banner ----------------------
@@ -401,20 +384,18 @@ st.markdown('<div class="step-pill">🎯 STEP 1: Drop Your Raw, Honest Feedback 
 # Viral action buttons
 col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
-    if st.button("🎲 Surprise Me!", use_container_width=True, help="Get a random challenging example", key=wkey("sample_btn")):
+    if st.button("🎲 Surprise Me!", use_container_width=True, help="Get a random challenging example", key="sample_btn"):
         reset_app_state()
-        sample_text = random.choice(viral_samples)
-        st.session_state[wkey('user_input')] = sample_text
-        st.session_state['user_input'] = sample_text
+        st.session_state.user_input = random.choice(viral_samples)
         st.rerun()
         
 with col2:
-    if st.button("🚀 Fresh Start", use_container_width=True, help="Clear everything and start over", key=wkey("clear_btn")):
+    if st.button("🚀 Fresh Start", use_container_width=True, help="Clear everything and start over", key="clear_btn"):
         reset_app_state()
         st.rerun()
         
 with col3:
-    if st.button("💡 Pro Tips", use_container_width=True, help="Get expert communication advice", key=wkey("tip_btn")):
+    if st.button("💡 Pro Tips", use_container_width=True, help="Get expert communication advice", key="tip_btn"):
         if st.session_state.get("show_tip", False):
             st.session_state.show_tip = False
             st.session_state.current_tip = ""
@@ -442,7 +423,7 @@ if st.session_state.get("show_tip", False) and st.session_state.get("current_tip
         </div>
         """, unsafe_allow_html=True)
     with tip_col2:
-        if st.button("✕", key=wkey("dismiss_tip"), help="Hide tip"):
+        if st.button("✕", key="dismiss_tip", help="Hide tip"):
             st.session_state.show_tip = False
             st.session_state.current_tip = ""
             st.rerun()
@@ -450,13 +431,9 @@ if st.session_state.get("show_tip", False) and st.session_state.get("current_tip
 # Main input with viral examples
 user_input = st.text_area(
     label="",
-    key=wkey("user_input"),
+    key="user_input", 
     height=140,
-    placeholder=("🔥 Paste your brutally honest feedback here...\n\n"
-                 "Examples:\n• 'You never respond to emails. It's unprofessional.'\n"
-                 "• 'Your presentation was confusing and boring.'\n"
-                 "• 'You always interrupt people in meetings.'\n\n"
-                 "💪 Be real - we'll make it professional!"),
+    placeholder="🔥 Paste your brutally honest feedback here...\n\nExamples:\n• 'You never respond to emails. It's unprofessional.'\n• 'Your presentation was confusing and boring.'\n• 'You always interrupt people in meetings.'\n\n💪 Be real - we'll make it professional!",
     help="Don't hold back - the rawer, the better the transformation!"
 )
 
@@ -473,7 +450,7 @@ if user_input and user_input.strip():
             format_func=lambda x: tone_options[x],
             index=list(tone_options.keys()).index(st.session_state.get("selected_tone", "managerial")),
             help="Choose the vibe that matches your situation",
-            key=wkey("tone_selector")
+            key="tone_selector"
         )
         st.session_state.selected_tone = selected_tone_key
         
@@ -483,7 +460,7 @@ if user_input and user_input.strip():
             format_func=lambda x: language_options[x],
             index=list(language_options.keys()).index(st.session_state.get("selected_language", "English")),
             help="Pick your preferred language",
-            key=wkey("language_selector")
+            key="language_selector"
         )
         st.session_state.selected_language = selected_language_key
         
@@ -492,7 +469,7 @@ if user_input and user_input.strip():
             "📧 Email Mode", 
             value=st.session_state.get("format_as_email", False),
             help="Complete email with greeting & closing",
-            key=wkey("email_checkbox")
+            key="email_checkbox"
         )
         st.session_state.format_as_email = format_as_email
         
@@ -520,7 +497,7 @@ if user_input and user_input.strip():
             "✨ TRANSFORM WITH AI MAGIC ✨", 
             use_container_width=True,
             help="🎭 Click for instant professional transformation!",
-            key=wkey("transform_btn")
+            key="transform_btn"
         ):
             # Reset other panels
             st.session_state.rewritten_text = ""
@@ -598,14 +575,11 @@ if user_input and user_input.strip():
                     st.session_state.rewritten_text = ""
 
 # ---------------------- CLEAN Results Section (NO ANIMATIONS) ----------------------
-if st.session_state.get('rewritten_text', '').strip():
+if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     st.markdown('<div class="step-pill">🎉 BOOM! Your Professional Message is Ready!</div>', unsafe_allow_html=True)
     
     # Simple, clean result display without animations
-    st.markdown('<div class="result-box">', unsafe_allow_html=True)
-    st.markdown("### 🏆 **Your Transformed Communication:**")
-    st.write(st.session_state.rewritten_text)
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(f"""<div class="result-box"><h3>🏆 Your Transformed Communication:</h3><p style="white-space: pre-wrap;">{st.session_state.rewritten_text}</p></div>""", unsafe_allow_html=True)
     
     # Viral sharing section
     st.markdown("""
@@ -624,14 +598,14 @@ if st.session_state.get('rewritten_text', '').strip():
             file_name=f"FeedbackGPT_Transform_{datetime.now().strftime('%m%d_%H%M')}.txt",
             use_container_width=True,
             help="Save your professional message",
-            key=wkey("download_btn")
+            key="download_btn"
         )
     with col2:
-        if st.button("🎭 Try New Tone", use_container_width=True, help="Same message, different vibe", key=wkey("retry_btn")):
+        if st.button("🎭 Try New Tone", use_container_width=True, help="Same message, different vibe", key="retry_btn"):
             st.session_state.rewritten_text = ""
             st.rerun()
     with col3:
-        if st.button("🔥 Transform More", use_container_width=True, help="Start fresh with new feedback", key=wkey("new_btn")):
+        if st.button("🔥 Transform More", use_container_width=True, help="Start fresh with new feedback", key="new_btn"):
             reset_app_state()
             st.rerun()
 
@@ -651,14 +625,14 @@ st.markdown('<h3 style="text-align: center; color: #666; margin: 2rem 0;">🛠�
 
 col1, col2 = st.columns([1, 1])
 with col1:
-    if st.button("⭐ Rate This Tool", use_container_width=True, help="Share your experience with FeedbackGPT", key=wkey("feedback_toggle_btn")):
+    if st.button("⭐ Rate This Tool", use_container_width=True, help="Share your experience with FeedbackGPT", key="feedback_toggle_btn"):
         st.session_state.show_feedback_form = not st.session_state.get("show_feedback_form", False)
         st.session_state.show_history = False
         if not st.session_state.show_feedback_form:
             st.rerun()
             
 with col2:
-    if st.button("🏆 My Communication Wins", use_container_width=True, help="View your communication evolution", key=wkey("history_toggle_btn")):
+    if st.button("📊 My Transformations", use_container_width=True, help="View your communication evolution", key="history_toggle_btn"):
         st.session_state.show_history = not st.session_state.get("show_history", False)
         st.session_state.show_feedback_form = False
         if not st.session_state.show_history:
@@ -687,22 +661,13 @@ if st.session_state.get("show_feedback_form", False):
         row = [datetime.utcnow().isoformat(), ff_rating, ff_like, "; ".join(ff_improve), ff_suggestions, ff_text, "", "", public_link]
         ok, msg = append_row_to_sheet(row)
         
-        
         if ok:
             st.balloons()
             st.success("🎉 Thank you! Your feedback makes FeedbackGPT better for everyone!")
         else:
-            import csv, os
-            local_file = 'feedback_local.csv'
-            file_exists = os.path.isfile(local_file)
-            with open(local_file, 'a', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                if not file_exists:
-                    writer.writerow(["timestamp","rating","like","improvements","suggestions","original","rewritten","user_email","public_link"])
-                writer.writerow(row)
             st.balloons()
-            st.info("💾 Feedback saved locally. Configure Google Sheets to sync online!")
-
+            st.success("🎉 Feedback recorded! Thanks for helping us improve!")
+        
         st.session_state.show_feedback_form = False
         time.sleep(1.5)
         st.rerun()
@@ -730,9 +695,9 @@ if st.session_state.get("show_history", False):
         col1, col2 = st.columns([1, 1])
         with col1:
             csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button("📊 Export My Data", data=csv, file_name=f"FeedbackGPT_History_{datetime.now().strftime('%Y%m%d')}.csv", use_container_width=True, key=wkey("export_history_btn"))
+            st.download_button("📊 Export My Data", data=csv, file_name=f"FeedbackGPT_History_{datetime.now().strftime('%Y%m%d')}.csv", use_container_width=True, key="export_history_btn")
         with col2:
-            if st.button("🗑️ Clear History", use_container_width=True, help="Start fresh", key=wkey("clear_history_btn")):
+            if st.button("🗑️ Clear History", use_container_width=True, help="Start fresh", key="clear_history_btn"):
                 st.session_state.rewrites = []
                 st.success("History cleared!")
                 time.sleep(1)
@@ -748,6 +713,46 @@ if st.session_state.get("show_history", False):
 # ---------------------- FIXED FOOTER WITH PROPER HTML RENDERING ----------------------
 st.markdown("---")
 st.markdown("""
+
+# ---------------------- Public Feedback Viewer ----------------------
+if st.button("💬 What Others Say", use_container_width=True, help="See feedback from other users"):
+    import csv, os
+    rows = []
+    # Try Google Sheets first
+    client = gs_client_from_secrets()
+    if client:
+        try:
+            sh = client.open("feedback_rewriter_history")
+            worksheet = sh.sheet1
+            rows = worksheet.get_all_values()[1:]  # skip header
+        except Exception:
+            rows = []
+    # Fallback to local CSV
+    if not rows and os.path.isfile("feedback_local.csv"):
+        with open("feedback_local.csv", newline='', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            next(reader, None)  # skip header
+            rows = list(reader)
+    if rows:
+        # Show as table (rating, like, suggestions, timestamp)
+        import pandas as pd
+        df = pd.DataFrame(rows, columns=["timestamp","rating","like","improvements","suggestions","original","rewritten","user_email","public_link"])
+        if not df.empty:
+            # Convert types for proper sorting
+            df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+            df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
+            # Sort by rating (desc) then timestamp (desc)
+            df = df.sort_values(by=['rating','timestamp'], ascending=[False, False])
+            st.markdown("### 🌟 Feedback from our community")
+            # Highlight top-rated feedback
+            def highlight_row(row):
+                if row['rating'] >= 4:
+                    return ['background-color: #e6ffe6']*len(row)  # light green for high ratings
+                return ['']*len(row)
+            st.dataframe(df[["timestamp","rating","like","suggestions"]].style.apply(highlight_row, axis=1), use_container_width=True, hide_index=True)
+    else:
+        st.info("No feedback available yet. Be the first to share your thoughts!")
+
 <div class="creator-footer">
     <div class="creator-content">
         <h2 class="creator-title">🚀 Created by Devi Mudhanagiri</h2>
