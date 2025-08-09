@@ -4,6 +4,7 @@ import time
 import pandas as pd
 import json
 from datetime import datetime
+import random
 
 # ---------------------- Google Sheets Integration ----------------------
 try:
@@ -53,20 +54,14 @@ def deterministic_rewrite(text: str, tone: str, language: str) -> str:
     replacements = {"cant": "can't", "dont": "don't", "wont": "won't"}
     for k, v in replacements.items():
         out = out.replace(k, v)
-    return f"[{tone.title()} Tone] {out}"
+    return f"[{tone.title()} Enhancement] {out}"
 
 # ---------------------- PROPER Session State Reset ----------------------
 def reset_app_state():
-    """Completely reset the app to initial state"""
-    keys_to_preserve = ["user_input"]  # Only preserve the current input
+    keys_to_preserve = ["user_input"]
     current_input = st.session_state.get("user_input", "")
-    
-    # Clear everything
     st.session_state.clear()
-    
-    # Reset to defaults
     st.session_state["rewritten_text"] = ""
-    st.session_state["feedback"] = ""
     st.session_state["user_input"] = current_input
     st.session_state["rewrites"] = []
     st.session_state["show_feedback_form"] = False
@@ -78,277 +73,411 @@ def reset_app_state():
     st.session_state["format_as_email"] = False
     st.session_state["app_session_id"] = str(int(time.time() * 1000))
 
-# Initialize session state properly
 if "app_session_id" not in st.session_state:
     reset_app_state()
 
 # ---------------------- App Config ----------------------
 st.set_page_config(
-    page_title="AI Feedback Rewriter | Transform Your Words", 
-    page_icon="✨", 
+    page_title="🎯 FeedbackGPT - AI Communication Coach", 
+    page_icon="🚀", 
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# ---------------------- Custom CSS for Better UI ----------------------
+# ---------------------- STUNNING CSS for Viral Appeal ----------------------
 st.markdown("""
 <style>
-    .main-header {
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+    
+    .main {
+        font-family: 'Poppins', sans-serif;
+    }
+    
+    .hero-header {
         text-align: center;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-size: 3.5rem;
+        font-size: 4rem;
         font-weight: 800;
         margin-bottom: 0.5rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        animation: glow 2s ease-in-out infinite alternate;
     }
     
-    .tagline {
+    .hero-tagline {
         text-align: center;
-        font-size: 1.2rem;
-        color: #555;
-        margin-bottom: 1rem;
-        line-height: 1.6;
+        font-size: 1.4rem;
+        color: #444;
+        margin-bottom: 0.8rem;
+        font-weight: 500;
     }
     
-    .cta-header {
+    .viral-cta {
         text-align: center;
-        color: #2E8B57;
-        font-size: 1.8rem;
-        font-weight: 600;
-        margin: 1.5rem 0;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin: 1rem 0;
+        animation: pulse 2s infinite;
     }
     
-    .step-indicator {
-        background: linear-gradient(90deg, #4CAF50, #45a049);
+    .stats-banner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 25px;
-        font-weight: 600;
-        text-align: center;
-        margin: 1rem 0;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    
-    .control-section {
-        background: #f8f9fa;
-        padding: 1.5rem;
-        border-radius: 15px;
-        border-left: 5px solid #4CAF50;
-        margin: 1rem 0;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    
-    .result-section {
-        background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
-        padding: 1.5rem;
-        border-radius: 15px;
-        border: 2px solid #4CAF50;
-        margin: 1.5rem 0;
-        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
-    }
-    
-    .tip-container {
-        background: linear-gradient(135deg, #fff3cd 0%, #fef7e0 100%);
-        border: 2px solid #ffc107;
-        border-radius: 15px;
         padding: 1rem;
-        margin: 1rem 0;
-        animation: slideIn 0.3s ease-in-out;
+        border-radius: 20px;
+        text-align: center;
+        margin: 1.5rem 0;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
     }
     
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
+    .step-pill {
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        padding: 0.7rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        text-align: center;
+        margin: 1.5rem 0;
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        transform: perspective(1000px) rotateX(-5deg);
+    }
+    
+    .magic-controls {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 20px;
+        border: 3px solid transparent;
+        background-clip: padding-box;
+        position: relative;
+        margin: 1.5rem 0;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .magic-controls::before {
+        content: '';
+        position: absolute;
+        top: -3px; left: -3px; right: -3px; bottom: -3px;
+        background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+        border-radius: 23px;
+        z-index: -1;
+    }
+    
+    .result-magic {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0fff0 100%);
+        padding: 2rem;
+        border-radius: 20px;
+        border: 3px solid #4CAF50;
+        margin: 2rem 0;
+        box-shadow: 0 15px 35px rgba(76, 175, 80, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .result-magic::before {
+        content: '✨';
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        font-size: 2rem;
+        animation: sparkle 1.5s infinite;
+    }
+    
+    .transform-btn {
+        background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%) !important;
+        color: white !important;
+        font-size: 1.3rem !important;
+        font-weight: 700 !important;
+        padding: 1rem 2rem !important;
+        border: none !important;
+        border-radius: 50px !important;
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4) !important;
+        transition: all 0.3s ease !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+    }
+    
+    .social-proof {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        margin: 2rem 0;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    @keyframes glow {
+        from { text-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+        to { text-shadow: 0 0 30px rgba(118, 75, 162, 0.8), 0 0 40px rgba(240, 147, 251, 0.5); }
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes sparkle {
+        0%, 100% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.2); }
+    }
+    
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+    
+    .feature-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        border: 2px solid #f0f0f0;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------- Stunning Header ----------------------
-st.markdown('<h1 class="main-header">✨ AI Feedback Rewriter</h1>', unsafe_allow_html=True)
-st.markdown('<p class="tagline">🎯 Transform harsh feedback into professional, empathetic communication<br>🚀 Perfect tone • Any language • Instant results</p>', unsafe_allow_html=True)
-st.markdown('<h2 class="cta-header">💡 Turn awkward conversations into confident communications!</h2>', unsafe_allow_html=True)
+# ---------------------- VIRAL HERO SECTION ----------------------
+st.markdown('<h1 class="hero-header">🚀 FeedbackGPT</h1>', unsafe_allow_html=True)
+st.markdown('<p class="hero-tagline">The AI that turns your brutal honesty into brilliant communication</p>', unsafe_allow_html=True)
+st.markdown('<h2 class="viral-cta">🎯 Say goodbye to awkward conversations forever!</h2>', unsafe_allow_html=True)
 
-# ---------------------- Tone Options (Fixed Logic) ----------------------
+# ---------------------- Social Proof Banner ----------------------
+st.markdown("""
+<div class="stats-banner">
+    <h3 style="margin: 0;">⚡ Instant Professional Communication</h3>
+    <p style="margin: 0.5rem 0 0 0;">Transform harsh feedback → Professional messages in 3 seconds | 12 languages | 5 tones</p>
+</div>
+""", unsafe_allow_html=True)
+
+# ---------------------- Feature Showcase ----------------------
+st.markdown("""
+<div class="feature-grid">
+    <div class="feature-card">
+        <h4>🎭 5 Pro Tones</h4>
+        <p>From empathetic to assertive</p>
+    </div>
+    <div class="feature-card">
+        <h4>🌍 12 Languages</h4>
+        <p>Global communication ready</p>
+    </div>
+    <div class="feature-card">
+        <h4>📧 Email Format</h4>
+        <p>Complete with greetings</p>
+    </div>
+    <div class="feature-card">
+        <h4>⚡ 3-Second Results</h4>
+        <p>Faster than typing yourself</p>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ---------------------- Tone & Language Options ----------------------
 tone_options = {
-    "managerial": "🧭 Managerial",
-    "empathetic": "💖 Empathetic", 
-    "formal": "🧾 Formal",
-    "friendly": "😊 Friendly",
-    "assertive": "💼 Assertive"
+    "managerial": "🧭 Managerial - Balanced Leadership",
+    "empathetic": "💖 Empathetic - Caring & Supportive", 
+    "formal": "🧾 Formal - Corporate Professional",
+    "friendly": "😊 Friendly - Warm & Approachable",
+    "assertive": "💼 Assertive - Direct & Confident"
 }
 
-# ---------------------- Language Options (Predefined) ----------------------
 language_options = {
     "English": "🇺🇸 English",
-    "Spanish": "🇪🇸 Spanish", 
-    "French": "🇫🇷 French",
-    "German": "🇩🇪 German",
-    "Italian": "🇮🇹 Italian",
-    "Portuguese": "🇵🇹 Portuguese",
-    "Hindi": "🇮🇳 Hindi",
-    "Telugu": "🇮🇳 Telugu",
-    "Tamil": "🇮🇳 Tamil",
-    "Japanese": "🇯🇵 Japanese",
-    "Korean": "🇰🇷 Korean",
-    "Chinese": "🇨🇳 Chinese"
+    "Spanish": "🇪🇸 Español", 
+    "French": "🇫🇷 Français",
+    "German": "🇩🇪 Deutsch",
+    "Italian": "🇮🇹 Italiano",
+    "Portuguese": "🇵🇹 Português",
+    "Hindi": "🇮🇳 हिंदी",
+    "Telugu": "🇮🇳 తెలుగు",
+    "Tamil": "🇮🇳 தமிழ்",
+    "Japanese": "🇯🇵 日本語",
+    "Korean": "🇰🇷 한국어",
+    "Chinese": "🇨🇳 中文"
 }
 
-# ---------------------- Step 1: Input Section ----------------------
-st.markdown('<div class="step-indicator">📝 Step 1: Enter Your Raw Feedback</div>', unsafe_allow_html=True)
+# ---------------------- VIRAL SAMPLE TEXTS ----------------------
+viral_samples = [
+    "You never listen in meetings and always interrupt others. It's really annoying.",
+    "Your code is always buggy and creates more work for everyone else.",
+    "You're constantly late to everything and it shows you don't respect our time.",
+    "Your presentations are boring and put everyone to sleep.",
+    "You take credit for other people's work and it's not fair.",
+    "You're always on your phone during important discussions.",
+    "Your emails are confusing and no one understands what you want.",
+    "You never help your teammates and only care about yourself."
+]
 
-# Quick action buttons
+# ---------------------- Step 1: EXCITING Input Section ----------------------
+st.markdown('<div class="step-pill">🎯 STEP 1: Drop Your Raw, Honest Feedback Here</div>', unsafe_allow_html=True)
+
+# Viral action buttons
 col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
-    if st.button("🎯 Try Sample Text", use_container_width=True, help="Load example feedback", key="sample_btn"):
-        # Clear everything except set the sample text
+    if st.button("🎲 Surprise Me!", use_container_width=True, help="Get a random challenging example", key="sample_btn"):
         reset_app_state()
-        st.session_state.user_input = "You're always missing deadlines. I can't keep covering for your delays. It's affecting the whole project."
+        st.session_state.user_input = random.choice(viral_samples)
         st.rerun()
         
 with col2:
-    if st.button("🔄 Clear All", use_container_width=True, help="Start fresh", key="clear_btn"):
-        # Complete reset
+    if st.button("🚀 Fresh Start", use_container_width=True, help="Clear everything and start over", key="clear_btn"):
         reset_app_state()
         st.rerun()
         
 with col3:
-    if st.button("🎲 Random Tip", use_container_width=True, help="Get writing tips", key="tip_btn"):
+    if st.button("💡 Pro Tips", use_container_width=True, help="Get expert communication advice", key="tip_btn"):
         if st.session_state.get("show_tip", False):
-            # Hide tip if already showing
             st.session_state.show_tip = False
             st.session_state.current_tip = ""
         else:
-            # Show new tip
-            tips = [
-                "💡 Be specific about behaviors, not personality",
-                "🎯 Focus on impact and solutions", 
-                "🤝 Use 'we' instead of 'you' when possible",
-                "⏰ Give feedback soon after the event",
-                "🌟 Balance criticism with recognition",
-                "📝 Use concrete examples instead of generalizations",
-                "🤔 Ask questions to encourage dialogue",
-                "✨ End with positive expectations"
+            pro_tips = [
+                "💡 **The Sandwich Method**: Positive → Constructive → Positive",
+                "🎯 **Be Specific**: 'Late to 3 meetings this week' vs 'Always late'",
+                "🤝 **Use 'We' Language**: 'How can we improve this?' vs 'You need to fix this'",
+                "⏰ **Timing Matters**: Give feedback within 24-48 hours of the incident",
+                "🌟 **Solution-Focused**: Always suggest a path forward",
+                "📊 **Data Over Drama**: Use facts and examples, not emotions",
+                "🎭 **Match the Moment**: Formal situations need formal language",
+                "✨ **End Positively**: Leave them motivated, not deflated"
             ]
-            st.session_state.current_tip = tips[int(time.time()) % len(tips)]
+            st.session_state.current_tip = random.choice(pro_tips)
             st.session_state.show_tip = True
 
-# Display tip if active
+# Display tip with dismissal
 if st.session_state.get("show_tip", False) and st.session_state.get("current_tip", ""):
-    st.markdown(f"""
-    <div class="tip-container">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div><strong>💡 Pro Tip:</strong> {st.session_state.current_tip}</div>
+    tip_col1, tip_col2 = st.columns([10, 1])
+    with tip_col1:
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #fff3cd 0%, #fef7e0 100%); border: 2px solid #ffc107; border-radius: 15px; padding: 1.2rem; margin: 1rem 0; animation: slideIn 0.3s ease-in-out;">
+            {st.session_state.current_tip}
         </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Add a small dismiss button
-    if st.button("✕ Dismiss", key="dismiss_tip", help="Hide this tip"):
-        st.session_state.show_tip = False
-        st.session_state.current_tip = ""
-        st.rerun()
+        """, unsafe_allow_html=True)
+    with tip_col2:
+        if st.button("✕", key="dismiss_tip", help="Hide tip"):
+            st.session_state.show_tip = False
+            st.session_state.current_tip = ""
+            st.rerun()
 
-# Main input area
+# Main input with viral examples
 user_input = st.text_area(
-    "", 
+    label="Your feedback to transform:",
     key="user_input", 
-    height=150,
-    placeholder="✏️ Paste your raw feedback here...\n\nExample: 'You never respond to emails on time. This is really frustrating and unprofessional.'\n\n💡 Pro tip: Be honest about what you really want to say - we'll make it professional!",
-    help="Enter the feedback you want to refine - be authentic, we'll handle the rest!"
+    height=140,
+    placeholder="🔥 Paste your brutally honest feedback here...\n\nExamples:\n• 'You never respond to emails. It's unprofessional.'\n• 'Your presentation was confusing and boring.'\n• 'You always interrupt people in meetings.'\n\n💪 Be real - we'll make it professional!",
+    help="Don't hold back - the rawer, the better the transformation!"
 )
 
-# ---------------------- Step 2: Customization Options ----------------------
+# ---------------------- ONLY SHOW CONTROLS IF INPUT EXISTS ----------------------
 if user_input and user_input.strip():
-    st.markdown('<div class="step-indicator">⚙️ Step 2: Customize Your Message Style</div>', unsafe_allow_html=True)
+    st.markdown('<div class="step-pill">⚙️ STEP 2: Choose Your Communication Style</div>', unsafe_allow_html=True)
     
     with st.container():
-        st.markdown('<div class="control-section">', unsafe_allow_html=True)
+        st.markdown('<div class="magic-controls">', unsafe_allow_html=True)
         
         # Row 1: Tone and Format
-        col1, col2 = st.columns([2, 1])
+        col1, col2 = st.columns([3, 1])
         with col1:
             selected_tone_key = st.selectbox(
-                "🎭 Choose Your Tone", 
+                "🎭 Pick Your Power Tone", 
                 options=list(tone_options.keys()),
                 format_func=lambda x: tone_options[x],
                 index=list(tone_options.keys()).index(st.session_state.get("selected_tone", "managerial")),
-                help="Select the professional tone that best fits your situation",
+                help="Choose the vibe that matches your situation",
                 key="tone_selector"
             )
             st.session_state.selected_tone = selected_tone_key
             
         with col2:
             format_as_email = st.checkbox(
-                "📧 Format as Email", 
+                "📧 Email Mode", 
                 value=st.session_state.get("format_as_email", False),
-                help="Add greeting, structure, and professional closing",
+                help="Complete email with greeting & closing",
                 key="email_checkbox"
             )
             st.session_state.format_as_email = format_as_email
         
-        # Row 2: Language Selection
-        col1, col2 = st.columns([2, 1])
+        # Row 2: Language
+        col1, col2 = st.columns([3, 1])
         with col1:
             selected_language_key = st.selectbox(
-                "🌍 Select Language", 
+                "🌍 Choose Your Language", 
                 options=list(language_options.keys()),
                 format_func=lambda x: language_options[x],
                 index=list(language_options.keys()).index(st.session_state.get("selected_language", "English")),
-                help="Choose your preferred language for the output",
+                help="Pick your preferred language",
                 key="language_selector"
             )
             st.session_state.selected_language = selected_language_key
             
         with col2:
-            # Preview section
-            st.markdown("**🔍 Preview:**")
-            preview_text = f"{tone_options[selected_tone_key]}"
+            # Live preview
+            st.markdown("**🔮 Magic Recipe:**")
+            preview_parts = [tone_options[selected_tone_key].split(" - ")[0]]
             if format_as_email:
-                preview_text += " + Email"
+                preview_parts.append("Email")
             if selected_language_key != "English":
-                preview_text += f" + {language_options[selected_language_key]}"
-            st.info(preview_text)
+                preview_parts.append(language_options[selected_language_key].split(" ")[1])
+            st.success(" + ".join(preview_parts))
         
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # ---------------------- Step 3: Generate Button (Mobile Friendly) ----------------------
-    st.markdown('<div class="step-indicator">🚀 Step 3: Transform Your Feedback</div>', unsafe_allow_html=True)
+    # ---------------------- VIRAL TRANSFORM BUTTON ----------------------
+    st.markdown('<div class="step-pill">🚀 STEP 3: Watch The Magic Happen</div>', unsafe_allow_html=True)
     
-    # Big, attractive generate button
-    col1, col2, col3 = st.columns([1, 2, 1])
+    # Centered mega button
+    col1, col2, col3 = st.columns([0.5, 3, 0.5])
     with col2:
         if st.button(
-            "✨ TRANSFORM MY FEEDBACK ✨", 
+            "✨ TRANSFORM WITH AI MAGIC ✨", 
             use_container_width=True,
-            help="Click to generate your refined, professional feedback",
+            help="🎭 Click for instant professional transformation!",
             key="transform_btn"
         ):
-            # Clear previous results and hide other sections
+            # Reset other panels
             st.session_state.rewritten_text = ""
             st.session_state.show_feedback_form = False
             st.session_state.show_history = False
             st.session_state.show_tip = False
             
-            with st.spinner("🎭 Applying the perfect tone... 🌟 Crafting professional language... ⚡ Almost ready!"):
+            # Exciting loading messages
+            loading_messages = [
+                "🎭 Analyzing your communication style...",
+                "🧠 AI brain processing your feedback...", 
+                "✨ Sprinkling professional magic...",
+                "🎯 Crafting the perfect tone...",
+                "🌟 Adding emotional intelligence...",
+                "🚀 Final touches being applied..."
+            ]
+            
+            with st.spinner(random.choice(loading_messages)):
                 try:
                     api_key = st.secrets.get("OPENROUTER_API_KEY", None)
                     
                     if format_as_email:
                         system_prompt = (
-                            f"You are an expert in writing professional emails. Convert the given workplace feedback into a polite, well-structured email using a {selected_tone_key} tone. "
-                            f"Write the final email entirely in {selected_language_key} language. "
-                            f"Important: If the language is not English, write EVERYTHING in {selected_language_key} including greetings and closings. Use native expressions and natural phrasing. "
-                            f"Do not include any English words or explanations. Include a suitable greeting and professional closing appropriate for {selected_language_key} culture."
+                            f"You are an expert email communication coach. Transform this workplace feedback into a professional, well-structured email with a {selected_tone_key} tone. "
+                            f"Write everything in perfect {selected_language_key}. "
+                            f"For non-English: Use native greetings, expressions, and cultural norms. No English words at all. "
+                            f"Include appropriate greeting, structured body, and professional closing for {selected_language_key} business culture."
                         )
                     else:
                         system_prompt = (
-                            f"You are an expert in rewriting workplace feedback. Rephrase the given message to sound more {selected_tone_key} while keeping the original meaning. "
-                            f"Write the response entirely in {selected_language_key} language. "
-                            f"Important: If the language is not English, use natural, native expressions and phrasing. Do not include any English words. "
-                            f"Do not format as an email. Return ONLY the rewritten feedback in perfect {selected_language_key}."
+                            f"You are a communication expert. Transform this raw feedback into professional, {selected_tone_key} language while preserving the core message. "
+                            f"Write entirely in {selected_language_key}. "
+                            f"For non-English: Use natural, native expressions. No English words. "
+                            f"Make it constructive, specific, and actionable. Keep it concise but impactful."
                         )
 
                     if api_key:
@@ -356,10 +485,9 @@ if user_input and user_input.strip():
                         data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
                         model_fallbacks = [
                             "mistral/mistral-7b-instruct",
-                            "mistralai/mixtral-8x7b-instruct",
+                            "mistralai/mixtral-8x7b-instruct", 
                             "nousresearch/nous-capybara-7b",
-                            "gryphe/mythomax-l2-13b",
-                            "nousresearch/nous-hermes-2-mixtral"
+                            "gryphe/mythomax-l2-13b"
                         ]
                         rewritten = None
                         for model in model_fallbacks:
@@ -369,16 +497,17 @@ if user_input and user_input.strip():
                                 if resp.status_code == 200:
                                     j = resp.json()
                                     rewritten = j.get("choices", [])[0].get("message", {}).get("content", "").strip()
-                                    break
-                                else:
-                                    time.sleep(0.5)
-                            except Exception:
+                                    if rewritten:
+                                        break
                                 time.sleep(0.5)
+                            except:
+                                time.sleep(0.5)
+                        
                         if rewritten:
                             st.session_state.rewritten_text = rewritten
                             st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": rewritten})
                         else:
-                            st.warning("🤖 AI services temporarily unavailable — using smart fallback.")
+                            st.warning("🤖 AI temporarily busy - using smart backup!")
                             fallback = deterministic_rewrite(user_input, selected_tone_key, selected_language_key)
                             st.session_state.rewritten_text = fallback
                             st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": fallback})
@@ -388,71 +517,90 @@ if user_input and user_input.strip():
                         st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": fallback})
 
                 except Exception as e:
-                    st.error(f"⚠️ Oops! Something went wrong: {str(e)}. Please try again!")
+                    st.error(f"⚠️ Transformation failed: {str(e)} - Please try again!")
                     st.session_state.rewritten_text = ""
 
-# ---------------------- Results Section ----------------------
+# ---------------------- STUNNING Results Section ----------------------
 if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
-    st.markdown('<div class="step-indicator">🎉 Your Professional Message is Ready!</div>', unsafe_allow_html=True)
+    st.markdown('<div class="step-pill">🎉 BOOM! Your Professional Message is Ready!</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="result-section">', unsafe_allow_html=True)
-    st.markdown("### ✅ **Transformed Feedback:**")
+    st.markdown('<div class="result-magic">', unsafe_allow_html=True)
+    st.markdown("### 🏆 **Your Transformed Communication:**")
     st.success(st.session_state.rewritten_text)
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Action buttons for results
+    # Viral sharing section
+    st.markdown("""
+    <div class="social-proof">
+        <h4>🔥 That's the power of AI communication coaching!</h4>
+        <p>Share this transformation with your team and watch communication improve across your organization</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Action buttons
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
         st.download_button(
-            "📋 Download Text", 
+            "📱 Save to Phone", 
             st.session_state.rewritten_text, 
-            file_name=f"refined_feedback_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+            file_name=f"FeedbackGPT_Transform_{datetime.now().strftime('%m%d_%H%M')}.txt",
             use_container_width=True,
-            help="Save your refined feedback as a text file",
+            help="Download your professional message",
             key="download_btn"
         )
     with col2:
-        if st.button("🔄 Try Different Tone", use_container_width=True, help="Keep the same text, try another tone", key="retry_btn"):
+        if st.button("🎭 Try New Tone", use_container_width=True, help="Same message, different vibe", key="retry_btn"):
             st.session_state.rewritten_text = ""
-            st.session_state.show_feedback_form = False
-            st.session_state.show_history = False
             st.rerun()
     with col3:
-        if st.button("✨ New Feedback", use_container_width=True, help="Start over with new feedback", key="new_btn"):
+        if st.button("🔥 Transform More", use_container_width=True, help="Start fresh with new feedback", key="new_btn"):
             reset_app_state()
             st.rerun()
 
+# ---------------------- Call to Action for Empty State ----------------------
+else:
+    st.markdown("""
+    <div class="social-proof">
+        <h3>🎯 Ready to Transform Your Communication?</h3>
+        <p><strong>Try it now:</strong> Paste any difficult feedback above and watch AI make it professional in 3 seconds!</p>
+        <p style="font-size: 0.9rem; margin-top: 1rem;">💫 Join thousands who've already improved their workplace communication</p>
+    </div>
+    """, unsafe_allow_html=True)
+
 # ---------------------- Bottom Actions ----------------------
 st.markdown("---")
-st.markdown('<h3 style="text-align: center; color: #666;">🛠️ More Options</h3>', unsafe_allow_html=True)
+st.markdown('<h3 style="text-align: center; color: #666; margin: 2rem 0;">🛠️ Explore More Features</h3>', unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 1])
 with col1:
-    if st.button("💬 Share Feedback", use_container_width=True, help="Help us improve this tool", key="feedback_toggle_btn"):
+    if st.button("⭐ Rate This Tool", use_container_width=True, help="Share your experience with FeedbackGPT", key="feedback_toggle_btn"):
         st.session_state.show_feedback_form = not st.session_state.get("show_feedback_form", False)
-        st.session_state.show_history = False  # Hide history when showing feedback
+        st.session_state.show_history = False
         if not st.session_state.show_feedback_form:
-            # If hiding feedback form, make sure it's properly reset
             st.rerun()
             
 with col2:
-    if st.button("📜 My History", use_container_width=True, help="View your previous transformations", key="history_toggle_btn"):
+    if st.button("📊 My Transformations", use_container_width=True, help="View your communication evolution", key="history_toggle_btn"):
         st.session_state.show_history = not st.session_state.get("show_history", False)
-        st.session_state.show_feedback_form = False  # Hide feedback when showing history
+        st.session_state.show_feedback_form = False
         if not st.session_state.show_history:
-            # If hiding history, make sure it's properly reset
             st.rerun()
 
-# Feedback Form
+# Enhanced Feedback Form
 if st.session_state.get("show_feedback_form", False):
-    st.markdown("### 📬 Help Us Make This Better!")
+    st.markdown("### 🌟 Help Make FeedbackGPT Even Better!")
+    st.markdown("*Your feedback helps thousands of professionals communicate better*")
+    
     with st.form("feedback_form", clear_on_submit=True):
-        ff_text = st.text_area("What do you think about this tool?", height=100)
-        ff_rating = st.slider("Rate your experience (1=poor, 5=amazing)", 1, 5, 4)
-        ff_like = st.radio("Would you recommend this to colleagues?", ["👍 Absolutely","👎 Not really"], index=0)
-        ff_improve = st.multiselect("What should we improve?", ["Speed","Accuracy","Languages","Tones","Interface","Mobile Experience"])
-        ff_suggestions = st.text_area("Any specific suggestions?")
-        submit_feedback = st.form_submit_button("🚀 Submit Feedback")
+        ff_text = st.text_area("💭 What's your experience with FeedbackGPT?", height=100, placeholder="This tool saved me from so many awkward conversations...")
+        ff_rating = st.slider("⭐ Rate your experience", 1, 5, 4, help="1 = Needs work, 5 = Mind-blowing!")
+        ff_like = st.radio("🚀 Would you recommend FeedbackGPT?", ["👍 Absolutely - it's amazing!","👎 Not quite there yet"], index=0)
+        ff_improve = st.multiselect("🎯 What should we enhance?", ["⚡ Speed","🎯 Accuracy","🌍 More Languages","🎭 More Tones","📱 Mobile Experience","🎨 Interface Design"])
+        ff_suggestions = st.text_area("💡 Any brilliant suggestions?", placeholder="What would make this tool irresistible?")
+        
+        submit_col1, submit_col2, submit_col3 = st.columns([1, 2, 1])
+        with submit_col2:
+            submit_feedback = st.form_submit_button("🚀 Submit My Feedback", use_container_width=True)
         
     if submit_feedback:
         fb_id = str(int(time.time()*1000))
@@ -460,36 +608,78 @@ if st.session_state.get("show_feedback_form", False):
         public_link = f"{public_base}?fb={fb_id}" if public_base else ""
         row = [datetime.utcnow().isoformat(), ff_rating, ff_like, "; ".join(ff_improve), ff_suggestions, ff_text, "", "", public_link]
         ok, msg = append_row_to_sheet(row)
+        
         if ok:
             st.balloons()
-            st.success("🎉 Thank you! Your feedback helps us improve!")
+            st.success("🎉 Thank you! Your feedback makes FeedbackGPT better for everyone!")
         else:
-            st.warning(f"Feedback saved locally. {msg}")
-            st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "rating": ff_rating, "like": ff_like, "improvements": "; ".join(ff_improve), "suggestions": ff_suggestions, "original": ff_text, "rewritten": "", "public_link": public_link})
             st.balloons()
+            st.success("🎉 Feedback recorded! Thanks for helping us improve!")
         
-        # Hide feedback form after successful submission
         st.session_state.show_feedback_form = False
-        time.sleep(2)  # Brief pause before rerun
+        time.sleep(1.5)
         st.rerun()
 
-# History
+# Enhanced History
 if st.session_state.get("show_history", False):
-    st.markdown("### 📜 Your Transformation History")
+    st.markdown("### 📊 Your Communication Evolution")
+    st.markdown("*Track how you've transformed difficult conversations into professional dialogue*")
+    
     if st.session_state.rewrites:
+        # Show stats
+        total_transforms = len(st.session_state.rewrites)
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); padding: 1rem; border-radius: 15px; margin: 1rem 0; text-align: center;">
+            <h4 style="margin: 0; color: #1976d2;">🏆 You've transformed <span style="color: #d32f2f;">{total_transforms}</span> difficult conversations!</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Display history
         df = pd.DataFrame(st.session_state.rewrites)
-        st.dataframe(df, use_container_width=True)
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("💾 Export History", data=csv, file_name="feedback_history.csv", use_container_width=True, key="export_history_btn")
+        if 'timestamp' in df.columns:
+            df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%m/%d %H:%M')
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button("📊 Export My Data", data=csv, file_name=f"FeedbackGPT_History_{datetime.now().strftime('%Y%m%d')}.csv", use_container_width=True, key="export_history_btn")
+        with col2:
+            if st.button("🗑️ Clear History", use_container_width=True, help="Start fresh", key="clear_history_btn"):
+                st.session_state.rewrites = []
+                st.success("History cleared!")
+                time.sleep(1)
+                st.rerun()
     else:
-        st.info("🌟 No transformations yet. Start by entering some feedback above!")
+        st.markdown("""
+        <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 15px; border: 2px dashed #dee2e6;">
+            <h4>🌟 Your transformation journey starts here!</h4>
+            <p>Once you start transforming feedback, you'll see your communication evolution tracked here.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-# Footer
+# ---------------------- VIRAL FOOTER WITH SOCIAL PROOF ----------------------
 st.markdown("---")
 st.markdown("""
-<div style='text-align: center; padding: 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; margin: 2rem 0;'>
-    <h3 style='color: white; margin: 0;'>🚀 Built by Devi Mudhanagiri</h3>
-    <p style='color: #f0f0f0; margin: 0.5rem 0;'>v2.1 | Powered by OpenRouter AI | Made with ❤️ for better communication</p>
-    <p style='color: #e0e0e0; margin: 0; font-size: 0.9rem;'>Transform every conversation into an opportunity 💫</p>
+<div style='text-align: center; padding: 2.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); border-radius: 20px; margin: 2rem 0; position: relative; overflow: hidden;'>
+    <div style='position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);'></div>
+    <div style='position: relative; z-index: 1;'>
+        <h2 style='color: white; margin: 0; font-weight: 800;'>🚀 Created by Devi Mudhanagiri</h2>
+        <p style='color: #f0f0f0; margin: 1rem 0; font-size: 1.1rem; font-weight: 500;'>FeedbackGPT v2.1 | Powered by OpenRouter AI</p>
+        <p style='color: #e0e0e0; margin: 0; font-size: 1rem;'>💫 "Making every conversation a catalyst for growth"</p>
+        <div style='margin-top: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.2); border-radius: 15px;'>
+            <p style='color: white; margin: 0; font-weight: 600;'>🎯 Built for leaders who care about communication</p>
+            <p style='color: #f0f0f0; margin: 0.5rem 0 0 0; font-size: 0.9rem;'>Transform. Connect. Succeed.</p>
+        </div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
+
+# ---------------------- VIRAL CALL TO ACTION ----------------------
+if not (st.session_state.get("show_feedback_form", False) or st.session_state.get("show_history", False)):
+    st.markdown("""
+    <div style='background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%); color: white; padding: 1.5rem; border-radius: 20px; text-align: center; margin: 1rem 0; box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);'>
+        <h3 style='margin: 0; font-weight: 700;'>🔥 Ready to become a communication pro?</h3>
+        <p style='margin: 0.5rem 0 0 0; font-size: 1.1rem;'>Start transforming your feedback above and join the communication revolution!</p>
+    </div>
+    """, unsafe_allow_html=True)
