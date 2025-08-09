@@ -445,7 +445,7 @@ st.markdown(
     </div>
     <p class="hero-tagline">
         <span class="tagline-focus">Turn Critique Into Connection</span>
-        <span class="tagline-sub">Help your message land with empathy, clarity, and purpose.</span>
+        <span class="tagline-sub">Help your message land with empathy, clarity, and purpose</span>
     </p>
     """,
     unsafe_allow_html=True
@@ -769,7 +769,7 @@ else:
     st.markdown("""
     <div class="social-proof">
         <h3>🎯 Ready to Transform Your Communication?</h3>
-        <p><strong>Try it now:</strong> Paste any challenging feedback, and see your message transformed into a polished, professional version in just 3 seconds!</p>
+        <p><strong>Try it now:</strong> Paste any challenging feedback, and see your message transformed into a polished, professional version instantly!</p>
         <p style="font-size: 0.9rem; margin-top: 1rem;">💫 Join thousands who've already improved their workplace communication</p>
     </div>
     """, unsafe_allow_html=True)
