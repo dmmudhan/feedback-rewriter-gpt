@@ -711,7 +711,10 @@ if st.session_state.get("show_history", False):
         """, unsafe_allow_html=True)
 
 # ---------------------- Public Feedback Viewer ----------------------
-    # Try Google Sheets first
+   
+def show_public_feedback():
+    import csv, os   
+   # Try Google Sheets first
     rows = []
     try:
         client = gs_client_from_secrets()  # Assume this is defined in your app
