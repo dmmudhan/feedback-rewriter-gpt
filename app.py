@@ -176,14 +176,7 @@ st.markdown("""
         overflow: hidden;
     }
     
-    .result-magic::before {
-        content: '✨';
-        position: absolute;
-        top: 15px;
-        right: 25px;
-        font-size: 1.5rem;
-        opacity: 0.6;
-    }
+
     
     .transform-btn {
         background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%) !important;
@@ -512,14 +505,15 @@ if user_input and user_input.strip():
         st.session_state.selected_language = selected_language_key
         
     with col2:
-        # Better aligned live preview
-        st.markdown("**🔮 Magic Recipe:**")
-        preview_parts = [tone_options[selected_tone_key].split(" - ")[0]]
-        if format_as_email:
-            preview_parts.append("Email")
-        if selected_language_key != "English":
-            preview_parts.append(language_options[selected_language_key].split(" ")[1])
-        st.success(" + ".join(preview_parts))
+        # Better aligned live preview in a compact box
+        with st.container():
+            st.markdown("**🔮 Magic Recipe:**")
+            preview_parts = [tone_options[selected_tone_key].split(" - ")[0]]
+            if format_as_email:
+                preview_parts.append("Email")
+            if selected_language_key != "English":
+                preview_parts.append(language_options[selected_language_key].split(" ")[1])
+            st.info(" + ".join(preview_parts))
     
     # ---------------------- VIRAL TRANSFORM BUTTON ----------------------
     st.markdown('<div class="step-pill">🚀 STEP 3: Watch The Magic Happen</div>', unsafe_allow_html=True)
