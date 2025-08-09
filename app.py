@@ -58,13 +58,11 @@ def deterministic_rewrite(text: str, tone: str, language: str) -> str:
 
 # ---------------------- PROPER Session State Reset ----------------------
 def reset_app_state():
-    """Complete app state reset - ensures clean slate"""
-    for key in list(st.session_state.keys()):
-        if key not in ['user_input']:  # Preserve only user input
-            del st.session_state[key]
-    
-    # Set fresh defaults
+    """Complete reset to initial state"""
+    # Clear everything except initialize fresh state
+    st.session_state.clear()
     st.session_state["rewritten_text"] = ""
+    st.session_state["user_input"] = ""
     st.session_state["rewrites"] = []
     st.session_state["show_feedback_form"] = False
     st.session_state["show_history"] = False
@@ -75,6 +73,7 @@ def reset_app_state():
     st.session_state["format_as_email"] = False
     st.session_state["app_session_id"] = str(int(time.time() * 1000))
 
+# Initialize session state properly
 if "app_session_id" not in st.session_state:
     reset_app_state()
 
@@ -147,27 +146,7 @@ st.markdown("""
         transform: perspective(1000px) rotateX(-5deg);
     }
     
-    .magic-controls {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 2rem;
-        border-radius: 20px;
-        border: 3px solid transparent;
-        background-clip: padding-box;
-        position: relative;
-        margin: 1.5rem 0;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    
-    .magic-controls::before {
-        content: '';
-        position: absolute;
-        top: -3px; left: -3px; right: -3px; bottom: -3px;
-        background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
-        border-radius: 23px;
-        z-index: -1;
-    }
-    
-    .result-magic {
+    .result-box {
         background: linear-gradient(135deg, #e8f5e8 0%, #f0fff0 100%);
         padding: 2rem;
         border-radius: 20px;
@@ -175,8 +154,6 @@ st.markdown("""
         margin: 2rem 0;
         box-shadow: 0 15px 35px rgba(76, 175, 80, 0.3);
     }
-    
-
     
     .transform-btn {
         background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%) !important;
@@ -211,11 +188,6 @@ st.markdown("""
         0% { transform: scale(1); }
         50% { transform: scale(1.05); }
         100% { transform: scale(1); }
-    }
-    
-    @keyframes sparkle {
-        0%, 100% { transform: rotate(0deg) scale(1); }
-        50% { transform: rotate(180deg) scale(1.2); }
     }
     
     .feature-grid {
@@ -469,8 +441,8 @@ user_input = st.text_area(
 if user_input and user_input.strip():
     st.markdown('<div class="step-pill">⚙️ STEP 2: Choose Your Communication Style</div>', unsafe_allow_html=True)
     
-    # Row 1: Tone and Format
-    col1, col2 = st.columns([3, 1])
+    # Clean layout without problematic containers
+    col1, col2 = st.columns([2, 1])
     with col1:
         selected_tone_key = st.selectbox(
             "🎭 Pick Your Power Tone", 
@@ -482,18 +454,6 @@ if user_input and user_input.strip():
         )
         st.session_state.selected_tone = selected_tone_key
         
-    with col2:
-        format_as_email = st.checkbox(
-            "📧 Email Mode", 
-            value=st.session_state.get("format_as_email", False),
-            help="Complete email with greeting & closing",
-            key="email_checkbox"
-        )
-        st.session_state.format_as_email = format_as_email
-    
-    # Row 2: Language and Magic Recipe  
-    col1, col2 = st.columns([2, 1])
-    with col1:
         selected_language_key = st.selectbox(
             "🌍 Choose Your Language", 
             options=list(language_options.keys()),
@@ -505,7 +465,15 @@ if user_input and user_input.strip():
         st.session_state.selected_language = selected_language_key
         
     with col2:
-        # Properly aligned Magic Recipe
+        format_as_email = st.checkbox(
+            "📧 Email Mode", 
+            value=st.session_state.get("format_as_email", False),
+            help="Complete email with greeting & closing",
+            key="email_checkbox"
+        )
+        st.session_state.format_as_email = format_as_email
+        
+        # Magic Recipe aligned properly
         st.markdown("**🔮 Magic Recipe:**")
         preview_parts = [tone_options[selected_tone_key].split(" - ")[0]]
         if format_as_email:
@@ -513,11 +481,9 @@ if user_input and user_input.strip():
         if selected_language_key != "English":
             preview_parts.append(language_options[selected_language_key].split(" ")[1])
         
-        # Use a styled container instead of st.info for better alignment
-        recipe_text = " + ".join(preview_parts)
         st.markdown(f"""
-        <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 0.75rem; border-radius: 8px; margin-top: 0.5rem; text-align: center; font-weight: 600;">
-            {recipe_text}
+        <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 0.6rem; border-radius: 8px; margin-top: 0.3rem; text-align: center; font-weight: 600; font-size: 0.9rem;">
+            {" + ".join(preview_parts)}
         </div>
         """, unsafe_allow_html=True)
     
@@ -608,13 +574,14 @@ if user_input and user_input.strip():
                     st.error(f"⚠️ Transformation failed: {str(e)} - Please try again!")
                     st.session_state.rewritten_text = ""
 
-# ---------------------- STUNNING Results Section ----------------------
+# ---------------------- CLEAN Results Section (NO ANIMATIONS) ----------------------
 if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     st.markdown('<div class="step-pill">🎉 BOOM! Your Professional Message is Ready!</div>', unsafe_allow_html=True)
     
-    st.markdown('<div class="result-magic">', unsafe_allow_html=True)
+    # Simple, clean result display without animations
+    st.markdown('<div class="result-box">', unsafe_allow_html=True)
     st.markdown("### 🏆 **Your Transformed Communication:**")
-    st.success(st.session_state.rewritten_text)
+    st.write(st.session_state.rewritten_text)
     st.markdown('</div>', unsafe_allow_html=True)
     
     # Viral sharing section
