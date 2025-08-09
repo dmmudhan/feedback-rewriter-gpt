@@ -301,7 +301,7 @@ st.markdown("""
 
 # ---------------------- VIRAL HERO SECTION ----------------------
 st.markdown('<h1 class="hero-header">🚀 FeedbackGPT</h1>', unsafe_allow_html=True)
-st.markdown('<p class="hero-tagline">Helping you turn tough feedback into constructive conversations</p>', unsafe_allow_html=True)
+st.markdown('<p class="hero-tagline">Say It Right, Every Time</p>', unsafe_allow_html=True)
 st.markdown('<h2 class="viral-cta">🎯 Say goodbye to awkward conversations forever!</h2>', unsafe_allow_html=True)
 
 # ---------------------- Social Proof Banner ----------------------
@@ -584,7 +584,7 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     # Viral sharing section
     st.markdown("""
     <div class="social-proof">
-        <h4>🔥 That's the power of AI communication coaching!</h4>
+        <h4>🔥 That’s the magic of FeedbackGPT—your personal communication coach, helping you craft impactful messages effortlessly!</h4>
         <p>Share this transformation with your team and watch communication improve across your organization</p>
     </div>
     """, unsafe_allow_html=True)
@@ -614,7 +614,7 @@ else:
     st.markdown("""
     <div class="social-proof">
         <h3>🎯 Ready to Transform Your Communication?</h3>
-        <p><strong>Try it now:</strong> Paste any difficult feedback above and watch AI make it professional in 3 seconds!</p>
+        <p><strong>Try it now:</strong> Paste any challenging feedback, and see your message transformed into a polished, professional version in just 3 seconds!</p>
         <p style="font-size: 0.9rem; margin-top: 1rem;">💫 Join thousands who've already improved their workplace communication</p>
     </div>
     """, unsafe_allow_html=True)
