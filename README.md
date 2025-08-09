@@ -71,13 +71,33 @@ Get your free key from: [https://openrouter.ai/keys](https://openrouter.ai/keys)
 
 ## 🧾 Version History
 
+### ✅ v2.0 – Rebrand & Feedback-Powered Communication
+
+-🔄 Rebranded to "Reframe" – A name that reflects empathy, clarity, and intentional communication
+-💬 Smart feedback transformation – Rewrites tough messages into kind, clear, and professional versions in seconds
+-🎯 Tone Precision – 5 adaptive tones (Friendly, Firm, Empathetic, Professional, Enthusiastic) to match any workplace context
+-🌍 Multilingual Support – Write and reframe in 12+ languages with native expressions and cultural nuance
+-📧 Email Format Mode – Generate ready-to-send emails with proper greeting, body, and closing
+-🧠 No AI Hype – Focused on human impact, not tech buzzwords; positioned as a communication coach, not a bot
+-📊 User History & Export – Track your communication evolution and export your rewrites
+-🌟 Social Proof Engine – “What Others Say” displays top-rated community feedback with sorting, styling, and fallbacks
+-🔁 Feedback Loop Built-In – Users can submit feedback that instantly appears in the public feed (CSV + Google Sheets sync)
+-🛠️ Robust Persistence – Dual storage: Google Sheets (cloud) + feedback_local.csv (fallback) for reliability
+-🎨 Premium UI Experience – Animated hero header, glowing "Reframe" logo, smooth hover effects, and modern layout
+-✨ Micro-Interactions – Subtle animations, fade-ins, and card lifts for a polished, high-end feel
+-🧩 Emotionally Intelligent Prompts – Ensures feedback is always directed to others, not self-apologies
+-🚫 No More “Be the First” Bug – Submitted feedback appears immediately after refresh via st.rerun()
+-🧑‍💼 User-Centric UX – Added neutral rating option, “Other” in enhancements, and close button in feedback form
+-📱 Mobile-Friendly Design – Responsive layout works seamlessly on all devices
+
+[🔗 Live App](https://feedback-rewriter-gpt-atrt5b3gbjdgr5ly3mqjtn.streamlit.app/)
+
 ### ✅ v1.3 – Email Format Toggle + UX Enhancements
 
 - 📧 Added "Format as Email" option for professional email output
 - 📋 Copy-friendly rewritten text using markdown display
 - 🦶 Footer added with creator credit and version info
 - ✨ Preserved clean UX and fallback logic from v1.2
-- 🎯 Now feels more polished and ready for client demo or portfolio
 
 [🔗 Live App](https://feedback-rewriter-gpt-ciwy4jjbnswedu3wgppmss.streamlit.app/)
 
@@ -113,7 +133,7 @@ Pull requests are welcome. Feel free to open an issue or suggest improvements!
 
 ## 🧑‍💼 Author
 
-**Devi M**
+**Devi Mudhanagiri**
 Prompt Engineering Enthusiast | AI Builder | Freelancing Learner
 [LinkedIn](https://www.linkedin.com/in/devimuthyam/)
 
@@ -122,7 +142,7 @@ Prompt Engineering Enthusiast | AI Builder | Freelancing Learner
 ## 📝 License
 
 MIT License
-Copyright (c) 2025 Devi M
+Copyright (c) 2025 Devi Mudhanagiri
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
