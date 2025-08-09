@@ -351,10 +351,8 @@ st.markdown(
         }
         50% {
             text-shadow: 
-                0 0 15px rgba(74, 144, 226, 0.6),
-                0 0 25px rgba(74, 144, 226, 0.4),
-                0 0 40px rgba(80, 200, 120, 0.3),
-                0 0 50px rgba(80, 200, 120, 0.2);
+                0 0 18px rgba(74, 144, 226, 0.7),
+                0 0 28px rgba(80, 200, 120, 0.5);
         }
         100% {
             text-shadow: 
@@ -386,13 +384,35 @@ st.markdown(
     }
 
     .hero-tagline {
-        font-size: 1.6rem;
-        color: #555;
-        margin: 0.5rem auto;
+        text-align: center;
+        font-size: 2rem;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+        background: none;
+        color: #222;
         max-width: 700px;
+        margin: 0.8rem auto;
+    }
+
+    .tagline-focus {
+        background: linear-gradient(90deg, #FF6B6B 40%, #4ECDC4 120%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        font-size: 2.3rem;
+        letter-spacing: -.5px;
+        animation: pulseGlow 2.5s ease-in-out infinite alternate;
+        filter: drop-shadow(0 2px 8px rgba(76,175,80,0.05));
+    }
+
+    .tagline-sub {
+        display: block;
+        font-size: 1.25rem;
+        color: #555;
         font-weight: 500;
-        opacity: 0;
-        animation: fadeIn 1.2s ease-in 0.6s forwards;
+        margin-top: .4rem;
+        opacity: 0.92;
     }
 
     .viral-cta {
@@ -405,11 +425,6 @@ st.markdown(
         animation: fadeIn 1.2s ease-in 0.8s forwards;
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
     @media (max-width: 768px) {
         .hero-main h1 {
             font-size: 3.5rem;
@@ -419,6 +434,9 @@ st.markdown(
             font-size: 1.3rem;
             padding: 0 1rem;
         }
+        .tagline-focus {
+            font-size: 1.5rem;
+        }
     }
     </style>
 
@@ -426,10 +444,8 @@ st.markdown(
         <h1>Reframe</h1>
     </div>
     <p class="hero-tagline">
-        Say it better. Mean it well.
-    </p>
-    <p class="viral-cta"> 
-        Transform tough feedback into constructive conversations.
+        <span class="tagline-focus">Turn Critique Into Connection.</span><br>
+        <span class="tagline-sub">Help your message land with empathy, clarity, and purpose.</span>
     </p>
     """,
     unsafe_allow_html=True
