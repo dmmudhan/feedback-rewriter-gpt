@@ -200,39 +200,65 @@ st.markdown("""
         max-width: 100%;
     }
     
+    /* ==================== ENHANCED FEATURE CARD WITH SMOOTH HOVER ==================== */
     .feature-card {
         background: white;
         padding: 1.8rem 1.5rem;
         border-radius: 15px;
         text-align: center;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         border: 2px solid #f0f0f0;
         min-height: 140px;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        z-index: 1;
     }
-    
+
     .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
+        border-color: #4A90E2;
+        z-index: 2;
     }
-    
+
     .feature-card h4 {
         margin: 0 0 0.8rem 0;
         font-size: 1.2rem;
         color: #333;
         font-weight: 600;
+        transition: color 0.3s ease;
     }
-    
+
     .feature-card p {
         margin: 0;
         color: #666;
         font-size: 0.95rem;
         line-height: 1.4;
+        transition: color 0.3s ease;
     }
-    
+
+    /* Subtle glow background on hover */
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(135deg, rgba(74, 144, 226, 0.05), rgba(80, 200, 120, 0.05));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    .feature-card:hover::before {
+        opacity: 1;
+    }
+    /* ================================================================================= */
+
     .creator-footer {
         text-align: center; 
         padding: 2.5rem; 
@@ -307,65 +333,44 @@ st.markdown(
     <style>
     .hero-header {
         text-align: center;
-        font-size: 2.8em;
+        font-size: 4rem; /* Make "Reframe" very large */
         margin: 0.5em 0;
         line-height: 1.2;
         font-family: 'Segoe UI', sans-serif;
-    }
-    .hero-logo {
         background: linear-gradient(90deg, #4A90E2, #50C878);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: bold;
         font-style: italic;
-    }
-    .tagline {
-        text-align: center;
-        font-size: 18px;
-        color: #444;
-        max-width: 600px;
-        margin: 0 auto 1em;
-        font-family: 'Segoe UI', sans-serif;
-    }
-    </style>
-
-    <h1 class="hero-header">
-        <span class="hero-logo">Reframe</span>
-    </h1>
-    """,
-    unsafe_allow_html=True
-)
-st.markdown(
-    """
-    <style>
-    .hero-tagline, .viral-cta {
-        opacity: 0;
-        animation: fadeIn 1.2s ease-in forwards;
-        text-align: center;
-        font-family: 'Segoe UI', sans-serif;
+        animation: glow 2s ease-in-out infinite alternate;
     }
     .hero-tagline {
-        font-size: 18px;
-        color: #555;
-        margin-bottom: 0.5em;
-    }
-    .viral-cta {
-        font-size: 20px;
-        color: #1a1a1a;
+        text-align: center;
+        font-size: 1.6rem; /* Slightly smaller than before */
+        color: #444;
+        margin-bottom: 0.8rem;
         font-weight: 500;
+        opacity: 0.8; /* Subtle fade effect */
     }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to   { opacity: 1; transform: translateY(0); }
+    .icon-tagline {
+        font-size: 1.2rem; /* Smaller icon */
+        margin-right: 0.5rem; /* Space between icon and text */
+        color: #FF6B6B; /* Pinkish-red for contrast */
+    }
+    @keyframes glow {
+        from { text-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+        to { text-shadow: 0 0 30px rgba(118, 75, 162, 0.8), 0 0 40px rgba(240, 147, 251, 0.5); }
     }
     </style>
 
+    <h1 class="hero-header">Reframe</h1>
     <p class="hero-tagline">
-        Reframe tough messages with clarity and care.
+        Transform tough feedback into constructive conversations.
     </p>
-    <h2 class="viral-cta">
-        🔄 Transform tough feedback into constructive conversations.
-    </h2>
+    <div style="text-align: center;">
+        <span class="icon-tagline">💬</span>
+        <span style="font-size: 1.6rem; color: #444;">Transform tough feedback into constructive conversations.</span>
+    </div>
     """,
     unsafe_allow_html=True
 )
@@ -373,37 +378,39 @@ st.markdown(
 # ---------------------- Social Proof Banner ----------------------
 st.markdown("""
 <div class="stats-banner">
-    <h3 style="margin: 0;">⚡ Instant Professional Communication</h3>
-    <p style="margin: 0.5rem 0 0 0;">Transform harsh feedback → Professional messages in 3 seconds | 12 languages | 5 tones</p>
+    <h3 style="margin: 0; font-size: 1.4em;">✨ Reframe with Confidence, in Any Context</h3>
+    <p style="margin: 0.5rem 0 0 0; font-size: 1.1em;">
+        Turn harsh feedback into professional messages — instantly • Across languages • For every tone
+    </p>
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------- IMPROVED Feature Showcase (6 cards for better layout) ----------------------
+# ---------------------- IMPROVED Feature Showcase (6 cards) ----------------------
 st.markdown("""
 <div class="feature-grid">
     <div class="feature-card">
-        <h4>🎭 5 Pro Tones</h4>
-        <p>From empathetic to assertive - match any situation</p>
+        <h4>🎭 Perfect Tone Every Time</h4>
+        <p>From warm to direct — match your message to the moment</p>
     </div>
     <div class="feature-card">
-        <h4>🌍 12 Languages</h4>
-        <p>Global communication ready with native expressions</p>
+        <h4>🌍 Speak Their Language</h4>
+        <p>Communicate clearly in multiple languages, with cultural nuance</p>
     </div>
     <div class="feature-card">
-        <h4>📧 Email Format</h4>
-        <p>Complete professional emails with proper greetings</p>
+        <h4>📧 Ready-to-Send Emails</h4>
+        <p>Get full emails with greeting, body, and closing — no drafting needed</p>
     </div>
     <div class="feature-card">
-        <h4>⚡ 3-Second Results</h4>
-        <p>Faster than typing yourself - instant transformation</p>
+        <h4>⚡ Instant Reframing</h4>
+        <p>Transform awkward messages in seconds — faster than typing</p>
     </div>
     <div class="feature-card">
-        <h4>🧠 Smart AI</h4>
-        <p>Powered by advanced language models for nuanced communication</p>
+        <h4>🧠 Context-Aware Rewrites</h4>
+        <p>Preserves intent while improving clarity, tone, and impact</p>
     </div>
     <div class="feature-card">
-        <h4>📊 Track Progress</h4>
-        <p>Monitor your communication evolution and export history</p>
+        <h4>📊 Track Your Growth</h4>
+        <p>See how you’re improving — with history, stats, and exportable logs</p>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -560,7 +567,7 @@ if user_input and user_input.strip():
     col1, col2, col3 = st.columns([0.5, 3, 0.5])
     with col2:
         if st.button(
-            "✨ Craft Feedback That Lands — Kindly, Clearly, Confidently ✨", 
+            "✨ Reframe Tough Messages — Kindly, Clearly, Confidently ✨", 
             use_container_width=True,
             help="🎭 Click for instant professional transformation!",
             key="transform_btn"
