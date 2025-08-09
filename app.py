@@ -6,6 +6,11 @@ import json
 from datetime import datetime
 import random
 
+
+# ---------------------- Dynamic widget key helper ----------------------
+def wkey(name):
+    return f"{name}_{st.session_state['app_session_id']}"
+
 # ---------------------- Google Sheets Integration ----------------------
 try:
     import gspread
@@ -37,6 +42,7 @@ def append_row_to_sheet(row, sheet_name="feedback_rewriter_history"):
         try:
             sh = client.open(sheet_name)
             worksheet = sh.sheet1
+        # auto-create if not found
         except gspread.SpreadsheetNotFound:
             sh = client.create(sheet_name)
             worksheet = sh.sheet1
@@ -58,7 +64,19 @@ def deterministic_rewrite(text: str, tone: str, language: str) -> str:
 
 # ---------------------- PROPER Session State Reset ----------------------
 def reset_app_state():
-    """Complete reset to initial state"""
+    """Complete reset to initial state with new widget keys"""
+    st.session_state.clear()
+    st.session_state['app_session_id'] = str(int(time.time() * 1000))
+    st.session_state['user_input'] = ''
+    st.session_state['rewritten_text'] = ''
+    st.session_state['rewrites'] = []
+    st.session_state['show_feedback_form'] = False
+    st.session_state['show_history'] = False
+    st.session_state['show_tip'] = False
+    st.session_state['current_tip'] = ''
+    st.session_state['selected_tone'] = 'managerial'
+    st.session_state['selected_language'] = 'English'
+    st.session_state['format_as_email'] = False
     # Clear everything except initialize fresh state
     st.session_state.clear()
     st.session_state["rewritten_text"] = ""
@@ -76,12 +94,6 @@ def reset_app_state():
 # Initialize session state properly
 if "app_session_id" not in st.session_state:
     reset_app_state()
-
-
-# Helper to produce widget keys that change with app_session_id (forces recreation)
-def wkey(name: str) -> str:
-    """Return widget key name tied to current app_session_id."""
-    return f"{name}_{st.session_state.get('app_session_id', '0')}"
 
 # ---------------------- App Config ----------------------
 st.set_page_config(
@@ -391,12 +403,10 @@ st.markdown('<div class="step-pill">🎯 STEP 1: Drop Your Raw, Honest Feedback 
 col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
     if st.button("🎲 Surprise Me!", use_container_width=True, help="Get a random challenging example", key=wkey("sample_btn")):
-        # Reset state and seed the new text area (use dynamic widget key)
         reset_app_state()
-        new_key = wkey("user_input")
-        st.session_state[new_key] = random.choice(viral_samples)
-        # Also mirror to static helper for code that expects st.session_state["user_input"]
-        st.session_state["user_input"] = st.session_state[new_key]
+        sample_text = random.choice(viral_samples)
+        st.session_state[wkey('user_input')] = sample_text
+        st.session_state['user_input'] = sample_text
         st.rerun()
         
 with col2:
@@ -440,14 +450,13 @@ if st.session_state.get("show_tip", False) and st.session_state.get("current_tip
 
 # Main input with viral examples
 user_input = st.text_area(
+    value=st.session_state.get('user_input', ''),
     label="",
     key=wkey("user_input"), 
     height=140,
     placeholder="🔥 Paste your brutally honest feedback here...\n\nExamples:\n• 'You never respond to emails. It's unprofessional.'\n• 'Your presentation was confusing and boring.'\n• 'You always interrupt people in meetings.'\n\n💪 Be real - we'll make it professional!",
     help="Don't hold back - the rawer, the better the transformation!"
 )
-# Mirror the dynamic widget value into a stable session key for legacy code paths
-st.session_state["user_input"] = user_input
 
 # ---------------------- ONLY SHOW CONTROLS IF INPUT EXISTS ----------------------
 if user_input and user_input.strip():
@@ -464,8 +473,7 @@ if user_input and user_input.strip():
             help="Choose the vibe that matches your situation",
             key=wkey("tone_selector")
         )
-        # mirror to stable key
-        st.session_state["selected_tone"] = selected_tone_key
+        st.session_state.selected_tone = selected_tone_key
         
         selected_language_key = st.selectbox(
             "🌍 Choose Your Language", 
@@ -475,7 +483,7 @@ if user_input and user_input.strip():
             help="Pick your preferred language",
             key=wkey("language_selector")
         )
-        st.session_state["selected_language"] = selected_language_key
+        st.session_state.selected_language = selected_language_key
         
     with col2:
         format_as_email = st.checkbox(
@@ -484,7 +492,7 @@ if user_input and user_input.strip():
             help="Complete email with greeting & closing",
             key=wkey("email_checkbox")
         )
-        st.session_state["format_as_email"] = format_as_email
+        st.session_state.format_as_email = format_as_email
         
         # Magic Recipe aligned properly
         st.markdown("**🔮 Magic Recipe:**")
@@ -588,21 +596,15 @@ if user_input and user_input.strip():
                     st.session_state.rewritten_text = ""
 
 # ---------------------- CLEAN Results Section (NO ANIMATIONS) ----------------------
-final_text = st.session_state.get("rewritten_text", "")
-if isinstance(final_text, str):
-    final_text_stripped = final_text.strip()
-else:
-    final_text_stripped = ""
-if final_text_stripped:
-    # Show a single clean HTML block with the full message (pre-wrapped)
+if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     st.markdown('<div class="step-pill">🎉 BOOM! Your Professional Message is Ready!</div>', unsafe_allow_html=True)
-    st.markdown(f"""
-    <div class="result-box">
-        <h3 style="margin-top:0;">🏆 <strong>Your Transformed Communication:</strong></h3>
-        <pre style="white-space: pre-wrap; font-size: 1rem; line-height:1.35; border:none; background:transparent;">{final_text_stripped}</pre>
-    </div>
-    """, unsafe_allow_html=True)
-
+    
+    # Simple, clean result display without animations
+    st.markdown('<div class="result-box">', unsafe_allow_html=True)
+    st.markdown("### 🏆 **Your Transformed Communication:**")
+    st.write(st.session_state.rewritten_text)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     # Viral sharing section
     st.markdown("""
     <div class="social-proof">
@@ -610,13 +612,13 @@ if final_text_stripped:
         <p>Share this transformation with your team and watch communication improve across your organization</p>
     </div>
     """, unsafe_allow_html=True)
-
+    
     # Action buttons
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
         st.download_button(
             "💾 Download", 
-            final_text_stripped, 
+            st.session_state.rewritten_text, 
             file_name=f"FeedbackGPT_Transform_{datetime.now().strftime('%m%d_%H%M')}.txt",
             use_container_width=True,
             help="Save your professional message",
@@ -630,6 +632,7 @@ if final_text_stripped:
         if st.button("🔥 Transform More", use_container_width=True, help="Start fresh with new feedback", key=wkey("new_btn")):
             reset_app_state()
             st.rerun()
+
 # ---------------------- Call to Action for Empty State ----------------------
 else:
     st.markdown("""
@@ -673,7 +676,7 @@ if st.session_state.get("show_feedback_form", False):
         
         submit_col1, submit_col2, submit_col3 = st.columns([1, 2, 1])
         with submit_col2:
-            submit_feedback = st.form_submit_button("🚀 Submit My Feedback", use_container_width=True, key=wkey("submit_feedback"))
+            submit_feedback = st.form_submit_button("🚀 Submit My Feedback", use_container_width=True)
         
     if submit_feedback:
         fb_id = str(int(time.time()*1000))
