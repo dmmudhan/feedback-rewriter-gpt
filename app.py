@@ -331,46 +331,106 @@ st.markdown("""
 st.markdown(
     """
     <style>
-    .hero-header {
+    @keyframes floatIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes pulseGlow {
+        0% {
+            text-shadow: 
+                0 0 10px rgba(74, 144, 226, 0.4),
+                0 0 20px rgba(74, 144, 226, 0.3),
+                0 0 30px rgba(80, 200, 120, 0.2);
+        }
+        50% {
+            text-shadow: 
+                0 0 15px rgba(74, 144, 226, 0.6),
+                0 0 25px rgba(74, 144, 226, 0.4),
+                0 0 40px rgba(80, 200, 120, 0.3),
+                0 0 50px rgba(80, 200, 120, 0.2);
+        }
+        100% {
+            text-shadow: 
+                0 0 10px rgba(74, 144, 226, 0.4),
+                0 0 20px rgba(74, 144, 226, 0.3),
+                0 0 30px rgba(80, 200, 120, 0.2);
+        }
+    }
+
+    .hero-main {
         text-align: center;
-        font-size: 4rem; /* Make "Reframe" very large */
-        margin: 0.5em 0;
-        line-height: 1.2;
-        font-family: 'Segoe UI', sans-serif;
+        margin: 1.5rem 0 1rem;
+        animation: floatIn 1s ease-out forwards;
+    }
+
+    .hero-main h1 {
+        font-size: 5rem;
+        font-weight: 800;
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
         background: linear-gradient(90deg, #4A90E2, #50C878);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-weight: bold;
-        font-style: italic;
-        animation: glow 2s ease-in-out infinite alternate;
+        letter-spacing: -1px;
+        position: relative;
+        display: inline-block;
+        transform: skew(-3deg); /* Subtle italic-like tilt */
+        animation: pulseGlow 3s ease-in-out infinite alternate;
     }
+
     .hero-tagline {
-        text-align: center;
-        font-size: 1.6rem; /* Slightly smaller than before */
-        color: #444;
-        margin-bottom: 0.8rem;
+        font-size: 1.6rem;
+        color: #555;
+        margin: 0.5rem auto;
+        max-width: 700px;
         font-weight: 500;
-        opacity: 0.8; /* Subtle fade effect */
+        opacity: 0;
+        animation: fadeIn 1.2s ease-in 0.6s forwards;
     }
-    .icon-tagline {
-        font-size: 1.2rem; /* Smaller icon */
-        margin-right: 0.5rem; /* Space between icon and text */
-        color: #FF6B6B; /* Pinkish-red for contrast */
+
+    .viral-cta {
+        font-size: 1.9rem;
+        font-weight: 600;
+        color: #333;
+        margin: 1rem auto;
+        max-width: 750px;
+        opacity: 0;
+        animation: fadeIn 1.2s ease-in 0.8s forwards;
     }
-    @keyframes glow {
-        from { text-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
-        to { text-shadow: 0 0 30px rgba(118, 75, 162, 0.8), 0 0 40px rgba(240, 147, 251, 0.5); }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+        .hero-main h1 {
+            font-size: 3.5rem;
+            transform: skew(0deg);
+        }
+        .hero-tagline, .viral-cta {
+            font-size: 1.3rem;
+            padding: 0 1rem;
+        }
     }
     </style>
 
-    <h1 class="hero-header">Reframe</h1>
+    <div class="hero-main">
+        <h1>Reframe</h1>
+    </div>
     <p class="hero-tagline">
+        Say it better. Mean it well.
+    </p>
+    <p class="viral-cta"> 
         Transform tough feedback into constructive conversations.
     </p>
-    <div style="text-align: center;">
-        <span class="icon-tagline">💬</span>
-        <span style="font-size: 1.6rem; color: #444;">Transform tough feedback into constructive conversations.</span>
-    </div>
     """,
     unsafe_allow_html=True
 )
