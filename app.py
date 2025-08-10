@@ -393,7 +393,7 @@ st.markdown(
 
     .hero-main {
         text-align: center;
-        margin: 1.5rem 0 1rem;
+        margin: 1.5rem 0 0.2rem;
         animation: floatIn 1s ease-out forwards;
     }
 
@@ -418,7 +418,7 @@ st.markdown(
         font-size: 2rem;
         font-family: 'Poppins', sans-serif;
         font-weight: 700;
-        margin: 0.8rem auto;
+        margin: 0.2rem auto;
         max-width: 700px;
         padding: 0 1rem;
         background: none;
@@ -490,9 +490,9 @@ st.markdown(
 # ---------------------- Social Proof Banner ----------------------
 st.markdown("""
 <div class="stats-banner">
-    <h3 style="margin: 0; font-size: 1.4em;">✨ Reframe with Confidence, in Any Context</h3>
+    <h3 style="margin: 0; font-size: 1.4em;">✨ Communicate with Confidence, in Any Context</h3>
     <p style="margin: 0.5rem 0 0 0; font-size: 1.1em;">
-        Turn harsh feedback into professional messages — instantly • Across languages • For every tone
+        Turn critiques into conversations and praise into motivation — instantly • Across languages • For every tone
     </p>
 </div>
 """, unsafe_allow_html=True)
