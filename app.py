@@ -79,13 +79,44 @@ def reset_app_state():
 if "app_session_id" not in st.session_state:
     reset_app_state()
 
-# ---------------------- App Config ----------------------
+# ---------------------- App Config & Viral Examples ----------------------
 st.set_page_config(
-    page_title="🎯 REFRAME - A Communication Coach", 
-    page_icon="🚀", 
+    page_title="🎯 REFRAME - A Communication Coach",
+    page_icon="🚀",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
+
+# Fix for NameError: viral_samples not defined
+viral_samples = [
+    "Your presentation was confusing and boring. We need to start over.",
+    "You never respond to my emails. It's really unprofessional and holds up the team.",
+    "Your work is not up to standard. The report is full of errors and is missing key data points.",
+    "You always interrupt people in meetings. It makes it impossible for others to share their ideas.",
+    "The project deadline was missed because of you. You need to be more accountable.",
+    "I don't think you understand the core problem. Your solution is completely off-base.",
+]
+
+# tone and language options (defined here for global access)
+tone_options = {
+    "warm": "Warm - Empathetic and kind",
+    "direct": "Direct - Clear and to the point",
+    "managerial": "Managerial - Professional and constructive",
+    "inspiring": "Inspiring - Motivating and encouraging",
+    "supportive": "Supportive - Reassuring and helpful",
+    "negotiator": "Negotiator - Strategic and diplomatic",
+    "salesy": "Salesy - Persuasive and confident",
+}
+
+language_options = {
+    "English": "🇬🇧 English",
+    "Spanish": "🇪🇸 Spanish",
+    "French": "🇫🇷 French",
+    "German": "🇩🇪 German",
+    "Japanese": "🇯🇵 Japanese",
+    "Chinese": "🇨🇳 Chinese",
+    "Hindi": "🇮🇳 Hindi",
+}
 
 # ---------------------- STUNNING CSS for Viral Appeal ----------------------
 st.markdown("""
@@ -764,7 +795,7 @@ if st.session_state.user_input and st.session_state.user_input.strip():
 
 # ---------------------- CLEAN Results Section (NO ANIMATIONS) ----------------------
 if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
-    st.markdown('<div class="step-pill">🎉 BOOM! Your Reframed Message is Ready!</div>', unsafe_allow_html=True)
+    st.markdown('<div class="step-pill">🎉 Your Reframed Message is Ready!</div>', unsafe_allow_html=True)
     
     # Simple, clean result display without animations
     st.markdown(f"""<div class="result-box"><h3>🎯 Your Words, Reimagined.</h3><p style="white-space: pre-wrap;">{st.session_state.rewritten_text}</p></div>""", unsafe_allow_html=True)
