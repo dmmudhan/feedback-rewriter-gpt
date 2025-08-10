@@ -88,7 +88,7 @@ Get your free key from: [https://openrouter.ai/keys](https://openrouter.ai/keys)
 - 🧑‍💼 User-Centric UX – Added neutral rating option, “Other” in enhancements, and close button in feedback form
 - 📱 Mobile-Friendly Design – Responsive layout works seamlessly on all devices
 
-[🔗 Live App](https://feedback-rewriter-gpt-atrt5b3gbjdgr5ly3mqjtn.streamlit.app/)
+[🔗 Live App](https://feedback-rewriter-gpt-caht6hciagxykx52hz6xnh.streamlit.app/)
 
 ### ✅ v1.3 – Email Format Toggle + UX Enhancements
 
