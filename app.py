@@ -81,8 +81,8 @@ if "app_session_id" not in st.session_state:
 
 # ---------------------- App Config ----------------------
 st.set_page_config(
-    page_title="🎯 REFRAME - A Communication Coach", 
-    page_icon="🚀", 
+    page_title="🎯 REFRAME - Your Communication Coach", 
+    page_icon="🪄", 
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -1102,10 +1102,10 @@ st.markdown("""
 <div class="creator-footer">
     <div class="creator-content">
         <h2 class="creator-title">🚀 Created by Devi Mudhanagiri</h2>
-        <p class="creator-subtitle">REFRAME v2.0 | Powered by OpenRouter AI</p>
-        <p class="creator-tagline">💫 "Making every conversation a catalyst for growth and help your message land with empathy, clarity, and purpose"</p>
+        <p class="creator-subtitle">REFRAME v2.0 | 🎯 Built to empower your words</p>
+        <p class="creator-tagline">"✨ Make every conversation a catalyst for growth and help your message land with empathy, clarity, and purpose ✨</p>
         <div class="creator-box">
-            <p class="creator-mission">🎯 Built for leaders who care about communication</p>
+            <p class="creator-mission">💫 Built for those who lead, in every conversation.</p>
             <p class="creator-vision">Transform. Connect. Succeed.</p>
         </div>
     </div>
