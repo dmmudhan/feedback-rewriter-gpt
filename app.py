@@ -321,13 +321,62 @@ st.markdown("""
         margin: 0.5rem 0 0 0; 
         font-size: 0.9rem;
     }
-    /* Dark Mode specific styles for the result box */
+
+    /* === Dark Mode Specific CSS Fixes === */
     @media (prefers-color-scheme: dark) {
+        .hero-tagline {
+            color: #ccc;
+        }
+
+        .tagline-sub {
+            color: #bbb;
+        }
+    
+        /* Fixes for Result Box */
         .result-box {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             border: 3px solid #1abc9c;
-            color: #ecf0f1; /* Light text color for contrast */
+            color: #ecf0f1;
             box-shadow: 0 15px 35px rgba(26, 188, 156, 0.3);
+        }
+
+        /* Fixes for Pro Tips */
+        .st-emotion-cache-1g83y1x div[data-testid="stMarkdownContainer"] div {
+            background: #34495e !important;
+            border: 2px solid #f39c12 !important;
+            color: #ecf0f1 !important;
+        }
+
+        /* Fixes for Magic Recipe */
+        .st-emotion-cache-1g83y1x div[data-testid="stMarkdownContainer"] div {
+            background: #2c3e50 !important;
+            border: 1px solid #1abc9c !important;
+            color: #ecf0f1 !important;
+        }
+
+        /* Fixes for Stats Banner */
+        .stats-banner {
+            background: linear-gradient(135deg, #1f2e3d 0%, #2c3e50 100%) !important;
+            color: #ecf0f1 !important;
+        }
+        
+        /* Fixes for empty history state */
+        .st-emotion-cache-1g83y1x div[data-testid="stMarkdownContainer"] div {
+            background: #2c3e50 !important;
+            border: 2px dashed #34495e !important;
+            color: #ecf0f1 !important;
+        }
+
+        /* Fix for the feature cards */
+        .feature-card {
+            background: #2c3e50;
+            border: 2px solid #34495e;
+        }
+        .feature-card h4 {
+            color: #ecf0f1;
+        }
+        .feature-card p {
+            color: #bdc3c7;
         }
     }
 </style>
@@ -537,7 +586,7 @@ viral_samples = [
 
 # ---------------------- Step 1: EXCITING Input Section ----------------------
 st.markdown('<div class="step-pill">🎯 STEP 1: Drop Your Raw, Honest Feedback Here</div>', unsafe_allow_html=True)
-
+  
 # Viral action buttons
 col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
@@ -594,14 +643,8 @@ user_input = st.text_area(
     help="Don't hold back - the rawer, the better the transformation!"
 )
 
-# ---------------------- Add a mobile-friendly "Continue" button ----------------------
+# ---------------------- ONLY SHOW CONTROLS IF INPUT EXISTS ----------------------
 if user_input and user_input.strip():
-    # Centering the button for better mobile layout
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.button("✅ Continue to Options", use_container_width=True, key="continue_btn", help="Click to proceed to the next step")
-
-    # ---------------------- ONLY SHOW CONTROLS IF INPUT EXISTS ----------------------
     st.markdown('<div class="step-pill">⚙️ STEP 2: Choose Your Communication Style</div>', unsafe_allow_html=True)
     
     # Clean layout without problematic containers
@@ -660,7 +703,7 @@ if user_input and user_input.strip():
     col1, col2, col3 = st.columns([0.5, 3, 0.5])
     with col2:
         if st.button(
-            "✨  Get Professional Rewrite  ✨", 
+            "✨  Reframe your message  ✨", 
             use_container_width=True,
             help="🎭 Click for instant professional transformation!",
             key="transform_btn"
