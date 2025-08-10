@@ -747,43 +747,51 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                 "🚀 Final touches being applied..."
             ]
             
-            with st.spinner(random.choice(loading_messages)):
-                try:
-                    api_key = st.secrets.get("OPENROUTER_API_KEY", None)
-                    
-                    # This part of the code remains the same for defining system prompts
-                    if format_as_email:
-                        system_prompt = (
-                            f"You are an expert workplace communication coach. "
-                            f"Transform the following feedback into a professional, well-structured email written **by the user to a colleague, peer, or team member** — not as a self-reflection or response to feedback they received. "
-                            f"Use a {selected_tone_key} tone: warm, constructive, and appropriate for workplace dynamics. "
-                            f"Write everything in perfect {selected_language_key}. "
-                            f"For non-English: Use native greetings, expressions, and cultural norms. No English words at all. "
-                            f"Structure the email with a clear greeting, body (with context and suggestion), and professional closing that fits {selected_language_key} business culture. "
-                            f"Never write from the perspective of someone apologizing for their own mistake unless explicitly stated. "
-                            f"The goal is to help the recipient grow — kindly, clearly, and respectfully."
-                        )
-                    else:
-                        system_prompt = (
-                            f"You are a communication expert helping professionals deliver better feedback. "
-                            f"Rewrite the following raw message into clear, professional language with a {selected_tone_key} tone. "
-                            f"This feedback is **from the user to someone else** (e.g., a teammate or report), not about themselves. "
-                            f"Do NOT turn it into a self-critique or apology. Do NOT use first-person if the original isn't about the user. "
-                            f"Write entirely in {selected_language_key}, using natural, native expressions. No English words. "
-                            f"Make the feedback constructive, specific, and actionable — kind but clear. Keep it concise and impactful. "
-                            f"Preserve the core message, but elevate tone and clarity for healthy workplace communication."
-                        )
+            api_key = st.secrets.get("OPENROUTER_API_KEY", None)
+            
+            if not api_key:
+                st.error("⚠️ The service is currently undergoing maintenance and is unavailable. We apologize for the inconvenience! Please check back in a few minutes.")
+                st.session_state.rewritten_text = ""
+            else:
+                 rewritten = None
+                            
+                # Setup basic logging
+                logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+                
+                with st.spinner(random.choice(loading_messages)):
+                    try:                   
+                        # This part of the code remains the same for defining system prompts
+                        if format_as_email:
+                            system_prompt = (
+                                f"You are an expert workplace communication coach. "
+                                f"Transform the following feedback into a professional, well-structured email written **by the user to a colleague, peer, or team member** — not as a self-reflection or response to feedback they received. "
+                                f"Use a {selected_tone_key} tone: warm, constructive, and appropriate for workplace dynamics. "
+                                f"Write everything in perfect {selected_language_key}. "
+                                f"For non-English: Use native greetings, expressions, and cultural norms. No English words at all. "
+                                f"Structure the email with a clear greeting, body (with context and suggestion), and professional closing that fits {selected_language_key} business culture. "
+                                f"Never write from the perspective of someone apologizing for their own mistake unless explicitly stated. "
+                                f"The goal is to help the recipient grow — kindly, clearly, and respectfully."
+                            )
+                        else:
+                            system_prompt = (
+                                f"You are a communication expert helping professionals deliver better feedback. "
+                                f"Rewrite the following raw message into clear, professional language with a {selected_tone_key} tone. "
+                                f"This feedback is **from the user to someone else** (e.g., a teammate or report), not about themselves. "
+                                f"Do NOT turn it into a self-critique or apology. Do NOT use first-person if the original isn't about the user. "
+                                f"Write entirely in {selected_language_key}, using natural, native expressions. No English words. "
+                                f"Make the feedback constructive, specific, and actionable — kind but clear. Keep it concise and impactful. "
+                                f"Preserve the core message, but elevate tone and clarity for healthy workplace communication."
+                            )
 
-                    if api_key:
                         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
                         data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
-                        model_fallbacks = [                           
-                            "openrouter/gpt-oss-20b:free",                            
-                            "z-ai/glm-4.5-air:free",
-                            "mistralai/mistral-small-3.2-24b-instruct:free",
+                        model_fallbacks = [
+                            "mistralai/mistral-small-3.2-24b-instruct:free",                        
+                            "z-ai/glm-4.5-air:free",                           
                             "mistralai/devstral-small-2505:free",
                             "google/gemma-3n-e2b-it:free",
                             "google/gemma-3n-e4b-it:free",
+                            "openrouter/gpt-oss-20b:free",
                             "deepseek/deepseek-chat-v3-0324:free",
                             "deepseek/deepseek-r1:free",
                             "microsoft/mai-ds-r1:free",
@@ -803,11 +811,7 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                             "meta-llama/llama-2-70b-chat",
                             "openchat/openchat-7b",
                         ]
-                        rewritten = None
-                        
-                        # Setup basic logging
-                        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-                        
+                                                  
                         # Show a reassuring message to the user during the fallback process
                         st.info("💡 We're rephrasing your message. If it takes a moment, we're trying a few different models to find the perfect reframe for you! 🙏")
                         
@@ -840,20 +844,16 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                         
                         if rewritten:
                             st.session_state.rewritten_text = rewritten
-                            st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": rewritten})
+                            st.session_state.rewrites.insert(0, {"timestamp": datetime.now(datetime.UTC).isoformat(), "original": user_input, "rewritten": rewritten})
                         else:
                             # If the loop finishes and no model succeeded, set the rewritten text to empty and show a clear error.
                             st.error("⚠️ We were unable to reframe your message at the moment. Please try again! 🙏")
                             st.session_state.rewritten_text = ""
-                    else:
-                        # This block handles the case where no API key is provided
-                        st.error("⚠️ API key is missing. Please check your secrets configuration.")
-                        st.session_state.rewritten_text = ""
 
-                except Exception as e:
-                    # A final catch-all for any other unexpected errors
-                    st.error(f"⚠️ An unexpected error occurred: {str(e)}. Please try again!")
-                    st.session_state.rewritten_text = ""
+                    except Exception as e:
+                        # A final catch-all for any other unexpected errors
+                        st.error(f"⚠️ An unexpected error occurred: {str(e)}. Please try again!")
+                        st.session_state.rewritten_text = ""
 
 # ---------------------- CLEAN Results Section (NO ANIMATIONS) ----------------------
 if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
@@ -953,7 +953,7 @@ if st.session_state.get("show_feedback_form", False):
         public_link = f"{public_base}?fb={fb_id}" if public_base else ""
 
         # Prepare row for Google Sheets and CSV
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now(datetime.UTC).isoformat()
         improvements_str = "; ".join(ff_improve) if ff_improve else ""
         row = [
             timestamp,
