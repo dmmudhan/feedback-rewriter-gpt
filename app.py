@@ -651,7 +651,7 @@ if st.session_state.get("show_tip", False) and st.session_state.get("current_tip
 
 # Main input with viral examples
 user_input = st.text_area(
-    label="",
+    label="Your Feedback",
     key="user_input", 
     height=140,
     placeholder="🔥 Paste your brutally honest feedback here...\n\nExamples:\n• 'You never respond to emails. It's unprofessional.'\n• 'Your presentation was confusing and boring.'\n• 'You always interrupt people in meetings.'\n\n💪 Be real - we'll make it professional!",
@@ -778,10 +778,10 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
                         data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
                         model_fallbacks = [                           
-                            "openrouter/gpt-oss-20b:free",
+                            "openrouter/gpt-oss-20b:free",                            
+                            "z-ai/glm-4.5-air:free",
                             "mistralai/mistral-small-3.2-24b-instruct:free",
                             "mistralai/devstral-small-2505:free",
-                            "z-ai/glm-4.5-air:free",
                             "google/gemma-3n-e2b-it:free",
                             "google/gemma-3n-e4b-it:free",
                             "deepseek/deepseek-chat-v3-0324:free",
@@ -816,19 +816,26 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                                 data["model"] = model
                                 resp = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
                                 
-                                if resp.status_code == 200:
-                                    #logging.info(f"Successfully called model: {model}")
+                                # Check for insufficient credits
+                                if resp.status_code == 402:
+                                    logging.error("⚠️ The service is currently experiencing high demand and is unable to process your request. Please try again in a few moments!")
+                                # Check for general authentication errors
+                                elif resp.status_code == 401:
+                                    logging.error("⚠️ We're having trouble connecting to the service. Please try again in a few moments!")
+                                elif resp.status_code == 200:
+                                    logging.info(f"Successfully called model: {model}")
                                     j = resp.json()
                                     rewritten = j.get("choices", [])[0].get("message", {}).get("content", "").strip()
                                     if rewritten:
                                         break # Break the loop if a successful response is received
                                 else:
-                                    #logging.warning(f"API call to {model} failed with status code: {resp.status_code}")
-                                    time.sleep(1) # Wait for 1 second before trying the next model
+                                    logging.warning(f"API call to {model} failed with status code: {resp.status_code}")
+                                    time.sleep(0.5) # Wait before trying the next model
                                     
                             except requests.exceptions.RequestException:
                                 # Log the specific network error for debugging purposes
-                                logging.error(f"Network request failed for model: {model}. Error: {e}")
+                                logging.error(f"⚠️ It looks like we're having trouble connecting to the internet. Please check your connection and try again.")
+                                time.sleep(0.5) # Wait before trying the next model
                                 pass # Continue to the next model in the fallback list
                         
                         if rewritten:
