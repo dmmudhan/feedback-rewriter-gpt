@@ -548,42 +548,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------- Tone & Language Options ----------------------
-tone_options = {
-    "managerial": "🧭 Managerial - Balanced Leadership",
-    "empathetic": "💖 Empathetic - Caring & Supportive", 
-    "formal": "🧾 Formal - Corporate Professional",
-    "friendly": "😊 Friendly - Warm & Approachable",
-    "assertive": "💼 Assertive - Direct & Confident"
-}
-
-language_options = {
-    "English": "🇺🇸 English",
-    "Spanish": "🇪🇸 Español", 
-    "French": "🇫🇷 Français",
-    "German": "🇩🇪 Deutsch",
-    "Italian": "🇮🇹 Italiano",
-    "Portuguese": "🇵🇹 Português",
-    "Hindi": "🇮🇳 हिंदी",
-    "Telugu": "🇮🇳 తెలుగు",
-    "Tamil": "🇮🇳 தமிழ்",
-    "Japanese": "🇯🇵 日本語",
-    "Korean": "🇰🇷 한국어",
-    "Chinese": "🇨🇳 中文"
-}
-
-# ---------------------- VIRAL SAMPLE TEXTS ----------------------
-viral_samples = [
-    "You never listen in meetings and always interrupt others. It's really annoying.",
-    "Your code is always buggy and creates more work for everyone else.",
-    "You're constantly late to everything and it shows you don't respect our time.",
-    "Your presentations are boring and put everyone to sleep.",
-    "You take credit for other people's work and it's not fair.",
-    "You're always on your phone during important discussions.",
-    "Your emails are confusing and no one understands what you want.",
-    "You never help your teammates and only care about yourself."
-]
-
 # ---------------------- Motivational Block (New Top Position) ----------------------
 st.markdown("""
 <div class="social-proof">
@@ -652,7 +616,7 @@ user_input = st.text_area(
 )
 
 # ---------------------- ONLY SHOW CONTROLS IF INPUT EXISTS ----------------------
-if user_input and user_input.strip():
+if st.session_state.user_input and st.session_state.user_input.strip():
     st.markdown('<div class="step-pill">⚙️ STEP 2: Choose Your Communication Style</div>', unsafe_allow_html=True)
     
     # Clean layout without problematic containers
@@ -800,10 +764,10 @@ if user_input and user_input.strip():
 
 # ---------------------- CLEAN Results Section (NO ANIMATIONS) ----------------------
 if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
-    st.markdown('<div class="step-pill">🎉 BOOM! Your Professional Message is Ready!</div>', unsafe_allow_html=True)
+    st.markdown('<div class="step-pill">🎉 BOOM! Your Reframed Message is Ready!</div>', unsafe_allow_html=True)
     
     # Simple, clean result display without animations
-    st.markdown(f"""<div class="result-box"><h3>🏆 Your Transformed Communication:</h3><p style="white-space: pre-wrap;">{st.session_state.rewritten_text}</p></div>""", unsafe_allow_html=True)
+    st.markdown(f"""<div class="result-box"><h3>🎯 Your Words, Reimagined.</h3><p style="white-space: pre-wrap;">{st.session_state.rewritten_text}</p></div>""", unsafe_allow_html=True)
     
     # Viral sharing section
     st.markdown("""
