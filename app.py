@@ -572,10 +572,19 @@ language_options = {
     "Chinese": "🇨🇳 中文"
 }
 
-# ---------------------- Step 1: EXCITING Input Section ----------------------
-st.markdown('<div class="step-pill">🎯 STEP 1: Drop Your Raw, Honest Feedback Here</div>', unsafe_allow_html=True)
-  
-# New placement for the motivational block
+# ---------------------- VIRAL SAMPLE TEXTS ----------------------
+viral_samples = [
+    "You never listen in meetings and always interrupt others. It's really annoying.",
+    "Your code is always buggy and creates more work for everyone else.",
+    "You're constantly late to everything and it shows you don't respect our time.",
+    "Your presentations are boring and put everyone to sleep.",
+    "You take credit for other people's work and it's not fair.",
+    "You're always on your phone during important discussions.",
+    "Your emails are confusing and no one understands what you want.",
+    "You never help your teammates and only care about yourself."
+]
+
+# ---------------------- Motivational Block (New Top Position) ----------------------
 st.markdown("""
 <div class="social-proof">
     <h3>🎯 Ready to Transform Your Communication?</h3>
@@ -583,6 +592,8 @@ st.markdown("""
     <p style="font-size: 0.9rem; margin-top: 1rem;">💫 Join thousands who've already improved their workplace communication</p>
 </div>
 """, unsafe_allow_html=True)
+# ---------------------- Step 1: EXCITING Input Section ----------------------
+st.markdown('<div class="step-pill">🎯 STEP 1: Drop Your Raw, Honest Feedback Here</div>', unsafe_allow_html=True)
 
 # Viral action buttons
 col1, col2, col3 = st.columns([1, 1, 1])
