@@ -61,7 +61,6 @@ def deterministic_rewrite(text: str, tone: str, language: str) -> str:
 # ---------------------- PROPER Session State Reset ----------------------
 def reset_app_state():
     """Complete reset to initial state"""
-    # Clear everything except initialize fresh state
     st.session_state.clear()
     st.session_state["rewritten_text"] = ""
     st.session_state["user_input"] = ""
@@ -74,49 +73,19 @@ def reset_app_state():
     st.session_state["selected_language"] = "English"
     st.session_state["format_as_email"] = False
     st.session_state["app_session_id"] = str(int(time.time() * 1000))
+    st.session_state["continue_btn_clicked"] = False # New state variable
 
 # Initialize session state properly
 if "app_session_id" not in st.session_state:
     reset_app_state()
 
-# ---------------------- App Config & Viral Examples ----------------------
+# ---------------------- App Config ----------------------
 st.set_page_config(
-    page_title="🎯 REFRAME - A Communication Coach",
-    page_icon="🚀",
+    page_title="🎯 REFRAME - A Communication Coach", 
+    page_icon="🚀", 
     layout="centered",
     initial_sidebar_state="collapsed"
 )
-
-# Fix for NameError: viral_samples not defined
-viral_samples = [
-    "Your presentation was confusing and boring. We need to start over.",
-    "You never respond to my emails. It's really unprofessional and holds up the team.",
-    "Your work is not up to standard. The report is full of errors and is missing key data points.",
-    "You always interrupt people in meetings. It makes it impossible for others to share their ideas.",
-    "The project deadline was missed because of you. You need to be more accountable.",
-    "I don't think you understand the core problem. Your solution is completely off-base.",
-]
-
-# tone and language options (defined here for global access)
-tone_options = {
-    "warm": "Warm - Empathetic and kind",
-    "direct": "Direct - Clear and to the point",
-    "managerial": "Managerial - Professional and constructive",
-    "inspiring": "Inspiring - Motivating and encouraging",
-    "supportive": "Supportive - Reassuring and helpful",
-    "negotiator": "Negotiator - Strategic and diplomatic",
-    "salesy": "Salesy - Persuasive and confident",
-}
-
-language_options = {
-    "English": "🇬🇧 English",
-    "Spanish": "🇪🇸 Spanish",
-    "French": "🇫🇷 French",
-    "German": "🇩🇪 German",
-    "Japanese": "🇯🇵 Japanese",
-    "Chinese": "🇨🇳 Chinese",
-    "Hindi": "🇮🇳 Hindi",
-}
 
 # ---------------------- STUNNING CSS for Viral Appeal ----------------------
 st.markdown("""
@@ -352,17 +321,8 @@ st.markdown("""
         margin: 0.5rem 0 0 0; 
         font-size: 0.9rem;
     }
-
-    /* === Dark Mode Specific CSS Fixes === */
+    /* Dark Mode specific styles for the result box */
     @media (prefers-color-scheme: dark) {
-        .hero-tagline {
-            color: #ccc;
-        }
-
-        .tagline-sub {
-            color: #bbb;
-        }
-    
         /* Fixes for Result Box */
         .result-box {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
@@ -386,7 +346,7 @@ st.markdown("""
         }
 
         /* Fixes for Stats Banner */
-        .stats-banner {
+        .st-emotion-cache-1g83y1x div[data-testid="stMarkdownContainer"] div {
             background: linear-gradient(135deg, #1f2e3d 0%, #2c3e50 100%) !important;
             color: #ecf0f1 !important;
         }
@@ -396,18 +356,6 @@ st.markdown("""
             background: #2c3e50 !important;
             border: 2px dashed #34495e !important;
             color: #ecf0f1 !important;
-        }
-
-        /* Fix for the feature cards */
-        .feature-card {
-            background: #2c3e50;
-            border: 2px solid #34495e;
-        }
-        .feature-card h4 {
-            color: #ecf0f1;
-        }
-        .feature-card p {
-            color: #bdc3c7;
         }
     }
 </style>
@@ -534,7 +482,7 @@ st.markdown(
     </div>
     <p class="hero-tagline">
         <span class="tagline-focus">Turn Critique Into Connection</span>
-        <span class="tagline-sub">Help your message land with empathy, clarity, and purpose</span>
+        <span class="tagline-sub">Every word, refined. From praise to critique!</span>
     </p>
     """,
     unsafe_allow_html=True
@@ -579,21 +527,84 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------- Motivational Block (New Top Position) ----------------------
-st.markdown("""
-<div class="social-proof">
-    <h3>🎯 Ready to Transform Your Communication?</h3>
-    <p><strong>Try it now:</strong> Paste any challenging feedback, and see your message transformed into a polished, professional version instantly!</p>
-    <p style="font-size: 0.9rem; margin-top: 1rem;">💫 Join thousands who've already improved their workplace communication</p>
-</div>
-""", unsafe_allow_html=True)
+# ---------------------- Tone & Language Options ----------------------
+tone_options = {
+    "managerial": "🧭 Managerial - Balanced Leadership",
+    "empathetic": "💖 Empathetic - Caring & Supportive", 
+    "formal": "🧾 Formal - Corporate Professional",
+    "friendly": "😊 Friendly - Warm & Approachable",
+    "assertive": "💼 Assertive - Direct & Confident"
+}
+
+language_options = {
+    "English": "🇺🇸 English",
+    "Spanish": "🇪🇸 Español", 
+    "French": "🇫🇷 Français",
+    "German": "🇩🇪 Deutsch",
+    "Italian": "🇮🇹 Italiano",
+    "Portuguese": "🇵🇹 Português",
+    "Hindi": "🇮🇳 हिंदी",
+    "Telugu": "🇮🇳 తెలుగు",
+    "Tamil": "🇮🇳 தமிழ்",
+    "Japanese": "🇯🇵 日本語",
+    "Korean": "🇰🇷 한국어",
+    "Chinese": "🇨🇳 中文"
+}
+
+# ---------------------- VIRAL SAMPLE TEXTS ----------------------
+viral_samples = [
+    "You never listen in meetings and always interrupt others. It's really annoying.",
+    "Your code is always buggy and creates more work for everyone else.",
+    "You're constantly late to everything and it shows you don't respect our time.",
+    "Your presentations are boring and put everyone to sleep.",
+    "You take credit for other people's work and it's not fair.",
+    "You're always on your phone during important discussions.",
+    "Your emails are confusing and no one understands what you want.",
+    "You never help your teammates and only care about yourself.",
+    "The project is way behind schedule because you didn't deliver your part on time.",
+    "I disagree with your proposal, it's just not going to work.",
+    "You're not a good fit for this team, your personality clashes with everyone.",
+    "This report is useless. The data is all wrong and the conclusions don't make sense.",
+    "You need to be more proactive. I shouldn't have to follow up with you all the time.",
+    "I'm not happy with your performance. You've been making a lot of simple mistakes lately."
+    "We need to let you go. This role is no longer a good fit for the company's direction.",
+    "You are not meeting the performance expectations of your role. There's been no improvement since our last talk.",
+    "Your behavior in meetings is unprofessional and is making your colleagues uncomfortable.",
+    "You've been out of compliance with company policy regarding expense reports for three months.",
+    "The last employee survey showed a high level of dissatisfaction with your department's leadership.",
+    "You missed the sprint deadline again. This is impacting the entire team's velocity.",
+    "Your user stories are consistently incomplete at the end of the sprint.",
+    "You're not actively participating in our daily stand-ups and that's not what Scrum is about.",
+    "Your task estimates are consistently inaccurate, making sprint planning impossible.",
+    "You are not updating your tasks on the board, which makes it hard for the team to see what's a blocker.",
+    "You're not responding to emails, only DMs and texts. That's not how we do professional communication here.",
+    "You said the work was 'cringe' and not a good use of your time. This is part of the job.",
+    "The way you handled that disagreement on LinkedIn violated our social media policy.",
+    "You completely ignored the formal process for requesting time off and just messaged me directly.",
+    "You're constantly missing team meetings or leaving early without warning. It's unprofessional.",
+    "You haven't completed the mandatory compliance training, which is putting the team at risk.",
+    "You've been taking days off without formally applying for leave through the HR system.",
+    "You were out on long-term leave for a week and I had no idea until a colleague told me.",
+    "Your promotion to Senior Developer is effective next Monday. Congrats.",
+    "I'm giving you a promotion. It comes with more responsibilities so get ready.",
+    "We decided to promote you. You'll have a new title and salary.",
+    "Happy work anniversary. Thanks for another year.",
+    "It's your fifth anniversary. Keep up the good work.",
+    "Congrats on five years. Your team couldn't have done it without you.",
+    "Your salary increase request cannot be approved at this time. We need to stick to the budget.",
+    "Your performance is below expectations. I need you to show more initiative and ownership.",
+    "We're making changes and your position is being eliminated. We have to let you go.",
+    "The feedback we've received indicates that you are not a team player.",
+    "Your current work is not meeting the quality standards we expect from a senior role."
+]
+
 # ---------------------- Step 1: EXCITING Input Section ----------------------
 st.markdown('<div class="step-pill">🎯 STEP 1: Drop Your Raw, Honest Feedback Here</div>', unsafe_allow_html=True)
-
+  
 # Viral action buttons
 col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
-    if st.button("🎲 Surprise Me!", use_container_width=True, help="Get a random challenging example", key="sample_btn"):
+    if st.button("💡 Instant Inspiration!", use_container_width=True, help="Get a random example to kickstart your reframe", key="sample_btn"):
         reset_app_state()
         st.session_state.user_input = random.choice(viral_samples)
         st.rerun()
@@ -646,8 +657,16 @@ user_input = st.text_area(
     help="Don't hold back - the rawer, the better the transformation!"
 )
 
+# ---------------------- Add a mobile-friendly "Continue" button ----------------------
+if st.session_state.user_input and st.session_state.user_input.strip() and not st.session_state.continue_btn_clicked:
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("✅ Continue to Options", use_container_width=True, key="continue_btn_main", help="Click to proceed to the next step"):
+            st.session_state.continue_btn_clicked = True
+            st.rerun()
+
 # ---------------------- ONLY SHOW CONTROLS IF INPUT EXISTS ----------------------
-if st.session_state.user_input and st.session_state.user_input.strip():
+if st.session_state.user_input and st.session_state.user_input.strip() and st.session_state.continue_btn_clicked:
     st.markdown('<div class="step-pill">⚙️ STEP 2: Choose Your Communication Style</div>', unsafe_allow_html=True)
     
     # Clean layout without problematic containers
@@ -827,6 +846,16 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
         if st.button("🔥 Transform More", use_container_width=True, help="Start fresh with new feedback", key="new_btn"):
             reset_app_state()
             st.rerun()
+
+# ---------------------- Call to Action for Empty State ----------------------
+else:
+    st.markdown("""
+    <div class="social-proof">
+        <h3>🎯 Ready to Transform Your Communication?</h3>
+        <p><strong>Try it now:</strong> Give any challenging feedback, and see your message transformed into a polished, professional version instantly!</p>
+        <p style="font-size: 0.9rem; margin-top: 1rem;">💫 Join thousands who've already improved their workplace communication</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 # ---------------------- Bottom Actions ----------------------
 st.markdown("---")
@@ -1074,7 +1103,7 @@ st.markdown("""
     <div class="creator-content">
         <h2 class="creator-title">🚀 Created by Devi Mudhanagiri</h2>
         <p class="creator-subtitle">REFRAME v2.0 | Powered by OpenRouter AI</p>
-        <p class="creator-tagline">💫 "Making every conversation a catalyst for growth"</p>
+        <p class="creator-tagline">💫 "Making every conversation a catalyst for growth and help your message land with empathy, clarity, and purpose"</p>
         <div class="creator-box">
             <p class="creator-mission">🎯 Built for leaders who care about communication</p>
             <p class="creator-vision">Transform. Connect. Succeed.</p>
