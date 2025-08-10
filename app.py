@@ -7,6 +7,7 @@ from datetime import datetime
 import random
 import os
 import csv
+import logging
 
 # ---------------------- Google Sheets Integration ----------------------
 try:
@@ -750,6 +751,7 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                 try:
                     api_key = st.secrets.get("OPENROUTER_API_KEY", None)
                     
+                    # This part of the code remains the same for defining system prompts
                     if format_as_email:
                         system_prompt = (
                             f"You are an expert workplace communication coach. "
@@ -775,41 +777,75 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                     if api_key:
                         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
                         data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
-                        model_fallbacks = [
+                        model_fallbacks = [                           
+                            "openrouter/gpt-oss-20b:free",
+                            "mistralai/mistral-small-3.2-24b-instruct:free",
+                            "mistralai/devstral-small-2505:free",
+                            "z-ai/glm-4.5-air:free",
+                            "google/gemma-3n-e2b-it:free",
+                            "google/gemma-3n-e4b-it:free",
+                            "deepseek/deepseek-chat-v3-0324:free",
+                            "deepseek/deepseek-r1:free",
+                            "microsoft/mai-ds-r1:free",
+                            "tngtech/deepseek-r1t-chimera:free",
+                            "qwen/qwen3-coder:free",
+                            "qwen/qwen3-4b:free",
+                            "qwen/qwen3-8b:free",
+                            "qwen/qwen3-14b:free",
+                            "qwen/qwen3-30b-a3b:free",
+                            "qwen/qwen3-235b-a22b:free",
+                            "moonshotai/kimi-k2:free",
+                            "sarvamai/sarvam-m:free",
                             "mistral/mistral-7b-instruct",
                             "mistralai/mixtral-8x7b-instruct", 
                             "nousresearch/nous-capybara-7b",
-                            "gryphe/mythomax-l2-13b"
+                            "gryphe/mythomax-l2-13b",
+                            "meta-llama/llama-2-70b-chat",
+                            "openchat/openchat-7b",
                         ]
                         rewritten = None
+                        
+                        # Setup basic logging
+                        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+                        
+                        # Show a reassuring message to the user during the fallback process
+                        st.info("💡 We're rephrasing your message. If it takes a moment, we're trying a few different models to find the perfect reframe for you! 🙏")
+                        
                         for model in model_fallbacks:
                             try:
                                 data["model"] = model
                                 resp = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
+                                
                                 if resp.status_code == 200:
+                                    #logging.info(f"Successfully called model: {model}")
                                     j = resp.json()
                                     rewritten = j.get("choices", [])[0].get("message", {}).get("content", "").strip()
                                     if rewritten:
-                                        break
-                                time.sleep(0.5)
-                            except:
-                                time.sleep(0.5)
+                                        break # Break the loop if a successful response is received
+                                else:
+                                    #logging.warning(f"API call to {model} failed with status code: {resp.status_code}")
+                                    time.sleep(1) # Wait for 1 second before trying the next model
+                                    
+                            except requests.exceptions.RequestException:
+                                # Log the specific network error for debugging purposes
+                                logging.error(f"Network request failed for model: {model}. Error: {e}")
+                                pass # Continue to the next model in the fallback list
                         
                         if rewritten:
                             st.session_state.rewritten_text = rewritten
                             st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": rewritten})
                         else:
-                            st.warning("🤖 AI temporarily busy - using smart backup!")
-                            fallback = deterministic_rewrite(user_input, selected_tone_key, selected_language_key)
-                            st.session_state.rewritten_text = fallback
-                            st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": fallback})
+                            # If the loop finishes and no model succeeded, set the rewritten text to empty and show a clear error.
+                            st.error("⚠️ We were unable to reframe your message at the moment. Please try again! 🙏")
+                            st.session_state.rewritten_text = ""
                     else:
-                        fallback = deterministic_rewrite(user_input, selected_tone_key, selected_language_key)
-                        st.session_state.rewritten_text = fallback
-                        st.session_state.rewrites.insert(0, {"timestamp": datetime.utcnow().isoformat(), "original": user_input, "rewritten": fallback})
+                        # This block handles the case where no API key is provided
+                        st.error("⚠️ API key is missing. Please check your secrets configuration.")
+                        st.session_state.rewritten_text = ""
 
                 except Exception as e:
-                    st.error(f"⚠️ Transformation failed: {str(e)} - Please try again!")
+                    # A final catch-all for any other unexpected errors
+                    st.error(f"⚠️ An unexpected error occurred: {str(e)}. Please try again!")
                     st.session_state.rewritten_text = ""
 
 # ---------------------- CLEAN Results Section (NO ANIMATIONS) ----------------------
@@ -849,6 +885,7 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
 
 # ---------------------- Call to Action for Empty State ----------------------
 else:
+    # This block now correctly handles the initial empty state and all failure cases
     st.markdown("""
     <div class="social-proof">
         <h3>🎯 Ready to Transform Your Communication?</h3>
@@ -1102,7 +1139,7 @@ st.markdown("""
 <div class="creator-footer">
     <div class="creator-content">
         <h2 class="creator-title">🚀 Created by Devi Mudhanagiri</h2>
-        <p class="creator-subtitle">REFRAME v2.0 | 🎯 Built to empower your words</p>
+        <p class="creator-subtitle">REFRAME v2.0 | 🎯 Empower your words</p>
         <p class="creator-tagline">"✨ Make every conversation a catalyst for growth and help your message land with empathy, clarity, and purpose ✨</p>
         <div class="creator-box">
             <p class="creator-mission">💫 Built for those who lead, in every conversation.</p>
