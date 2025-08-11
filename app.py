@@ -16,6 +16,8 @@ UTC_TZ = timezone('UTC')
 # Setup basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+PUBLIC_URL = st.secrets.get("public_app_url", "https://feedback-rewriter-gpt-caht6hciagxykx52hz6xnh.streamlit.app/")
+
 # ---------------------- Google Sheets Integration ----------------------
 try:
     import gspread
@@ -195,6 +197,21 @@ st.markdown("""
         box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
     }
     
+    .pro-tip-box {
+        background: linear-gradient(135deg, #d4edda 0%, #d4f0e0 100%); 
+        border: 2px solid #28a745;
+        border-radius: 15px; 
+        padding: 1.2rem; 
+        margin: 1rem 0; 
+        animation: fadeIn 0.5s ease-in-out;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
     @keyframes glow {
         from { text-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
         to { text-shadow: 0 0 30px rgba(118, 75, 162, 0.8), 0 0 40px rgba(240, 147, 251, 0.5); }
@@ -335,6 +352,37 @@ st.markdown("""
         margin: 0.5rem 0 0 0; 
         font-size: 0.9rem;
     }
+    
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    .social-links a {
+        text-decoration: none;
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.8rem 1.5rem;
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .social-links a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .linkedin-btn {
+        background: #0077B5;
+    }
+    .twitter-btn {
+        background: #1DA1F2;
+    }
+    .facebook-btn {
+        background: #1877F2;
+    }
+    
     /* Dark Mode specific styles for the result box */
     @media (prefers-color-scheme: dark) {
         /* Fixes for Result Box */
@@ -638,15 +686,15 @@ with col3:
             st.session_state.show_tip = False
             st.session_state.current_tip = ""
         else:
-            pro_tips = [
-                "💡 **The Sandwich Method**: Positive → Constructive → Positive",
-                "🎯 **Be Specific**: 'Late to 3 meetings this week' vs 'Always late'",
-                "🤝 **Use 'We' Language**: 'How can we improve this?' vs 'You need to fix this'",
-                "⏰ **Timing Matters**: Give feedback within 24-48 hours of the incident",
-                "🌟 **Solution-Focused**: Always suggest a path forward",
-                "📊 **Data Over Drama**: Use facts and examples, not emotions",
-                "🎭 **Match the Moment**: Formal situations need formal language",
-                "✨ **End Positively**: Leave them motivated, not deflated"
+           pro_tips = [
+                "💡 **The Feedback Sandwich:** Start with praise, deliver the critique, and end with a positive look forward. It makes tough conversations a little softer.",
+                "🎯 **Speak in Data, Not Drama:** Instead of 'You're always late,' try 'I've noticed you've been late to our last three stand-ups.' Facts are less emotional.",
+                "🤝 **Replace 'You' with 'We':** Turn 'You need to fix this' into 'How can we work together to solve this?' It shifts blame to collaboration.",
+                "⏰ **The 24-Hour Rule:** Don't let feedback go stale. Deliver it within a day to keep the context fresh and the lesson impactful.",
+                "🌟 **Always End with a Solution:** Your critique is only half the conversation. Finish with an actionable step or a path forward to make the feedback constructive, not just critical.",
+                "📈 **Data Talks, Emotions Walk:** Ground your feedback in specific examples, not feelings. It makes your point indisputable.",
+                "🎭 **Context is King:** The best feedback is tailored. Use a tone that matches the relationship and the situation.",
+                "✨ **The Mirror Principle:** Before giving feedback, ask yourself: 'Am I saying this to help them, or to vent my frustration?'"
             ]
             st.session_state.current_tip = random.choice(pro_tips)
             st.session_state.show_tip = True
@@ -656,7 +704,7 @@ if st.session_state.get("show_tip", False) and st.session_state.get("current_tip
     tip_col1, tip_col2 = st.columns([10, 1])
     with tip_col1:
         st.markdown(f"""
-        <div style="background: linear-gradient(135deg, #fff3cd 0%, #fef7e0 100%); border: 2px solid #ffc107; border-radius: 15px; padding: 1.2rem; margin: 1rem 0; animation: slideIn 0.3s ease-in-out;">
+        <div class="pro-tip-box">
             {st.session_state.current_tip}
         </div>
         """, unsafe_allow_html=True)
@@ -879,12 +927,18 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     st.markdown(f"""<div class="result-box"><h3>🎯 Your Words, Reimagined.</h3><p style="white-space: pre-wrap;">{st.session_state.rewritten_text}</p></div>""", unsafe_allow_html=True)
     
     # Viral sharing section
-    st.markdown("""
-    <div class="social-proof">
-        <h4>🔥 That’s the magic of REFRAME—your personal communication coach, helping you craft impactful messages effortlessly!</h4>
-        <p>Share this transformation with your team and watch communication improve across your organization</p>
-    </div>
-    """, unsafe_allow_html=True)
+     st.markdown(f"""
+        <div class="social-proof">
+            <h4>🔥 That’s the magic of REFRAME—your personal communication coach!</h4>
+            <p>Craft impactful messages effortlessly.</p>
+            <p>If you found this useful, share the tool with your network:</p>
+            <div class="social-links">
+                <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=Reframe%20- AI-Powered%20Communication%20Coach&summary=Reframe%20turns%20awkward%20feedback%20into%20professional%2C%20empathetic%20messages.%20It's%20my%20new%20favorite%20tool%20for%20workplace%20communication!" target="_blank" class="linkedin-btn">Share on LinkedIn</a>
+                <a href="https://twitter.com/intent/tweet?text=Reframe%20is%20my%20new%20favorite%20AI%20tool%20for%20workplace%20communication!%20It%20transforms%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}" target="_blank" class="twitter-btn">Share on X</a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}" target="_blank" class="facebook-btn">Share on Facebook</a>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Action buttons
     col1, col2, col3 = st.columns([1, 1, 1])
