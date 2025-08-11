@@ -3,15 +3,15 @@ import requests
 import time
 import pandas as pd
 import json
-import pytz
 from datetime import datetime
+from pytz import timezone
 import random
 import os
 import csv
 import logging
 
 # Define the UTC timezone variable once and use it throughout the app.
-UTC_TZ = pytz.timezone('UTC')
+UTC_TZ = timezone('UTC')
 
 # Setup basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -31,7 +31,7 @@ def gs_client_from_secrets():
     creds_str = st.secrets.get("gss_credentials", None)
     if not creds_str:
         return None
-    logging.info(f"Credentials string read: {creds_str[:50]}...")
+
     try:
         creds_json = json.loads(creds_str)
         scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
@@ -56,7 +56,7 @@ def append_row_to_sheet(row, sheet_name="reframe_app_feedback"):
             worksheet = sh.sheet1
             worksheet.append_row(["timestamp","rating","like","improvements","suggestions","original","rewritten","user_email","public_link"])
         worksheet.append_row(row)
-        logging.success("Successfully appended row to Google Sheet.")
+        st.success("Successfully appended row to Google Sheet.")
         return True, "OK"
     except Exception as e:
         logging.error(f"Failed to append row: {str(e)}")
@@ -841,7 +841,7 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                                 elif resp.status_code == 401:
                                     logging.error("⚠️ We're having trouble connecting to the service. Please try again in a few moments!")
                                 elif resp.status_code == 200:
-                                    logging.info(f"Successfully called model: {model}")
+                                    #logging.info(f"Successfully called model: {model}")
                                     j = resp.json()
                                     rewritten = j.get("choices", [])[0].get("message", {}).get("content", "").strip()
                                     if rewritten:
@@ -858,7 +858,9 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                         
                         if rewritten:
                             st.session_state.rewritten_text = rewritten
-                            st.session_state.rewrites.insert(0, {"timestamp": datetime.now(UTC_TZ).isoformat(), "original": user_input, "rewritten": rewritten})
+                            # Modified timestamp format
+                            formatted_timestamp = datetime.now(UTC_TZ).strftime("%Y-%m-%d %H:%M:%S")
+                            st.session_state.rewrites.insert(0, {"timestamp": formatted_timestamp, "original": user_input, "rewritten": rewritten})
                         else:
                             # If the loop finishes and no model succeeded, set the rewritten text to empty and show a clear error.
                             st.error("⚠️ We were unable to reframe your message at the moment. Please try again 🙂")
@@ -967,7 +969,8 @@ if st.session_state.get("show_feedback_form", False):
         public_link = f"{public_base}?fb={fb_id}" if public_base else ""
 
         # Prepare row for Google Sheets and CSV
-        timestamp = datetime.now(UTC_TZ).isoformat()
+        # Modified timestamp format
+        timestamp = datetime.now(UTC_TZ).strftime("%Y-%m-%d %H:%M:%S")
         improvements_str = "; ".join(ff_improve) if ff_improve else ""
         row = [
             timestamp,
@@ -1064,13 +1067,13 @@ def show_public_feedback():
     try:
         client = gs_client_from_secrets()
         if client:
-            sh = client.open("feedback_rewriter_history")
+            sh = client.open("reframe_app_feedback")
             worksheet = sh.sheet1
             sheet_data = worksheet.get_all_values()
             if len(sheet_data) > 1:
                 rows = sheet_data[1:]  # skip header
     except Exception as e:
-        st.write("🔍 Debug: Google Sheets failed — falling back to CSV.")  # Optional debug
+        st.write("🔍 Unable to open google feedback sheet — falling back to CSV.")
         rows = []
 
     # Fallback to local CSV — only if Google Sheets failed OR no rows
@@ -1083,7 +1086,7 @@ def show_public_feedback():
                 if file_rows:  # Only use if not empty
                     rows = file_rows
         except Exception:
-            #st.write(f"🔍 Debug: CSV read failed: {e}")
+            st.write(f"🔍 CSV read failed: {e}")
             rows = []
 
     # ✅ Check if we have any rows
