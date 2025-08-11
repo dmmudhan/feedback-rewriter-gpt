@@ -686,7 +686,7 @@ with col3:
             st.session_state.show_tip = False
             st.session_state.current_tip = ""
         else:
-           pro_tips = [
+            pro_tips = [
                 "💡 **The Feedback Sandwich:** Start with praise, deliver the critique, and end with a positive look forward. It makes tough conversations a little softer.",
                 "🎯 **Speak in Data, Not Drama:** Instead of 'You're always late,' try 'I've noticed you've been late to our last three stand-ups.' Facts are less emotional.",
                 "🤝 **Replace 'You' with 'We':** Turn 'You need to fix this' into 'How can we work together to solve this?' It shifts blame to collaboration.",
