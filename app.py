@@ -353,34 +353,26 @@ st.markdown("""
         font-size: 0.9rem;
     }
     
-    .social-links {
+    .social-links-container {
         display: flex;
         justify-content: center;
-        gap: 1.5rem;
+        gap: 2rem;
         margin-top: 1.5rem;
+    }
+    .social-logo {
+        width: 55px; /* Adjust size as needed */
+        height: 55px;
+        border-radius: 50%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .social-logo:hover {
+        transform: scale(1.1) translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
     .social-links a {
         text-decoration: none;
-        color: white;
-        font-size: 1rem;
-        font-weight: 600;
-        padding: 0.8rem 1.5rem;
-        border-radius: 50px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
-    .social-links a:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    }
-    .linkedin-btn {
-        background: #0077B5;
-    }
-    .twitter-btn {
-        background: #1DA1F2;
-    }
-    .facebook-btn {
-        background: #1877F2;
+        display: block;
     }
     
     /* Dark Mode specific styles for the result box */
@@ -929,13 +921,18 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     # Viral sharing section
     st.markdown(f"""
     <div class="social-proof">
-        <h4>🔥 That’s the magic of REFRAME—your personal communication coach!</h4>
-        <p>Craft impactful messages effortlessly.</p>
+        <h4>🔥 REFRAME >> Your message, redefined 🪄</h4>
         <p>If you found this useful, share the tool with your network:</p>
-        <div class="social-links">
-            <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=Reframe%20- AI-Powered%20Communication%20Coach&summary=Reframe%20turns%20awkward%20feedback%20into%20professional%2C%20empathetic%20messages.%20It's%20my%20new%20favorite%20tool%20for%20workplace%20communication!" target="_blank" class="linkedin-btn">Share on LinkedIn</a>
-            <a href="https://twitter.com/intent/tweet?text=Reframe%20is%20my%20new%20favorite%20AI%20tool%20for%20workplace%20communication!%20It%20transforms%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}" target="_blank" class="twitter-btn">Share on X</a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}" target="_blank" class="facebook-btn">Share on Facebook</a>
+        <div class="social-links-container">
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=Reframe%20- Communication%20Coach&summary=Reframe%20turns%20awkward%20feedback%20into%20professional%2C%20empathetic%20messages.%20It's%20my%20new%20favorite%20tool%20for%20workplace%20communication!" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/01/LinkedIn_Logo.svg" class="social-logo" alt="Share on LinkedIn">
+            </a>
+            <a href="https://twitter.com/intent/tweet?text=Reframe%20is%20my%20new%20favorite%20AI%20tool%20for%20workplace%20communication!%20It%20transforms%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_logo_2023.svg" class="social-logo" alt="Share on X">
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}" target="_blank">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" class="social-logo" alt="Share on Facebook">
+            </a>
         </div>
     </div>
     """, unsafe_allow_html=True)
