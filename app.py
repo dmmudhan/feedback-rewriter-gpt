@@ -927,18 +927,18 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     st.markdown(f"""<div class="result-box"><h3>🎯 Your Words, Reimagined.</h3><p style="white-space: pre-wrap;">{st.session_state.rewritten_text}</p></div>""", unsafe_allow_html=True)
     
     # Viral sharing section
-     st.markdown(f"""
-        <div class="social-proof">
-            <h4>🔥 That’s the magic of REFRAME—your personal communication coach!</h4>
-            <p>Craft impactful messages effortlessly.</p>
-            <p>If you found this useful, share the tool with your network:</p>
-            <div class="social-links">
-                <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=Reframe%20- AI-Powered%20Communication%20Coach&summary=Reframe%20turns%20awkward%20feedback%20into%20professional%2C%20empathetic%20messages.%20It's%20my%20new%20favorite%20tool%20for%20workplace%20communication!" target="_blank" class="linkedin-btn">Share on LinkedIn</a>
-                <a href="https://twitter.com/intent/tweet?text=Reframe%20is%20my%20new%20favorite%20AI%20tool%20for%20workplace%20communication!%20It%20transforms%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}" target="_blank" class="twitter-btn">Share on X</a>
-                <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}" target="_blank" class="facebook-btn">Share on Facebook</a>
-            </div>
+    st.markdown(f"""
+    <div class="social-proof">
+        <h4>🔥 That’s the magic of REFRAME—your personal communication coach!</h4>
+        <p>Craft impactful messages effortlessly.</p>
+        <p>If you found this useful, share the tool with your network:</p>
+        <div class="social-links">
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=Reframe%20- AI-Powered%20Communication%20Coach&summary=Reframe%20turns%20awkward%20feedback%20into%20professional%2C%20empathetic%20messages.%20It's%20my%20new%20favorite%20tool%20for%20workplace%20communication!" target="_blank" class="linkedin-btn">Share on LinkedIn</a>
+            <a href="https://twitter.com/intent/tweet?text=Reframe%20is%20my%20new%20favorite%20AI%20tool%20for%20workplace%20communication!%20It%20transforms%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}" target="_blank" class="twitter-btn">Share on X</a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}" target="_blank" class="facebook-btn">Share on Facebook</a>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
     
     # Action buttons
     col1, col2, col3 = st.columns([1, 1, 1])
