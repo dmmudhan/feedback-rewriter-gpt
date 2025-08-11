@@ -3,11 +3,18 @@ import requests
 import time
 import pandas as pd
 import json
+import pytz
 from datetime import datetime
 import random
 import os
 import csv
 import logging
+
+# Define the UTC timezone variable once and use it throughout the app.
+UTC_TZ = pytz.timezone('UTC')
+
+# Setup basic logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # ---------------------- Google Sheets Integration ----------------------
 try:
@@ -20,21 +27,25 @@ except ImportError:
 def gs_client_from_secrets():
     if not GS_AVAILABLE:
         return None
+    
     creds_str = st.secrets.get("gss_credentials", None)
     if not creds_str:
         return None
+    logging.info(f"Credentials string read: {creds_str[:50]}...")
     try:
         creds_json = json.loads(creds_str)
         scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
         creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_json, scope)
+        logging.info("Successfully loaded GSS credentials.") 
         return gspread.authorize(creds)
     except Exception as e:
-        st.error(f"Google Sheets credential error: {e}")
+        logging.error(f"Google Sheets credential error: {e}")
         return None
 
-def append_row_to_sheet(row, sheet_name="feedback_rewriter_history"):
+def append_row_to_sheet(row, sheet_name="reframe_app_feedback"):
     client = gs_client_from_secrets()
     if not client:
+        logging.error("Failed to authorize Google Sheets client.")
         return False, "Google Sheets not configured"
     try:
         try:
@@ -45,8 +56,10 @@ def append_row_to_sheet(row, sheet_name="feedback_rewriter_history"):
             worksheet = sh.sheet1
             worksheet.append_row(["timestamp","rating","like","improvements","suggestions","original","rewritten","user_email","public_link"])
         worksheet.append_row(row)
+        logging.success("Successfully appended row to Google Sheet.")
         return True, "OK"
     except Exception as e:
+        logging.error(f"Failed to append row: {str(e)}")
         return False, str(e)
 
 # ---------------------- Deterministic fallback ----------------------
@@ -589,14 +602,18 @@ viral_samples = [
     "Your promotion to Senior Developer is effective next Monday. Congrats.",
     "I'm giving you a promotion. It comes with more responsibilities so get ready.",
     "We decided to promote you. You'll have a new title and salary.",
-    "Happy work anniversary. Thanks for another year.",
     "It's your fifth anniversary. Keep up the good work.",
-    "Congrats on five years. Your team couldn't have done it without you.",
+    "Congrats on ten years. Your team couldn't have done it without you.",
     "Your salary increase request cannot be approved at this time. We need to stick to the budget.",
     "Your performance is below expectations. I need you to show more initiative and ownership.",
     "We're making changes and your position is being eliminated. We have to let you go.",
     "The feedback we've received indicates that you are not a team player.",
-    "Your current work is not meeting the quality standards we expect from a senior role."
+    "Your current work is not meeting the quality standards we expect from a senior role.",
+    "I'm resigning because I was promised growth but got stuck doing the same thing for a year.",
+    "It's time for me to leave — I can't keep covering for your poor management.",
+    "I'm stepping down because the team culture feels toxic and no one holds themselves accountable.",
+    "I'm out — I gave my best, but my efforts were never recognized.",
+    "I'm leaving because I found a place that values work-life balance — something we clearly don’t have here."
 ]
 
 # ---------------------- Step 1: EXCITING Input Section ----------------------
@@ -753,11 +770,8 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                 st.error("⚠️ The service is currently undergoing maintenance and is unavailable. We apologize for the inconvenience! Please check back in a few minutes.")
                 st.session_state.rewritten_text = ""
             else:
-                 rewritten = None
-                            
-                # Setup basic logging
-                logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-                
+                rewritten = None
+                                           
                 with st.spinner(random.choice(loading_messages)):
                     try:                   
                         # This part of the code remains the same for defining system prompts
@@ -786,9 +800,9 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
                         data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
                         model_fallbacks = [
-                            "mistralai/mistral-small-3.2-24b-instruct:free",                        
-                            "z-ai/glm-4.5-air:free",                           
+                            "mistralai/mistral-small-3.2-24b-instruct:free",                                                      
                             "mistralai/devstral-small-2505:free",
+                            "z-ai/glm-4.5-air:free",
                             "google/gemma-3n-e2b-it:free",
                             "google/gemma-3n-e4b-it:free",
                             "openrouter/gpt-oss-20b:free",
@@ -813,7 +827,7 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                         ]
                                                   
                         # Show a reassuring message to the user during the fallback process
-                        st.info("💡 We're rephrasing your message. If it takes a moment, we're trying a few different models to find the perfect reframe for you! 🙏")
+                        st.info("💡 Your message is being rephrased. We're experimenting with several models to find the ideal reframing for you, if it takes a moment!")
                         
                         for model in model_fallbacks:
                             try:
@@ -822,7 +836,7 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                                 
                                 # Check for insufficient credits
                                 if resp.status_code == 402:
-                                    logging.error("⚠️ The service is currently experiencing high demand and is unable to process your request. Please try again in a few moments!")
+                                    logging.error("😐 The service is currently experiencing high demand and is unable to process your request. Please try again in a few moments!")
                                 # Check for general authentication errors
                                 elif resp.status_code == 401:
                                     logging.error("⚠️ We're having trouble connecting to the service. Please try again in a few moments!")
@@ -838,16 +852,16 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                                     
                             except requests.exceptions.RequestException:
                                 # Log the specific network error for debugging purposes
-                                logging.error(f"⚠️ It looks like we're having trouble connecting to the internet. Please check your connection and try again.")
+                                logging.error(f"⚠️ It looks like we're having trouble connecting to the internet. Please check your connection and try again 🙂")
                                 time.sleep(0.5) # Wait before trying the next model
                                 pass # Continue to the next model in the fallback list
                         
                         if rewritten:
                             st.session_state.rewritten_text = rewritten
-                            st.session_state.rewrites.insert(0, {"timestamp": datetime.now(datetime.UTC).isoformat(), "original": user_input, "rewritten": rewritten})
+                            st.session_state.rewrites.insert(0, {"timestamp": datetime.now(UTC_TZ).isoformat(), "original": user_input, "rewritten": rewritten})
                         else:
                             # If the loop finishes and no model succeeded, set the rewritten text to empty and show a clear error.
-                            st.error("⚠️ We were unable to reframe your message at the moment. Please try again! 🙏")
+                            st.error("⚠️ We were unable to reframe your message at the moment. Please try again 🙂")
                             st.session_state.rewritten_text = ""
 
                     except Exception as e:
@@ -953,7 +967,7 @@ if st.session_state.get("show_feedback_form", False):
         public_link = f"{public_base}?fb={fb_id}" if public_base else ""
 
         # Prepare row for Google Sheets and CSV
-        timestamp = datetime.now(datetime.UTC).isoformat()
+        timestamp = datetime.now(UTC_TZ).isoformat()
         improvements_str = "; ".join(ff_improve) if ff_improve else ""
         row = [
             timestamp,
