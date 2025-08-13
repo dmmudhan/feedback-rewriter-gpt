@@ -75,9 +75,8 @@ def deterministic_rewrite(text: str, tone: str, language: str) -> str:
     return f"[{tone.title()} Enhancement] {out}"
 
 # ---------------------- PROPER Session State Reset ----------------------
-def reset_app_state():
-    """Complete reset to initial state"""
-    st.session_state.clear()
+# PROPER Session State Initialization
+if "app_session_id" not in st.session_state:
     st.session_state["rewritten_text"] = ""
     st.session_state["user_input"] = ""
     st.session_state["rewrites"] = []
@@ -89,21 +88,23 @@ def reset_app_state():
     st.session_state["selected_language"] = "English"
     st.session_state["format_as_email"] = False
     st.session_state["app_session_id"] = str(int(time.time() * 1000))
-    st.session_state["continue_btn_clicked"] = False # New state variable
-
-# Initialize session state properly
-if "app_session_id" not in st.session_state:
-    reset_app_state()
+    st.session_state["continue_btn_clicked"] = False
+    
+# The reset function is fine to be called from buttons, but should not be called globally.
+def reset_app_state():
+    """Complete reset to initial state"""
+    st.session_state.clear()
+    # The app will re-initialize with the defaults above on the next rerun
+    st.rerun()
 
 # ---------------------- App Config ----------------------
 st.set_page_config(
-    page_title="🎯 REFRAME - Your Communication Coach", 
+    page_title="🎯 REFRAME - Elevate Your Message", 
     page_icon="🪄", 
     layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# ---------------------- STUNNING CSS for Viral Appeal ----------------------
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
@@ -353,26 +354,63 @@ st.markdown("""
         font-size: 0.9rem;
     }
     
+    /* FIXED SOCIAL ICONS CSS */
     .social-links-container {
         display: flex;
         justify-content: center;
         gap: 2rem;
         margin-top: 1.5rem;
+        flex-wrap: wrap;
     }
-    .social-logo {
-        width: 55px; /* Adjust size as needed */
-        height: 55px;
+    
+    .social-link {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-    .social-logo:hover {
-        transform: scale(1.1) translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    .social-links a {
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        position: relative;
+        overflow: hidden;
         text-decoration: none;
-        display: block;
+    }
+    
+    .social-link:hover {
+        transform: translateY(-5px) scale(1.1);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    
+    .social-icon {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        text-decoration: none;
+    }
+    
+    .linkedin-bg {
+        background: linear-gradient(135deg, #0077B5, #005885);
+    }
+    
+    .twitter-bg {
+        background: linear-gradient(135deg, #1DA1F2, #0d8bd9);
+    }
+    
+    .facebook-bg {
+        background: linear-gradient(135deg, #1877F2, #166fe5);
+    }
+    
+    /* Alternative with Font Awesome icons (if you prefer) */
+    .social-icon-fa {
+        font-family: "Font Awesome 5 Brands";
+        font-style: normal;
+        font-variant: normal;
+        text-rendering: auto;
+        line-height: 1;
     }
     
     /* Dark Mode specific styles for the result box */
@@ -414,6 +452,7 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
 
 # ---------------------- VIRAL HERO SECTION ----------------------
 st.markdown(
@@ -597,9 +636,6 @@ language_options = {
     "German": "🇩🇪 Deutsch",
     "Italian": "🇮🇹 Italiano",
     "Portuguese": "🇵🇹 Português",
-    "Hindi": "🇮🇳 हिंदी",
-    "Telugu": "🇮🇳 తెలుగు",
-    "Tamil": "🇮🇳 தமிழ்",
     "Japanese": "🇯🇵 日本語",
     "Korean": "🇰🇷 한국어",
     "Chinese": "🇨🇳 中文"
@@ -663,7 +699,7 @@ st.markdown('<div class="step-pill">🎯 STEP 1: Drop Your Raw, Honest Feedback 
 col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
     if st.button("💡 Instant Inspiration!", use_container_width=True, help="Get a random example to kickstart your reframe", key="sample_btn"):
-        reset_app_state()
+        #reset_app_state()
         st.session_state.user_input = random.choice(viral_samples)
         st.rerun()
         
@@ -919,24 +955,32 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     st.markdown(f"""<div class="result-box"><h3>🎯 Your Words, Reimagined.</h3><p style="white-space: pre-wrap;">{st.session_state.rewritten_text}</p></div>""", unsafe_allow_html=True)
     
     # Viral sharing section
+    # Font Awesome icons (requires CDN):
+    st.markdown("""
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    """, unsafe_allow_html=True)
+
     st.markdown(f"""
     <div class="social-proof">
         <h4>🔥 REFRAME >> Your message, redefined 🪄</h4>
         <p>If you found this useful, share the tool with your network:</p>
         <div class="social-links-container">
-            <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=Reframe%20- Communication%20Coach&summary=Reframe%20turns%20awkward%20feedback%20into%20professional%2C%20empathetic%20messages.%20It's%20my%20new%20favorite%20tool%20for%20workplace%20communication!" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/0/01/LinkedIn_Logo.svg" class="social-logo" alt="Share on LinkedIn">
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=Reframe%20- Communication%20Coach&summary=Reframe%20turns%20awkward%20feedback%20into%20professional%20messages.%20It's%20my%20new%20favorite%20tool%20for%20workplace%20communication!" 
+               target="_blank" class="social-link linkedin-bg">
+                <div class="social-icon"><i class="fab fa-linkedin-in"></i></div>
             </a>
-            <a href="https://twitter.com/intent/tweet?text=Reframe%20is%20my%20new%20favorite%20AI%20tool%20for%20workplace%20communication!%20It%20transforms%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/5a/X_logo_2023.svg" class="social-logo" alt="Share on X">
+            <a href="https://twitter.com/intent/tweet?text=Reframe%20is%20my%20new%20favorite%20AI%20tool%20for%20workplace%20communication!%20It%20transforms%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}" 
+               target="_blank" class="social-link twitter-bg">
+                <div class="social-icon"><i class="fab fa-twitter"></i></div>
             </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" class="social-logo" alt="Share on Facebook">
+            <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}" 
+               target="_blank" class="social-link facebook-bg">
+                <div class="social-icon"><i class="fab fa-facebook-f"></i></div>
             </a>
         </div>
     </div>
     """, unsafe_allow_html=True)
-    
+        
     # Action buttons
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
@@ -1159,7 +1203,7 @@ def show_public_feedback():
         # Sort: highest rating first, then newest
         df = df.sort_values(by=['rating', 'timestamp'], ascending=[False, False]).reset_index(drop=True)
 
-        st.markdown("### 🌟 What Others Are Saying")
+        st.markdown("### 🔍 What Others Are Saying")
 
         # Prepare display
         display_df = df[["timestamp", "rating", "suggestions"]].copy()
