@@ -620,6 +620,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+# Check if feedback was just submitted
+if st.session_state.get("feedback_submitted"):
+    st.balloons()
+    st.success("🎉 Thank you! Your feedback makes REFRAME better for everyone!")
+    st.session_state.feedback_submitted = False
+
 # ---------------------- Tone & Language Options ----------------------
 tone_options = {
     "managerial": "🧭 Managerial - Balanced Leadership",
@@ -853,29 +859,36 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                         # This part of the code remains the same for defining system prompts
                         if format_as_email:
                             system_prompt = (
-                                f"You are an expert workplace communication coach. "
-                                f"Transform the following feedback into a professional, well-structured email written **by the user to a colleague, peer, or team member** — not as a self-reflection or response to feedback they received. "
-                                f"Use a {selected_tone_key} tone: warm, constructive, and appropriate for workplace dynamics. "
-                                f"Write everything in perfect {selected_language_key}. "
-                                f"For non-English: Use native greetings, expressions, and cultural norms. No English words at all. "
-                                f"Structure the email with a clear greeting, body (with context and suggestion), and professional closing that fits {selected_language_key} business culture. "
-                                f"Never write from the perspective of someone apologizing for their own mistake unless explicitly stated. "
-                                f"The goal is to help the recipient grow — kindly, clearly, and respectfully."
+                                f"You are a seasoned workplace communication expert. Your task is to transform a user's raw feedback into a professional and well-structured email. "
+                                f"The email is written by the user to a professional peer, manager, report, or team member. "
+                                f"Use a {selected_tone_key} tone: warm, constructive, and solution-oriented. "
+                                f"Write everything exclusively in perfect {selected_language_key}, using native greetings, expressions, and cultural norms without any English words."
+                                f"The email must have a clear subject line, a respectful greeting, a body that provides specific and actionable feedback, and a professional closing."
+                                f"The body of the email must be more than a simple sentence. It should provide a clear, positive context, explain the 'why' behind the feedback, and offer a forward-looking solution. "
+                                f"Never write from the perspective of the sender apologizing for their own mistake unless they are explicitly stating they made one. "
+                                f"Do not use any introductory conversational text like 'Here is the email:' before the email content. Start your response directly with the email's subject line."
+                                f"The goal is to help the recipient grow, kindly, clearly, and respectfully."
                             )
                         else:
                             system_prompt = (
-                                f"You are a communication expert helping professionals deliver better feedback. "
-                                f"Rewrite the following raw message into clear, professional language with a {selected_tone_key} tone. "
-                                f"This feedback is **from the user to someone else** (e.g., a teammate or report), not about themselves. "
-                                f"Do NOT turn it into a self-critique or apology. Do NOT use first-person if the original isn't about the user. "
-                                f"Write entirely in {selected_language_key}, using natural, native expressions. No English words. "
-                                f"Make the feedback constructive, specific, and actionable — kind but clear. Keep it concise and impactful. "
-                                f"Preserve the core message, but elevate tone and clarity for healthy workplace communication."
+                                f"You are a seasoned and empathetic communication coach for professionals. "
+                                f"Your task is to transform the user's raw feedback into a highly professional and constructive statement. "
+                                f"The feedback is from the user to a professional peer, manager, report, or team member, not a self-critique. Never, under any circumstances, generate an apology from the user's perspective unless they are explicitly stating they made one."
+                                f"Use a {selected_tone_key} tone and write exclusively in perfect {selected_language_key}. For non-English, use natural, culturally appropriate expressions without any English words."
+                                f"Your response must be structured in two distinct sections with specific headers. "
+                                f"1. The first section, titled 'The Reframe:', **must contain a convincing and strategic rewrite. The response should be more than a simple sentence. It should provide a clear, positive context, explain the 'why' behind the feedback, and offer a forward-looking solution. It should be specific, action-oriented, and focused on shared growth.** Do not include any introductory phrases, greetings, or closings."
+                                f"2. The second section, titled 'Delivery Tip:', must contain only a strategic coaching tip on how to best deliver this feedback (e.g., suggesting a private conversation or a specific opening line). The tip should be genuinely insightful."
+                                f"Do not add any conversational text before or between the sections. Start your response directly with 'The Reframe:'."
+                                f"The goal is to elevate the message, provide clarity, and foster healthy, productive workplace dialogue."
                             )
 
                         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
                         data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
                         model_fallbacks = [
+                            "mistral/mistral-7b-instruct",
+                            "mistralai/mixtral-8x7b-instruct", 
+                            "nousresearch/nous-capybara-7b",
+                            "gryphe/mythomax-l2-13b",
                             "mistralai/mistral-small-3.2-24b-instruct:free",                                                      
                             "mistralai/devstral-small-2505:free",
                             "z-ai/glm-4.5-air:free",
@@ -894,12 +907,8 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                             "qwen/qwen3-235b-a22b:free",
                             "moonshotai/kimi-k2:free",
                             "sarvamai/sarvam-m:free",
-                            "mistral/mistral-7b-instruct",
-                            "mistralai/mixtral-8x7b-instruct", 
-                            "nousresearch/nous-capybara-7b",
-                            "gryphe/mythomax-l2-13b",
                             "meta-llama/llama-2-70b-chat",
-                            "openchat/openchat-7b",
+                            "openchat/openchat-7b"                           
                         ]
                                                   
                         # Show a reassuring message to the user during the fallback process
@@ -1105,14 +1114,9 @@ if st.session_state.get("show_feedback_form", False):
             pass  # Silent fallback — CSV is best-effort
 
         # ✅ 3. Success & Rerun
-        st.balloons()
-        if ok:
-            st.success("🎉 Thank you! Your feedback makes REFRAME better for everyone!")
-        else:
-            st.success("🎉 Feedback recorded! Thanks for helping us improve!")
-
+        st.session_state.feedback_submitted = True
         st.session_state.show_feedback_form = False
-        st.rerun()  # ← Right after state update
+        st.rerun()
 
 # Enhanced History
 if st.session_state.get("show_history", False):
@@ -1261,7 +1265,7 @@ st.markdown("""
         <p class="creator-subtitle">REFRAME v2.0 | 🎯 Empower your words</p>
         <p class="creator-tagline">"✨ Make every conversation a catalyst for growth and help your message land with empathy, clarity, and purpose ✨</p>
         <div class="creator-box">
-            <p class="creator-mission">💫 Built for those who lead, in every conversation.</p>
+            <p class="creator-mission">💫 Crafted for those who inspire.</p>
             <p class="creator-vision">Transform. Connect. Succeed.</p>
         </div>
     </div>
