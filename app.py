@@ -884,9 +884,9 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
 
                         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
                         data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
-                        model_fallbacks = [
-                            "mistral/mistral-7b-instruct",
-                            "mistralai/mixtral-8x7b-instruct", 
+                        model_fallbacks = [                           
+                            "mistralai/mixtral-8x7b-instruct",
+                            "mistral/mistral-7b-instruct",                            
                             "nousresearch/nous-capybara-7b",
                             "gryphe/mythomax-l2-13b",
                             "mistralai/mistral-small-3.2-24b-instruct:free",                                                      
@@ -971,19 +971,19 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
 
     st.markdown(f"""
     <div class="social-proof">
-        <h4>🔥 REFRAME >> Your message, redefined 🪄</h4>
+        <h4>🔥 REFRAME ⚡️ Elevate Your Message</h4>
         <p>If you found this useful, share the tool with your network:</p>
         <div class="social-links-container">
-            <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=Reframe%20- Communication%20Coach&summary=Reframe%20turns%20awkward%20feedback%20into%20professional%20messages.%20It's%20my%20new%20favorite%20tool%20for%20workplace%20communication!" 
-               target="_blank" class="social-link linkedin-bg">
+            <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=REFRAME%20⚡️%20Elevate%20Your%20Message&summary=Reframe%20is%20an%20amazing%20AI%20tool%20that%20helps%20you%20transform%20your%20words%20and%20deliver%20constructive%20feedback%20instantly.%20It's%20my%20new%20favorite%20communication%20coach!"
+                target="_blank" class="social-link linkedin-bg">
                 <div class="social-icon"><i class="fab fa-linkedin-in"></i></div>
             </a>
-            <a href="https://twitter.com/intent/tweet?text=Reframe%20is%20my%20new%20favorite%20AI%20tool%20for%20workplace%20communication!%20It%20transforms%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}" 
-               target="_blank" class="social-link twitter-bg">
-                <div class="social-icon"><i class="fab fa-twitter"></i></div>
+            <a href="https://twitter.com/intent/tweet?text=REFRAME%20is%20an%20amazing%20AI%20tool%20that%20helps%20you%20transform%20your%20words%20and%20elevate%20your%20message.%20It%20turns%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}"
+                target="_blank" class="social-link twitter-bg">
+                <div class="social-icon"><i class="fab fa-x-twitter"></i></div>
             </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}" 
-               target="_blank" class="social-link facebook-bg">
+            <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}"
+                target="_blank" class="social-link facebook-bg">
                 <div class="social-icon"><i class="fab fa-facebook-f"></i></div>
             </a>
         </div>
