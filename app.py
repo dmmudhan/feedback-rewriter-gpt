@@ -941,7 +941,7 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                                 time.sleep(0.5) # Wait before trying the next model
                                 pass # Continue to the next model in the fallback list
                         
-                        if rewritten:
+                        if rewritten and user_input:
                             st.session_state.rewritten_text = rewritten
                             # Modified timestamp format
                             formatted_timestamp = datetime.now(UTC_TZ).strftime("%Y-%m-%d %H:%M:%S")
@@ -1134,7 +1134,7 @@ if st.session_state.get("show_history", False):
         
         # Display history
         # Get last 10 rewrites (most recent first)
-        rewrites = st.session_state.rewrites[-10:]  # Last 10
+        rewrites = st.session_state.rewrites[-10:] # Last 10
         df = pd.DataFrame(rewrites)
         if 'timestamp' in df.columns:
             df['timestamp'] = pd.to_datetime(df['timestamp']).dt.strftime('%m/%d %H:%M')
@@ -1152,7 +1152,7 @@ if st.session_state.get("show_history", False):
                 st.rerun()
     else:
         st.markdown("""
-        <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 15px; border: 2px dashed #dee2e6;">
+        <div style="text-align: center; padding: 2rem; border-radius: 15px; border: 2px dashed #dee2e6;">
             <h4>🌟 Your transformation journey starts here!</h4>
             <p>Once you start transforming feedback, you'll see your communication evolution tracked here.</p>
         </div>
