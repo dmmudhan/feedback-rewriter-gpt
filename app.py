@@ -355,6 +355,16 @@ st.markdown("""
     }
     
     /* FIXED SOCIAL ICONS CSS */
+    .social-proof {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        margin: 2rem 0;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
     .social-links-container {
         display: flex;
         justify-content: center;
@@ -387,9 +397,9 @@ st.markdown("""
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 24px;
-        font-weight: bold;
+        font-weight: 700;
         text-decoration: none;
+        font-family: 'Poppins', sans-serif;
     }
     
     .linkedin-bg {
@@ -404,13 +414,21 @@ st.markdown("""
         background: linear-gradient(135deg, #1877F2, #166fe5);
     }
     
-    /* Alternative with Font Awesome icons (if you prefer) */
-    .social-icon-fa {
-        font-family: "Font Awesome 5 Brands";
-        font-style: normal;
-        font-variant: normal;
-        text-rendering: auto;
-        line-height: 1;
+    /* Text-specific styling for each platform */
+    .linkedin-text {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -1px;
+    }
+    
+    .twitter-text {
+        font-size: 18px;
+        font-weight: 700;
+    }
+    
+    .facebook-text {
+        font-size: 24px;
+        font-weight: 700;
     }
     
     /* Dark Mode specific styles for the result box */
@@ -883,40 +901,53 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                                 f"Your task is to transform the user's raw feedback into a highly professional and constructive statement. "
                                 f"The feedback is from the user to a professional peer, manager, report, or team member, not a self-critique. Never, under any circumstances, generate an apology from the user's perspective unless they are explicitly stating they made one."
                                 f"Use a {selected_tone_key} tone and write exclusively in perfect {selected_language_key}. For non-English, use natural, culturally appropriate expressions without any English words."
-                                f"Your response must be structured in two distinct sections with specific headers. "
-                                f"1. The first section, titled 'The Reframe:', **must contain a convincing and strategic rewrite. The response should be more than a simple sentence. It should provide a clear, positive context, explain the 'why' behind the feedback, and offer a forward-looking solution. It should be specific, action-oriented, and focused on shared growth.** Do not include any introductory phrases, greetings, or closings."
-                                f"2. The second section, titled 'Bonus Tip:', must contain only a strategic coaching tip on how to best deliver this feedback (e.g., suggesting a private conversation or a specific opening line). The tip should be genuinely insightful."
-                                f"Do not add any conversational text before or between the sections. Start your response directly with 'The Reframe:'."
-                                f"The goal is to elevate the message, provide clarity, and foster healthy, productive workplace dialogue."
+                                f"Respond in **exactly this format**:\n\n"
+                                f"The Reframe:\n"
+                                f"<Insert your full reframe here. Start with a positive or neutral observation, explain the impact, and suggest a collaborative path forward. Be specific and solution-focused.>\n\n"
+                                f"Bonus Tip:\n"
+                                f"<Insert a short, practical suggestion for how to deliver this feedback effectively — e.g., suggest a private 1:1, a specific opening line, or ideal timing. Keep it to **1–2 clear sentences**. Do not add fluff, disclaimers, or generic advice.>\n\n"
+                                f"Rules:\n\n"
+                                f"- Start with 'The Reframe:' on its own line.\n"
+                                f"- Put the reframe content on the next line — do not combine.\n"
+                                f"- After a blank line, write 'Bonus Tip:' on its own line.\n"
+                                f"- Write the tip content **below** 'Bonus Tip:', not on the same line.\n"
+                                f"- The tip must be 1–2 sentences. No more.\n"
+                                f"- Do not use markdown, quotes, asterisks, or formatting.\n"
+                                f"- Do not add greetings, closings, or explanations.\n\n"
+                                f"Example Output:\n"
+                                f"The Reframe:\n"
+                                f"I've noticed that sometimes in meetings, multiple people start speaking at once, which can make it hard to follow the discussion. To help us collaborate more effectively, it would be great if we could practice pausing briefly before responding. This small change can make a big difference in ensuring everyone feels heard.\n\n"
+                                f"Bonus Tip:\n"
+                                f"Bring this up in a private 1:1 and start with, 'I’ve been thinking about how we can make our meetings even better — would you be open to some feedback?'"
                             )
 
                         headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
                         data = {"messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_input}]}
                         model_fallbacks = [                           
+                            "mistral/mistral-7b-instruct",
                             "mistralai/mixtral-8x7b-instruct",
-                            "mistral/mistral-7b-instruct",                            
-                            "nousresearch/nous-capybara-7b",
                             "gryphe/mythomax-l2-13b",
+                            "openchat/openchat-7b"
+                            "qwen/qwen3-4b:free",
+                            "google/gemma-3n-e2b-it:free",
+                            "nousresearch/nous-capybara-7b",                            
                             "mistralai/mistral-small-3.2-24b-instruct:free",                                                      
                             "mistralai/devstral-small-2505:free",
-                            "z-ai/glm-4.5-air:free",
-                            "google/gemma-3n-e2b-it:free",
+                            "z-ai/glm-4.5-air:free",                            
                             "google/gemma-3n-e4b-it:free",
                             "openrouter/gpt-oss-20b:free",
                             "deepseek/deepseek-chat-v3-0324:free",
                             "deepseek/deepseek-r1:free",
                             "microsoft/mai-ds-r1:free",
                             "tngtech/deepseek-r1t-chimera:free",
-                            "qwen/qwen3-coder:free",
-                            "qwen/qwen3-4b:free",
+                            "qwen/qwen3-coder:free",                           
                             "qwen/qwen3-8b:free",
                             "qwen/qwen3-14b:free",
                             "qwen/qwen3-30b-a3b:free",
                             "qwen/qwen3-235b-a22b:free",
                             "moonshotai/kimi-k2:free",
                             "sarvamai/sarvam-m:free",
-                            "meta-llama/llama-2-70b-chat",
-                            "openchat/openchat-7b"                           
+                            "meta-llama/llama-2-70b-chat"                                                       
                         ]
                                                   
                         # Show a reassuring message to the user during the fallback process
@@ -984,15 +1015,15 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
         <div class="social-links-container">
             <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=REFRAME%20⚡️%20Elevate%20Your%20Message&summary=Reframe%20is%20an%20amazing%20AI%20tool%20that%20helps%20you%20transform%20your%20words%20and%20deliver%20constructive%20feedback%20instantly.%20It's%20my%20new%20favorite%20communication%20coach!"
                 target="_blank" class="social-link linkedin-bg">
-                <div class="social-icon"><i class="fab fa-linkedin-in"></i></div>
+                <div class="social-icon linkedin-text">in</div>
             </a>
             <a href="https://twitter.com/intent/tweet?text=REFRAME%20is%20an%20amazing%20AI%20tool%20that%20helps%20you%20transform%20your%20words%20and%20elevate%20your%20message.%20It%20turns%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}"
                 target="_blank" class="social-link twitter-bg">
-                <div class="social-icon"><i class="fab fa-x-twitter"></i></div>
+                <div class="social-icon twitter-text">𝕏</div>
             </a>
             <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}"
                 target="_blank" class="social-link facebook-bg">
-                <div class="social-icon"><i class="fab fa-facebook-f"></i></div>
+                <div class="social-icon facebook-text">f</div>
             </a>
         </div>
     </div>
@@ -1222,14 +1253,14 @@ def show_public_feedback():
         display_df['timestamp'] = display_df['timestamp'].dt.strftime('%b %d, %Y')
         display_df.rename(columns={
             "timestamp": "📅 Date",
-            "rating": "⭐",
+            "rating": "⭐ Rating",
             "suggestions": "💬 Feedback"
         }, inplace=True)
 
         # Highlight 4–5 star feedback
         def highlight_row(row):
             try:
-                if row["⭐"] >= 4:
+                if row["⭐ Rating"] >= 4:
                     return ['background-color: #f0fff0; color: #0a310a'] * len(row)
                 return [''] * len(row)
             except:
@@ -1240,7 +1271,7 @@ def show_public_feedback():
             use_container_width=True,
             hide_index=True,
             column_config={
-                "⭐": st.column_config.NumberColumn(format="%.1f ⭐"),
+                "⭐ Rating": st.column_config.NumberColumn(format="%.1f ⭐"),
                 "💬 Feedback": "Feedback",
                 "📅 Date": "Date"
             }
