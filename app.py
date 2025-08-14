@@ -16,7 +16,18 @@ UTC_TZ = timezone('UTC')
 # Setup basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-PUBLIC_URL = st.secrets.get("public_app_url", "https://feedback-rewriter-gpt-caht6hciagxykx52hz6xnh.streamlit.app/")
+# Try reading from secrets first
+PUBLIC_URL = st.secrets.get("public_app_url", "").strip()
+
+if not PUBLIC_URL:
+    # Auto-detect Hugging Face Spaces
+    if "SPACE_ID" in os.environ:  # Hugging Face sets this
+        space_id = os.environ["SPACE_ID"]
+        hf_username, hf_space_name = space_id.split("/")
+        PUBLIC_URL = f"https://{hf_username}-{hf_space_name}.hf.space"
+    else:
+        # Fallback to your Streamlit Cloud URL
+        PUBLIC_URL = "https://feedback-rewriter-gpt-caht6hciagxykx52hz6xnh.streamlit.app/"
 
 # ---------------------- Google Sheets Integration ----------------------
 try:
