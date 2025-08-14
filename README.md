@@ -1,6 +1,6 @@
-# ✍️ Feedback Rewriter Assistant
+# ✍️ Reframe : Elevate your message
 
-An AI-powered tool that rewrites workplace or professional feedback into more **clear, respectful, and human-friendly tones** — choose from styles like **Empathetic**, **Managerial**, **Formal**, **Friendly**, or **Assertive**.  
+Reframe is a feedback rewriter assistant and a communication tool that rewrites workplace or professional feedback into more **clear, respectful, and human-friendly tones** — choose from styles like **Empathetic**, **Managerial**, **Formal**, **Friendly**, or **Assertive**.  
 Optionally, generate the output in a **polished email format** — great for HRs, team leads, or anyone giving constructive input.
 
 Built using [Streamlit](https://streamlit.io/) and free open-source LLMs via [OpenRouter](https://openrouter.ai) — powered by models like **Mistral**, **Mixtral**, and **MythoMax**.
@@ -78,6 +78,7 @@ Get your free key from: [https://openrouter.ai/keys](https://openrouter.ai/keys)
 - 🎯 Tone Precision – 5 adaptive tones (Friendly, Firm, Empathetic, Professional, Enthusiastic) to match any workplace context
 - 🌍 Multilingual Support – Write and reframe in 12+ languages with native expressions and cultural nuance
 - 📧 Email Format Mode – Generate ready-to-send emails with proper greeting, body, and closing
+- 🌍 Effortless Sharing – Easily share your refined feedback on Twitter, LinkedIn, and Facebook with a single click.
 - 📊 User History & Export – Track your communication evolution and export your rewrites
 - 🌟 Social Proof Engine – “What Others Say” displays top-rated community feedback with sorting, styling, and fallbacks
 - 🔁 Feedback Loop Built-In – Users can submit feedback that instantly appears in the public feed (CSV + Google Sheets sync)
