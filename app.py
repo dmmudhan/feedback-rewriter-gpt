@@ -657,12 +657,14 @@ viral_samples = [
     "You're always on your phone during important discussions.",
     "Your emails are confusing and no one understands what you want.",
     "You never help your teammates and only care about yourself.",
+    "Why did you refactor working code that wasn’t even assigned to you?",
     "The project is way behind schedule because you didn't deliver your part on time.",
     "I disagree with your proposal, it's just not going to work.",
     "You're not a good fit for this team, your personality clashes with everyone.",
     "This report is useless. The data is all wrong and the conclusions don't make sense.",
     "You need to be more proactive. I shouldn't have to follow up with you all the time.",
-    "I'm not happy with your performance. You've been making a lot of simple mistakes lately."
+    "I'm not happy with your performance. You've been making a lot of simple mistakes lately.",
+    "We trust you to manage your time — but you must be online from 9–5.",
     "We need to let you go. This role is no longer a good fit for the company's direction.",
     "You are not meeting the performance expectations of your role. There's been no improvement since our last talk.",
     "Your behavior in meetings is unprofessional and is making your colleagues uncomfortable.",
@@ -674,6 +676,10 @@ viral_samples = [
     "Your task estimates are consistently inaccurate, making sprint planning impossible.",
     "You are not updating your tasks on the board, which makes it hard for the team to see what's a blocker.",
     "You're not responding to emails, only DMs and texts. That's not how we do professional communication here.",
+    "Per my last email: I told you twice already.",
+    "We value feedback — but don’t question leadership decisions.",
+    "You committed directly to main again. We have a branch policy for a reason.",
+    "Thanks for working weekends! We’ll 'keep it in mind during reviews'.",
     "You said the work was 'cringe' and not a good use of your time. This is part of the job.",
     "The way you handled that disagreement on LinkedIn violated our social media policy.",
     "You completely ignored the formal process for requesting time off and just messaged me directly.",
@@ -682,6 +688,7 @@ viral_samples = [
     "You've been taking days off without formally applying for leave through the HR system.",
     "You were out on long-term leave for a week and I had no idea until a colleague told me.",
     "Your promotion to Senior Developer is effective next Monday. Congrats.",
+    "We expect you to be available after hours during 'critical releases'.",
     "I'm giving you a promotion. It comes with more responsibilities so get ready.",
     "We decided to promote you. You'll have a new title and salary.",
     "It's your fifth anniversary. Keep up the good work.",
@@ -690,6 +697,7 @@ viral_samples = [
     "Your performance is below expectations. I need you to show more initiative and ownership.",
     "We're making changes and your position is being eliminated. We have to let you go.",
     "The feedback we've received indicates that you are not a team player.",
+    "I’m resigning — not because of the pay, but because I’m doing 3 people’s jobs.",
     "Your current work is not meeting the quality standards we expect from a senior role.",
     "I'm resigning because I was promised growth but got stuck doing the same thing for a year.",
     "It's time for me to leave — I can't keep covering for your poor management.",
@@ -877,7 +885,7 @@ if st.session_state.user_input and st.session_state.user_input.strip() and st.se
                                 f"Use a {selected_tone_key} tone and write exclusively in perfect {selected_language_key}. For non-English, use natural, culturally appropriate expressions without any English words."
                                 f"Your response must be structured in two distinct sections with specific headers. "
                                 f"1. The first section, titled 'The Reframe:', **must contain a convincing and strategic rewrite. The response should be more than a simple sentence. It should provide a clear, positive context, explain the 'why' behind the feedback, and offer a forward-looking solution. It should be specific, action-oriented, and focused on shared growth.** Do not include any introductory phrases, greetings, or closings."
-                                f"2. The second section, titled 'Delivery Tip:', must contain only a strategic coaching tip on how to best deliver this feedback (e.g., suggesting a private conversation or a specific opening line). The tip should be genuinely insightful."
+                                f"2. The second section, titled 'Bonus Tip:', must contain only a strategic coaching tip on how to best deliver this feedback (e.g., suggesting a private conversation or a specific opening line). The tip should be genuinely insightful."
                                 f"Do not add any conversational text before or between the sections. Start your response directly with 'The Reframe:'."
                                 f"The goal is to elevate the message, provide clarity, and foster healthy, productive workplace dialogue."
                             )

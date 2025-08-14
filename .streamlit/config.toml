@@ -1,4 +1,10 @@
 [server]
-runOnSave = true
-# Sets the inotify limit to a higher value to avoid filesystem watcher errors
-inotify_max_user_watches = 524288
+runOnSave = false
+port = 8501
+fileWatcherType = "poll"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+showErrorDetails = false
