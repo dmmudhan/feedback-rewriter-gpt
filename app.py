@@ -1003,31 +1003,26 @@ if st.session_state.rewritten_text and st.session_state.rewritten_text.strip():
     st.markdown(f"""<div class="result-box"><h3>🎯 Your Words, Reimagined.</h3><p style="white-space: pre-wrap;">{st.session_state.rewritten_text}</p></div>""", unsafe_allow_html=True)
     
     # Viral sharing section
-    # Font Awesome icons (requires CDN):
-    st.markdown("""
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    """, unsafe_allow_html=True)
-
     st.markdown(f"""
-    <div class="social-proof">
-        <h4>🔥 REFRAME ⚡️ Elevate Your Message</h4>
-        <p>If you found this useful, share the tool with your network:</p>
-        <div class="social-links-container">
-            <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}&title=REFRAME%20⚡️%20Elevate%20Your%20Message&summary=Reframe%20is%20an%20amazing%20AI%20tool%20that%20helps%20you%20transform%20your%20words%20and%20deliver%20constructive%20feedback%20instantly.%20It's%20my%20new%20favorite%20communication%20coach!"
-                target="_blank" class="social-link linkedin-bg">
-                <div class="social-icon linkedin-text">in</div>
-            </a>
-            <a href="https://twitter.com/intent/tweet?text=REFRAME%20is%20an%20amazing%20AI%20tool%20that%20helps%20you%20transform%20your%20words%20and%20elevate%20your%20message.%20It%20turns%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}"
-                target="_blank" class="social-link twitter-bg">
-                <div class="social-icon twitter-text">𝕏</div>
-            </a>
-            <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}"
-                target="_blank" class="social-link facebook-bg">
-                <div class="social-icon facebook-text">f</div>
-            </a>
+        <div class="social-proof">
+            <h4>🔥 REFRAME ⚡️ Elevate Your Message</h4>
+            <p>If you found this useful, share the tool with your network:</p>
+            <div class="social-links-container">
+                <a href="https://www.linkedin.com/shareArticle?mini=true&url={PUBLIC_URL}?v=1&title=REFRAME%20⚡️%20Elevate%20Your%20Message&summary=Reframe%20is%20a%20communication%20tool%20that%20helps%20you%20transform%20your%20words%20and%20deliver%20constructive%20feedback%20instantly.%20It's%20my%20new%20favorite%20communication%20coach!"
+                    target="_blank" class="social-link linkedin-bg">
+                    <div class="social-icon linkedin-text">in</div>
+                </a>
+                <a href="https://twitter.com/intent/tweet?text=REFRAME%20is%20a%20communication%20tool%20that%20helps%20you%20transform%20your%20words%20and%20elevate%20your%20message.%20It%20turns%20awkward%20feedback%20into%20professional%20messages%20instantly.%20Check%20it%20out%20here%3A%20{PUBLIC_URL}?v=1"
+                    target="_blank" class="social-link twitter-bg">
+                    <div class="social-icon twitter-text">𝕏</div>
+                </a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u={PUBLIC_URL}?v=1"
+                    target="_blank" class="social-link facebook-bg">
+                    <div class="social-icon facebook-text">f</div>
+                </a>
+            </div>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
         
     # Action buttons
     col1, col2, col3 = st.columns([1, 1, 1])
