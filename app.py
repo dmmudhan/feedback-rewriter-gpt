@@ -41,8 +41,15 @@ def gs_client_from_secrets():
     if not GS_AVAILABLE:
         return None
     
-    creds_str = st.secrets.get("gss_credentials", None)
+    # Try reading from Hugging Face environment variable first
+    creds_str = os.environ.get("gss_credentials", "")
+    
     if not creds_str:
+        # Fallback to Streamlit Cloud secrets
+        creds_str = st.secrets.get("gss_credentials", "").strip()
+
+    if not creds_str:
+        logging.error("No Google Sheets credentials found.")
         return None
 
     try:
@@ -1229,7 +1236,7 @@ def show_public_feedback():
                 file_rows = list(reader)
                 if file_rows:  # Only use if not empty
                     rows = file_rows
-        except Exception:
+        except Exception as e:
             st.write(f"🔍 CSV read failed: {e}")
             rows = []
 
@@ -1255,10 +1262,11 @@ def show_public_feedback():
         st.markdown("### 🔍 What Others Are Saying")
 
         # Prepare display
-        display_df = df[["timestamp", "rating", "suggestions"]].copy()
+        display_df = df[["timestamp", "original", "rating", "suggestions"]].copy()
         display_df['timestamp'] = display_df['timestamp'].dt.strftime('%b %d, %Y')
         display_df.rename(columns={
             "timestamp": "📅 Date",
+            "original" : "🗣️ User Opinion",
             "rating": "⭐ Rating",
             "suggestions": "💬 Feedback"
         }, inplace=True)
@@ -1279,7 +1287,8 @@ def show_public_feedback():
             column_config={
                 "⭐ Rating": st.column_config.NumberColumn(format="%.1f ⭐"),
                 "💬 Feedback": "Feedback",
-                "📅 Date": "Date"
+                "📅 Date": "Date",
+                "🗣️ User Opinion":"User Opinion"
             }
         )
 
